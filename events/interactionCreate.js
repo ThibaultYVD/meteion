@@ -16,17 +16,84 @@ module.exports = async (SoraBot, interaction, message, db) => {
         command.run(SoraBot, interaction, interaction.options, SoraBot.db)
     }
 
+    if (interaction.isModalSubmit()) {
+        if (interaction.customId === 'myModal') {
+
+            const titre = interaction.fields.getTextInputValue('eventTitle');
+            const description = interaction.fields.getTextInputValue('eventDesc');
+            let date = interaction.fields.getTextInputValue('eventDate');
+            let heure = interaction.fields.getTextInputValue('eventHour');
+
+            if (date.search('/') === 2 && date.length === 10 && heure.search('h') === 2 && heure.length === 5) {
+
+                const [day, month, year] = date.split('/');
+                let dateTest = `${month}/${day}/${year}`
+
+                const [hour, min] = heure.split('h')
+                let heureTest = `${hour}:${min}`
+
+                if (!isNaN(Date.parse(`${dateTest} ${heureTest}`))) {
+                    let embed = new Discord.EmbedBuilder()
+                        .setColor(SoraBot.color)
+                        .setTitle(`Event : ${titre}`)
+                        .setDescription(`${description}`)
+                        .setThumbnail(SoraBot.user.displayAvatarURL({ dynamic: false }))
+                        .addFields(
+                            { name: 'Date et heure', value: `Le __${date}__ à __${heure}__` },
+                        )
+                        .addFields(
+                            { name: '\u200B', value: '\u200B' },
+                            { name: '✅ Participants', value: '\u200B', inline: true },
+                            { name: '❓Indécis', value: '\u200B', inline: true },
+                            { name: '🪑 Réservistes', value: '\u200B', inline: true },
+                        )
+                        .setImage('https://i.stack.imgur.com/Fzh0w.png')
+                        .setFooter({
+                            text: `Proposé par : ${interaction.member.nickname}`,
+                            iconURL: interaction.user.displayAvatarURL({ dynamic: false }),
+                        })
+
+                    const row = new Discord.ActionRowBuilder()
+                        .addComponents(
+                            new Discord.ButtonBuilder()
+                                .setCustomId('participant')
+                                .setLabel('Participant')
+                                .setStyle(Discord.ButtonStyle.Primary),
+                            new Discord.ButtonBuilder()
+                                .setCustomId('indecis')
+                                .setLabel('Indécis')
+                                .setStyle(Discord.ButtonStyle.Primary),
+                            new Discord.ButtonBuilder()
+                                .setCustomId('reserviste')
+                                .setLabel('Réserviste')
+                                .setStyle(Discord.ButtonStyle.Primary),
+                            new Discord.ButtonBuilder()
+                                .setCustomId('eventCancel')
+                                .setLabel('Se retirer')
+                                .setStyle(Discord.ButtonStyle.Danger),
+                        );
+
+                    const reply = await interaction.reply({ embeds: [embed], components: [row], fetchReply: true })
+                    // Ajout de l'event dans la base de données
+                    SoraBot.db.query(`INSERT INTO events(event_id, guild_name, event_title, event_description, event_date, event_hour) VALUES ('${reply.id}', '${interaction.guild.name}','${titre}','${description}','${date}','${heure}')`)
+
+                } else {
+                    await interaction.reply({ content: `Erreur(s) au niveau de la **date** et/ou de **l'heure** : \nLa date doit être au format **"JJ/MM/AAAA"**.\nL'heure doit être au format **"HH__h__MM"**.\n*Vous pouvez supprimer ce message. ⬇️*`, ephemeral: true });
+                }
+            } else {
+                await interaction.reply({ content: `Erreur(s) au niveau de la **date** et/ou de **l'heure** : \nLa date doit être au format **"JJ/MM/AAAA"**.\nL'heure doit être au format **"HHhMM"**.\n*Vous pouvez supprimer ce message. ⬇️*`, ephemeral: true });
+            }
+        }
+    }
+
     if (interaction.isButton()) {
 
-        let receivedembed = interaction.message.embeds[0]
-        let event_id = interaction.message.id
-
+        //let receivedembed = interaction.message.embeds[0]
+        //let event_id = interaction.message.id
+        
         let participants = []
         let indecis = []
         let reservistes = []
-
-        let event_title = receivedembed.title
-        let event_description = receivedembed.description
 
         interaction_user_id = interaction.user.id
 
@@ -38,280 +105,315 @@ module.exports = async (SoraBot, interaction, message, db) => {
         }
 
 
+        switch (interaction.customId) {
+
+            // PARTICIPANT
+            case "participant":
 
 
-
-        if (interaction.customId === "participant") {
-
-
-            SoraBot.db.query(`SELECT * FROM members_event_choice WHERE event_id = '${event_id}' AND user_id = '${interaction_user_id}'`, async (err, veryall) => {
-                if (veryall.length < 1) {
-                    await SoraBot.db.query(`INSERT INTO members_event_choice (user_id, guild_nickname, choice_name, event_id) VALUES ('${interaction_user_id}','${username}','Participant','${event_id}')`)
-                }
-
-                SoraBot.db.query(`SELECT * FROM members_event_choice WHERE event_id = '${event_id}' AND user_id = '${interaction_user_id}'`, async (err, all) => {
-
-
-                    if (all[0].choice_name === 'Indécis') {
-                        await SoraBot.db.query(`UPDATE members_event_choice SET choice_name = 'Participant' WHERE user_id = '${interaction_user_id}' AND event_id = '${event_id}'`)
-                    }
-                    if (all[0].choice_name === 'Réserviste') {
-                        await SoraBot.db.query(`UPDATE members_event_choice SET choice_name = 'Participant' WHERE user_id = '${interaction_user_id}' AND event_id = '${event_id}'`)
+                SoraBot.db.query(`SELECT * FROM members_event_choice WHERE event_id = '${interaction.message.id}' AND user_id = '${interaction_user_id}'`, async (err, veryall) => {
+                    if (veryall.length < 1) {
+                        await SoraBot.db.query(`INSERT INTO members_event_choice (user_id, guild_nickname, choice_name, event_id) VALUES ('${interaction_user_id}','${username}','Participant','${interaction.message.id}')`)
                     }
 
-                    SoraBot.db.query(`SELECT guild_nickname, choice_name FROM members_event_choice WHERE event_id = '${event_id}'`, (err, req) => {
+                    SoraBot.db.query(`SELECT * FROM members_event_choice WHERE event_id = '${interaction.message.id}' AND user_id = '${interaction_user_id}'`, async (err, all) => {
 
 
-                        for (let i = 0; i < req.length; i++) {
-                            if (req[i].choice_name == 'Participant') {
-                                participants.push('\n - ' + req[i].guild_nickname)
-                            } else if (req[i].choice_name == 'Indécis') {
-                                indecis.push('\n - ' + req[i].guild_nickname)
-                            } else if (req[i].choice_name == 'Réserviste') {
-                                reservistes.push('\n - ' + req[i].guild_nickname)
+                        if (all[0].choice_name === 'Indécis') {
+                            await SoraBot.db.query(`UPDATE members_event_choice SET choice_name = 'Participant' WHERE user_id = '${interaction_user_id}' AND event_id = '${interaction.message.id}'`)
+                        }
+                        if (all[0].choice_name === 'Réserviste') {
+                            await SoraBot.db.query(`UPDATE members_event_choice SET choice_name = 'Participant' WHERE user_id = '${interaction_user_id}' AND event_id = '${interaction.message.id}'`)
+                        }
+
+                        SoraBot.db.query(`SELECT guild_nickname, choice_name FROM members_event_choice WHERE event_id = '${interaction.message.id}'`, (err, req) => {
+
+
+                            for (let i = 0; i < req.length; i++) {
+                                switch (req[i].choice_name) {
+                                    case 'Participant':
+                                        participants.push('\n - ' + req[i].guild_nickname)
+                                        break;
+                                    case 'Indécis':
+                                        indecis.push('\n - ' + req[i].guild_nickname)
+                                        break;
+                                    case 'Réserviste':
+                                        reservistes.push('\n - ' + req[i].guild_nickname)
+                                        break;
+                                    default:
+                                        break;
+                                }
                             }
 
-                        }
-
-                        if (participants.length === 0) {
-                            participants.push('\u200B')
-                        }
-
-                        if (indecis.length === 0) {
-                            indecis.push('\u200B')
-                        }
-
-                        if (reservistes.length === 0) {
-                            reservistes.push('\u200B')
-                        }
-
-                        let embed = new Discord.EmbedBuilder()
-                            .setColor(SoraBot.color)
-                            .setTitle(event_title)
-                            .setDescription(event_description)
-                            .setThumbnail(SoraBot.user.displayAvatarURL({ dynamic: true }))
-                            .addFields(
-                                { name: 'Date et heure', value: receivedembed.fields[0].value },
-                            )
-                            .addFields(
-                                { name: '\u200B', value: '\u200B' },
-                                { name: '✅ Participants', value: `${participants}`, inline: true},
-                                { name: '❓Indécis', value: `${indecis}`, inline: true },
-                                { name: '🪑 Réservistes', value: `${reservistes}`, inline: true },
-                            )
-                            .setImage('https://i.stack.imgur.com/Fzh0w.png')
-                            .setFooter(receivedembed.footer)
-
-                        interaction.message.edit({ embeds: [embed] });
-                    })
-                })
-               
-            })
-            await interaction.deferUpdate()
-
-        } else if (interaction.customId === "indecis") {
-            //interaction.reply({ content: `Tu as choisi Indécis`, ephemeral: true })
-
-            SoraBot.db.query(`SELECT * FROM members_event_choice WHERE event_id = '${event_id}' AND user_id = '${interaction_user_id}'`, async (err, veryall) => {
-                if (veryall.length < 1) {
-                    await SoraBot.db.query(`INSERT INTO members_event_choice (user_id, guild_nickname, choice_name, event_id) VALUES ('${interaction_user_id}','${username}','Indécis','${event_id}')`)
-                }
-
-                SoraBot.db.query(`SELECT * FROM members_event_choice WHERE event_id = '${event_id}' AND user_id = '${interaction_user_id}'`, async (err, all) => {
-
-
-                    if (all[0].choice_name === 'Participant') {
-                        await SoraBot.db.query(`UPDATE members_event_choice SET choice_name = 'Indécis' WHERE user_id = '${interaction_user_id}' AND event_id = '${event_id}'`)
-                    }
-                    if (all[0].choice_name === 'Réserviste') {
-                        await SoraBot.db.query(`UPDATE members_event_choice SET choice_name = 'Indécis' WHERE user_id = '${interaction_user_id}' AND event_id = '${event_id}'`)
-                    }
-
-                    SoraBot.db.query(`SELECT guild_nickname, choice_name FROM members_event_choice WHERE event_id = '${event_id}'`, (err, req) => {
-
-
-                        for (let i = 0; i < req.length; i++) {
-                            if (req[i].choice_name == 'Participant') {
-                                participants.push('\n - ' + req[i].guild_nickname)
-                            } else if (req[i].choice_name == 'Indécis') {
-                                indecis.push('\n - ' + req[i].guild_nickname)
-                            } else if (req[i].choice_name == 'Réserviste') {
-                                reservistes.push('\n - ' + req[i].guild_nickname)
+                            if (participants.length === 0) {
+                                participants.push('\u200B')
                             }
 
-                        }
-
-
-                        if (participants.length === 0) {
-                            participants.push('\u200B')
-                        }
-
-                        if (indecis.length === 0) {
-                            indecis.push('\u200B')
-                        }
-
-                        if (reservistes.length === 0) {
-                            reservistes.push('\u200B')
-                        }
-
-                        let embed = new Discord.EmbedBuilder()
-                            .setColor(SoraBot.color)
-                            .setTitle(event_title)
-                            .setDescription(event_description)
-                            .setThumbnail(SoraBot.user.displayAvatarURL({ dynamic: true }))
-                            .addFields(
-                                { name: 'Date et heure', value: receivedembed.fields[0].value },
-                            )
-                            .addFields(
-                                { name: '\u200B', value: '\u200B' },
-                                { name: '✅ Participants', value: `${participants}`, inline: true},
-                                { name: '❓Indécis', value: `${indecis}`, inline: true },
-                                { name: '🪑 Réservistes', value: `${reservistes}`, inline: true },
-                            )
-                            .setImage('https://i.stack.imgur.com/Fzh0w.png')
-                            .setFooter(receivedembed.footer)
-
-                        interaction.message.edit({ embeds: [embed] });
-                    })
-                })
-                
-            })
-            await interaction.deferUpdate()
-
-
-        } else if (interaction.customId === "reserviste") {
-            //interaction.reply({ content: `Tu as choisi Réserviste`, ephemeral: true })
-
-            SoraBot.db.query(`SELECT * FROM members_event_choice WHERE event_id = '${event_id}' AND user_id = '${interaction_user_id}'`, async (err, veryall) => {
-                if (veryall.length < 1) {
-                    await SoraBot.db.query(`INSERT INTO members_event_choice (user_id, guild_nickname, choice_name, event_id) VALUES ('${interaction_user_id}','${username}','Indécis','${event_id}')`)
-                }
-
-                SoraBot.db.query(`SELECT * FROM members_event_choice WHERE event_id = '${event_id}' AND user_id = '${interaction_user_id}'`, async (err, all) => {
-
-
-                    if (all[0].choice_name === 'Participant') {
-                        await SoraBot.db.query(`UPDATE members_event_choice SET choice_name = 'Réserviste' WHERE user_id = '${interaction_user_id}' AND event_id = '${event_id}'`)
-                    }
-                    if (all[0].choice_name === 'Indécis') {
-                        await SoraBot.db.query(`UPDATE members_event_choice SET choice_name = 'Réserviste' WHERE user_id = '${interaction_user_id}' AND event_id = '${event_id}'`)
-                    }
-
-                    SoraBot.db.query(`SELECT guild_nickname, choice_name FROM members_event_choice WHERE event_id = '${event_id}'`, (err, req) => {
-
-
-                        for (let i = 0; i < req.length; i++) {
-                            if (req[i].choice_name == 'Participant') {
-                                participants.push('\n - ' + req[i].guild_nickname)
-                            } else if (req[i].choice_name == 'Indécis') {
-                                indecis.push('\n - ' + req[i].guild_nickname)
-                            } else if (req[i].choice_name == 'Réserviste') {
-                                reservistes.push('\n - ' + req[i].guild_nickname)
+                            if (indecis.length === 0) {
+                                indecis.push('\u200B')
                             }
 
-                        }
-
-
-                        if (participants.length === 0) {
-                            participants.push('\u200B')
-                        }
-
-                        if (indecis.length === 0) {
-                            indecis.push('\u200B')
-                        }
-
-                        if (reservistes.length === 0) {
-                            reservistes.push('\u200B')
-                        }
-
-                        let embed = new Discord.EmbedBuilder()
-                            .setColor(SoraBot.color)
-                            .setTitle(event_title)
-                            .setDescription(event_description)
-                            .setThumbnail(SoraBot.user.displayAvatarURL({ dynamic: true }))
-                            .addFields(
-                                { name: 'Date et heure', value: receivedembed.fields[0].value },
-                            )
-                            .addFields(
-                                { name: '\u200B', value: '\u200B' },
-                                { name: '✅ Participants', value: `${participants}`, inline: true},
-                                { name: '❓Indécis', value: `${indecis}`, inline: true },
-                                { name: '🪑 Réservistes', value: `${reservistes}`, inline: true },
-                            )
-                            .setImage('https://i.stack.imgur.com/Fzh0w.png')
-                            .setFooter(receivedembed.footer)
-
-                        interaction.message.edit({ embeds: [embed] });
-                    })
-                })
-            })
-            await interaction.deferUpdate()
-        }else if (interaction.customId === "eventCancel") {
-            //interaction.reply({ content: `Tu as choisi Indécis`, ephemeral: true })
-
-            SoraBot.db.query(`SELECT * FROM members_event_choice WHERE event_id = '${event_id}' AND user_id = '${interaction_user_id}'`, async (err, veryall) => {
-                
-                if (veryall.length < 1) {
-                    interaction.deferUpdate()
-                }
-
-                SoraBot.db.query(`DELETE FROM members_event_choice WHERE event_id = '${event_id}' AND user_id = '${interaction_user_id}'`, async (err, all) => {
-
-
-                    SoraBot.db.query(`SELECT guild_nickname, choice_name FROM members_event_choice WHERE event_id = '${event_id}'`, (err, req) => {
-
-
-                        for (let i = 0; i < req.length; i++) {
-                            if (req[i].choice_name == 'Participant') {
-                                participants.push('\n - ' + req[i].guild_nickname)
-                            } else if (req[i].choice_name == 'Indécis') {
-                                indecis.push('\n - ' + req[i].guild_nickname)
-                            } else if (req[i].choice_name == 'Réserviste') {
-                                reservistes.push('\n - ' + req[i].guild_nickname)
+                            if (reservistes.length === 0) {
+                                reservistes.push('\u200B')
                             }
 
+                            let embed = new Discord.EmbedBuilder()
+                                .setColor(SoraBot.color)
+                                .setTitle(interaction.message.embeds[0].title)
+                                .setDescription(interaction.message.embeds[0].description)
+                                .setThumbnail(SoraBot.user.displayAvatarURL({ dynamic: true }))
+                                .addFields(
+                                    { name: 'Date et heure', value: interaction.message.embeds[0].fields[0].value },
+                                )
+                                .addFields(
+                                    { name: '\u200B', value: '\u200B' },
+                                    { name: '✅ Participants', value: `${participants}`, inline: true },
+                                    { name: '❓Indécis', value: `${indecis}`, inline: true },
+                                    { name: '🪑 Réservistes', value: `${reservistes}`, inline: true },
+                                )
+                                .setImage('https://i.stack.imgur.com/Fzh0w.png')
+                                .setFooter(interaction.message.embeds[0].footer)
+
+                            interaction.message.edit({ embeds: [embed] });
+                        })
+                    })
+
+                })
+                await interaction.deferUpdate()
+                break;
+
+
+
+            // INDECIS
+            case "indecis":
+
+
+                SoraBot.db.query(`SELECT * FROM members_event_choice WHERE event_id = '${interaction.message.id}' AND user_id = '${interaction_user_id}'`, async (err, veryall) => {
+                    if (veryall.length < 1) {
+                        await SoraBot.db.query(`INSERT INTO members_event_choice (user_id, guild_nickname, choice_name, event_id) VALUES ('${interaction_user_id}','${username}','Indécis','${interaction.message.id}')`)
+                    }
+
+                    SoraBot.db.query(`SELECT * FROM members_event_choice WHERE event_id = '${interaction.message.id}' AND user_id = '${interaction_user_id}'`, async (err, all) => {
+
+
+                        if (all[0].choice_name === 'Participant') {
+                            await SoraBot.db.query(`UPDATE members_event_choice SET choice_name = 'Indécis' WHERE user_id = '${interaction_user_id}' AND event_id = '${interaction.message.id}'`)
+                        }
+                        if (all[0].choice_name === 'Réserviste') {
+                            await SoraBot.db.query(`UPDATE members_event_choice SET choice_name = 'Indécis' WHERE user_id = '${interaction_user_id}' AND event_id = '${interaction.message.id}'`)
                         }
 
+                        SoraBot.db.query(`SELECT guild_nickname, choice_name FROM members_event_choice WHERE event_id = '${interaction.message.id}'`, (err, req) => {
 
-                        if (participants.length === 0) {
-                            participants.push('\u200B')
+
+                            for (let i = 0; i < req.length; i++) {
+                                switch (req[i].choice_name) {
+                                    case 'Participant':
+                                        participants.push('\n - ' + req[i].guild_nickname)
+                                        break;
+                                    case 'Indécis':
+                                        indecis.push('\n - ' + req[i].guild_nickname)
+                                        break;
+                                    case 'Réserviste':
+                                        reservistes.push('\n - ' + req[i].guild_nickname)
+                                        break;
+                                    default:
+                                        break;
+                                }
+                            }
+
+
+                            if (participants.length === 0) {
+                                participants.push('\u200B')
+                            }
+
+                            if (indecis.length === 0) {
+                                indecis.push('\u200B')
+                            }
+
+                            if (reservistes.length === 0) {
+                                reservistes.push('\u200B')
+                            }
+
+                            let embed = new Discord.EmbedBuilder()
+                                .setColor(SoraBot.color)
+                                .setTitle(interaction.message.embeds[0].title)
+                                .setDescription(interaction.message.embeds[0].description)
+                                .setThumbnail(SoraBot.user.displayAvatarURL({ dynamic: true }))
+                                .addFields(
+                                    { name: 'Date et heure', value: interaction.message.embeds[0].fields[0].value },
+                                )
+                                .addFields(
+                                    { name: '\u200B', value: '\u200B' },
+                                    { name: '✅ Participants', value: `${participants}`, inline: true },
+                                    { name: '❓Indécis', value: `${indecis}`, inline: true },
+                                    { name: '🪑 Réservistes', value: `${reservistes}`, inline: true },
+                                )
+                                .setImage('https://i.stack.imgur.com/Fzh0w.png')
+                                .setFooter(interaction.message.embeds[0].footer)
+
+                            interaction.message.edit({ embeds: [embed] });
+                        })
+                    })
+
+                })
+                await interaction.deferUpdate()
+                break;
+
+
+
+
+
+            // RESERVISTE
+            case "reserviste":
+                SoraBot.db.query(`SELECT * FROM members_event_choice WHERE event_id = '${interaction.message.id}' AND user_id = '${interaction_user_id}'`, async (err, veryall) => {
+                    if (veryall.length < 1) {
+                        await SoraBot.db.query(`INSERT INTO members_event_choice (user_id, guild_nickname, choice_name, event_id) VALUES ('${interaction_user_id}','${username}','Indécis','${interaction.message.id}')`)
+                    }
+
+                    SoraBot.db.query(`SELECT * FROM members_event_choice WHERE event_id = '${interaction.message.id}' AND user_id = '${interaction_user_id}'`, async (err, all) => {
+
+
+                        if (all[0].choice_name === 'Participant') {
+                            await SoraBot.db.query(`UPDATE members_event_choice SET choice_name = 'Réserviste' WHERE user_id = '${interaction_user_id}' AND event_id = '${interaction.message.id}'`)
+                        }
+                        if (all[0].choice_name === 'Indécis') {
+                            await SoraBot.db.query(`UPDATE members_event_choice SET choice_name = 'Réserviste' WHERE user_id = '${interaction_user_id}' AND event_id = '${interaction.message.id}'`)
                         }
 
-                        if (indecis.length === 0) {
-                            indecis.push('\u200B')
-                        }
+                        SoraBot.db.query(`SELECT guild_nickname, choice_name FROM members_event_choice WHERE event_id = '${interaction.message.id}'`, (err, req) => {
 
-                        if (reservistes.length === 0) {
-                            reservistes.push('\u200B')
-                        }
 
-                        let embed = new Discord.EmbedBuilder()
-                            .setColor(SoraBot.color)
-                            .setTitle(event_title)
-                            .setDescription(event_description)
-                            .setThumbnail(SoraBot.user.displayAvatarURL({ dynamic: true }))
-                            .addFields(
-                                { name: 'Date et heure', value: receivedembed.fields[0].value },
-                            )
-                            .addFields(
-                                { name: '\u200B', value: '\u200B' },
-                                { name: '✅ Participants', value: `${participants}`, inline: true},
-                                { name: '❓Indécis', value: `${indecis}`, inline: true },
-                                { name: '🪑 Réservistes', value: `${reservistes}`, inline: true },
-                            )
-                            .setImage('https://i.stack.imgur.com/Fzh0w.png')
-                            .setFooter(receivedembed.footer)
+                            for (let i = 0; i < req.length; i++) {
+                                switch (req[i].choice_name) {
+                                    case 'Participant':
+                                        participants.push('\n - ' + req[i].guild_nickname)
+                                        break;
+                                    case 'Indécis':
+                                        indecis.push('\n - ' + req[i].guild_nickname)
+                                        break;
+                                    case 'Réserviste':
+                                        reservistes.push('\n - ' + req[i].guild_nickname)
+                                        break;
+                                    default:
+                                        break;
+                                }
+                            }
 
-                        interaction.message.edit({ embeds: [embed] });
+
+                            if (participants.length === 0) {
+                                participants.push('\u200B')
+                            }
+
+                            if (indecis.length === 0) {
+                                indecis.push('\u200B')
+                            }
+
+                            if (reservistes.length === 0) {
+                                reservistes.push('\u200B')
+                            }
+
+                            let embed = new Discord.EmbedBuilder()
+                                .setColor(SoraBot.color)
+                                .setTitle(interaction.message.embeds[0].title)
+                                .setDescription(interaction.message.embeds[0].description)
+                                .setThumbnail(SoraBot.user.displayAvatarURL({ dynamic: true }))
+                                .addFields(
+                                    { name: 'Date et heure', value: interaction.message.embeds[0].fields[0].value },
+                                )
+                                .addFields(
+                                    { name: '\u200B', value: '\u200B' },
+                                    { name: '✅ Participants', value: `${participants}`, inline: true },
+                                    { name: '❓Indécis', value: `${indecis}`, inline: true },
+                                    { name: '🪑 Réservistes', value: `${reservistes}`, inline: true },
+                                )
+                                .setImage('https://i.stack.imgur.com/Fzh0w.png')
+                                .setFooter(interaction.message.embeds[0].footer)
+
+                            interaction.message.edit({ embeds: [embed] });
+                        })
                     })
                 })
-                
-            })
-            await interaction.deferUpdate()
+                await interaction.deferUpdate()
+                break;
 
 
+
+            // SE RETIRER
+            case "eventCancel":
+                SoraBot.db.query(`SELECT * FROM members_event_choice WHERE event_id = '${interaction.message.id}' AND user_id = '${interaction_user_id}'`, async (err, veryall) => {
+
+
+                    if (!veryall.length < 1) {
+
+                        SoraBot.db.query(`DELETE FROM members_event_choice WHERE event_id = '${interaction.message.id}' AND user_id = '${interaction_user_id}'`, async (err, all) => {
+
+
+                            SoraBot.db.query(`SELECT guild_nickname, choice_name FROM members_event_choice WHERE event_id = '${interaction.message.id}'`, (err, req) => {
+
+
+                                for (let i = 0; i < req.length; i++) {
+                                    switch (req[i].choice_name) {
+                                        case 'Participant':
+                                            participants.push('\n - ' + req[i].guild_nickname)
+                                            break;
+                                        case 'Indécis':
+                                            indecis.push('\n - ' + req[i].guild_nickname)
+                                            break;
+                                        case 'Réserviste':
+                                            reservistes.push('\n - ' + req[i].guild_nickname)
+                                            break;
+                                        default:
+                                            break;
+                                    }
+                                }
+
+
+                                if (participants.length === 0) {
+                                    participants.push('\u200B')
+                                }
+
+                                if (indecis.length === 0) {
+                                    indecis.push('\u200B')
+                                }
+
+                                if (reservistes.length === 0) {
+                                    reservistes.push('\u200B')
+                                }
+
+                                let embed = new Discord.EmbedBuilder()
+                                    .setColor(SoraBot.color)
+                                    .setTitle(interaction.message.embeds[0].title)
+                                    .setDescription(interaction.message.embeds[0].description)
+                                    .setThumbnail(SoraBot.user.displayAvatarURL({ dynamic: true }))
+                                    .addFields(
+                                        { name: 'Date et heure', value: interaction.message.embeds[0].fields[0].value },
+                                    )
+                                    .addFields(
+                                        { name: '\u200B', value: '\u200B' },
+                                        { name: '✅ Participants', value: `${participants}`, inline: true },
+                                        { name: '❓Indécis', value: `${indecis}`, inline: true },
+                                        { name: '🪑 Réservistes', value: `${reservistes}`, inline: true },
+                                    )
+                                    .setImage('https://i.stack.imgur.com/Fzh0w.png')
+                                    .setFooter(interaction.message.embeds[0].footer)
+
+                                interaction.message.edit({ embeds: [embed] });
+                                interaction.deferUpdate()
+                            })
+                        })
+
+                    } else {
+                        interaction.deferUpdate()
+                    }
+                })
+                break;
+
+
+            default:
+                break;
         }
 
-    }
 
+    }
 }
