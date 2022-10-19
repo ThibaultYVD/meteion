@@ -1,12 +1,14 @@
 const Discord = require("discord.js");
+const cron = require("node-cron")
 const loadSlashCommands = require("../config/loadSlashCommands");
 const loadDB = require("../config/db")
 
-module.exports = async (SoraBot)=>{
+module.exports = async (SoraBot) => {
 
     SoraBot.db = await loadDB()
 
-    SoraBot.db.connect(function (){
+   
+    SoraBot.db.connect(function () {
         console.log("\nConnecté à la base de données.")
     })
 

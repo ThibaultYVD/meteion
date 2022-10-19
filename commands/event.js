@@ -1,42 +1,15 @@
 const Discord = require("discord.js");
+const { ActionRowBuilder, ModalBuilder, TextInputBuilder, TextInputStyle } = require('discord.js');
 
 module.exports = {
     name: "event",
     description: "Créer un nouvel évenement.",
     permission: "Aucune",
     dm: false,
-    category: "Evenement",
-    options: [
-        {
-            type: "string",
-            name: "titre",
-            description: "Titre de l'évenement.",
-            required: true,
-            autocomplete: false
-        }, {
-            type: "string",
-            name: "détails",
-            description: "Détails de l'événement",
-            required: true,
-            autocomplete: false
-        }, {
-            type: "string",
-            name: "date",
-            description: "Date où aura lieu l'évenement.",
-            required: true,
-            autocomplete: false
-        }, {
-            type: "string",
-            name: "heure",
-            description: "Heure où aura lieu l'évenement.",
-            required: true,
-            autocomplete: false
-        }
-    ],
+    category: "Evénements",
+
 
     async run(SoraBot, message, args, db) {
-
-        let event_id = message.id
 
         // Variables guilds
         let message_guild_id = message.guild.id;
@@ -50,11 +23,6 @@ module.exports = {
         let event_creator_guild_id = message.member.guild.id;
         let event_creator_guild_name = message.member.guild.name;
 
-        // Variables event
-        let titre = args.getString("titre")
-        let description = args.getString("détails")
-        let date = args.getString("date")
-        let heure = args.getString("heure")
 
 
         // Ajout du serveur ou actualisation dans la base de données
@@ -84,59 +52,50 @@ module.exports = {
             }
         })
 
-        // Ajout de l'event dans la base de données
-        db.query(`INSERT INTO events(event_id, guild_name, event_title, event_description, event_date, event_hour) VALUES ('${event_id}', '${message_guild_name}','${titre}','${description}','${date}','${heure}')`)
 
 
+        const modal = new ModalBuilder()
+            .setCustomId('myModal')
+            .setTitle(`Création d'un événement.`);
 
 
+        const eventTitleInput = new TextInputBuilder()
+            .setCustomId('eventTitle')
+            .setLabel("Titre.")
+            .setStyle(TextInputStyle.Short)
+            .setRequired(true);
 
-        let embed = new Discord.EmbedBuilder()
-            .setColor(SoraBot.color)
-            .setTitle(`Event : ${titre}`)
-            .setDescription(`${description}`)
-            .setThumbnail(SoraBot.user.displayAvatarURL({ dynamic: false }))
-            .addFields(
-                { name: 'Date et heure', value: `Le __${date}__ à __${heure}__` },
-            )
-            .addFields(
-                { name: '\u200B', value: '\u200B' },
-                { name: '✅ Participants', value: '\u200B', inline: true },
-                { name: '❓Indécis', value: '\u200B', inline: true },
-                { name: '🪑 Réservistes', value: '\u200B', inline: true },
-            )
-            .setImage('https://i.stack.imgur.com/Fzh0w.png')
-            .setFooter({
-                text: `Proposé par : ${message.member.nickname}`,
-                iconURL: message.user.displayAvatarURL({ dynamic: false }),
-            })
+        const eventDescInput = new TextInputBuilder()
+            .setCustomId('eventDesc')
+            .setLabel("Description et/ou détails.")
+            .setMaxLength(200)
+            .setStyle(TextInputStyle.Paragraph);
 
-        const row = new Discord.ActionRowBuilder()
-            .addComponents(
-                new Discord.ButtonBuilder()
-                    .setCustomId('participant')
-                    .setLabel('Participant')
-                    .setStyle(Discord.ButtonStyle.Primary),
-                new Discord.ButtonBuilder()
-                    .setCustomId('indecis')
-                    .setLabel('Indécis')
-                    .setStyle(Discord.ButtonStyle.Primary),
-                new Discord.ButtonBuilder()
-                    .setCustomId('reserviste')
-                    .setLabel('Réserviste')
-                    .setStyle(Discord.ButtonStyle.Primary),
-                new Discord.ButtonBuilder()
-                    .setCustomId('eventCancel')
-                    .setLabel('Se retirer')
-                    .setStyle(Discord.ButtonStyle.Danger),
-                new Discord.ButtonBuilder()
-                    .setCustomId('eventDelete')
-                    .setEmoji('⚙️')
-                    .setStyle(Discord.ButtonStyle.Secondary),
-            );
+        const DateInput = new TextInputBuilder()
+            .setCustomId('eventDate')
+            .setLabel("Date de l'événement.")
+            .setStyle(TextInputStyle.Short)
+            .setPlaceholder('01/01/2000')
+            .setMaxLength(10)
+            .setRequired(true);
 
+        const HourInput = new TextInputBuilder()
+            .setCustomId('eventHour')
+            .setLabel("Heure de l'événement.")
+            .setStyle(TextInputStyle.Short)
+            .setPlaceholder('00h00')
+            .setMaxLength(5)
+            .setRequired(true);
 
+        const firstActionRow = new ActionRowBuilder().addComponents(eventTitleInput);
+        const secondActionRow = new ActionRowBuilder().addComponents(eventDescInput);
+        const thirdActionRow = new ActionRowBuilder().addComponents(DateInput);
+        const fourthActionRow = new ActionRowBuilder().addComponents(HourInput);
 
-        await message.reply({ embeds: [embed], components: [row] })
+        // Add inputs to the modal
+        modal.addComponents(firstActionRow, secondActionRow, thirdActionRow, fourthActionRow);
+
+        // Show the modal to the user
+        await message.showModal(modal);
     }
 }
