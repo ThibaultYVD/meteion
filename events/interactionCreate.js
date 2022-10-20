@@ -80,7 +80,7 @@ module.exports = async (SoraBot, interaction, message, db) => {
 
                         const reply = await interaction.reply({ embeds: [embed], components: [row], fetchReply: true })
                         // Ajout de l'event dans la base de données
-                        SoraBot.db.query(`INSERT INTO events(channel_id, event_id, event_creator, guild_name, event_title, event_description, event_date, event_hour) VALUES ('${interaction.channel.id}','${reply.id}', '${interaction.user.id}','${interaction.guild.name}','${titre}','${description}','${date}','${heure}')`)
+                        SoraBot.db.query(`INSERT INTO events(event_id, channel_id, event_creator, guild_name, event_title, event_description, event_date, event_hour) VALUES ('${reply.id}', '${interaction.channel.id}','${interaction.user.id}','${interaction.guild.name}','${titre}','${description}','${date}','${heure}')`)
 
                     } else {
                         await interaction.reply({ content: `Erreur(s) au niveau de la **date** et/ou de **l'heure** : \nLa date doit être au format **"JJ/MM/AAAA"**.\nL'heure doit être au format **"HH__h__MM"**.\n*Vous pouvez supprimer ce message. ⬇️*`, ephemeral: true });
