@@ -1,7 +1,8 @@
 const fs = require("fs");
 
 module.exports = async (SoraBot) => {
-  fs.readdirSync("./events").filter(f => f.endsWith(".js")).forEach(async (file) => {
+  try {
+    fs.readdirSync("./events").filter(f => f.endsWith(".js")).forEach(async (file) => {
       let event = require(`../events/${file}`);
       SoraBot.on(file.split(".js").join(""), event.bind(null, SoraBot))
 
@@ -10,4 +11,8 @@ module.exports = async (SoraBot) => {
       
       console.log(`- Event ${file} chargé.`)
     })
+  } catch (error) {
+    console.log(error)
+  }
+  
 }
