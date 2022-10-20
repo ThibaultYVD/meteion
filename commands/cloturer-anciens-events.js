@@ -37,6 +37,20 @@ module.exports = {
 
                         let eventid = row[i].event_id
 
+                        var output = event_title.split(`'`), a;
+                        var correctedTitle = ""
+                        for (a = 0; a < output.length; a++) {
+                            correctedTitle += `${output[a]}''`
+                        }
+
+                        var output1 = event_description.split(`'`), a;
+                        let correctedDesc = ""
+                        for (a = 0; a < output1.length; a++) {
+                            correctedDesc += `${output1[a]}''`
+                        }
+
+                        correctedTitle = correctedTitle.substring(0, correctedTitle.length - 2);
+                        correctedDesc = correctedDesc.substring(0, correctedDesc.length - 2);
 
                         if (row[i].channel_id === message.channel.id) {
                             SoraBot.db.query(`SELECT COUNT(*) AS participantCount FROM members_event_choice WHERE event_id = '${eventid}' AND choice_name = 'Participant'`, function (err, count0) {
@@ -50,7 +64,7 @@ module.exports = {
                                         let reservistes = count2[0].RéservisteCount
 
                                         SoraBot.db.query(`INSERT INTO events_archives (guild_name, event_title, event_description, event_date, event_hour, total_participant, total_indecis, total_reserviste) 
-                                    VALUES ('${guild_name}','${event_title}','${event_description}','${event_date}','${event_hour}',${participants},${indécis},${reservistes})`)
+                                    VALUES ('${guild_name}','${correctedTitle}','${correctedDesc}','${event_date}','${event_hour}',${participants},${indécis},${reservistes})`)
 
                                         SoraBot.db.query(`DELETE FROM events WHERE event_id = ${eventid}`)
                                         SoraBot.db.query(`DELETE FROM members_event_choice WHERE event_id = ${eventid}`)
