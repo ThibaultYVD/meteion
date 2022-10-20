@@ -78,9 +78,26 @@ module.exports = async (SoraBot, interaction, message, db) => {
                                     .setStyle(Discord.ButtonStyle.Danger),
                             );
 
+                        []
+
+                        var output = titre.split(`'`), i;
+                        var correctedTitle = ""
+                        for (i = 0; i < output.length; i++) {
+                            correctedTitle += `${output[i]}''`
+                        }
+
+                        var output1 = description.split(`'`), i;
+                        let correctedDesc = ""
+                        for (i = 0; i < output1.length; i++) {
+                            correctedDesc += `${output1[i]}''`
+                        }
+
+                        correctedTitle = correctedTitle.substring(0, correctedTitle.length - 2);
+                        correctedDesc = correctedDesc.substring(0, correctedDesc.length - 2);
+
                         const reply = await interaction.reply({ embeds: [embed], components: [row], fetchReply: true })
                         // Ajout de l'event dans la base de données
-                        SoraBot.db.query(`INSERT INTO events(event_id, channel_id, event_creator, guild_name, event_title, event_description, event_date, event_hour) VALUES ('${reply.id}', '${interaction.channel.id}','${interaction.user.id}','${interaction.guild.name}','${titre}','${description}','${date}','${heure}')`)
+                        SoraBot.db.query(`INSERT INTO events(event_id, channel_id, event_creator, guild_name, event_title, event_description, event_date, event_hour) VALUES ('${reply.id}', '${interaction.channel.id}','${interaction.user.id}','${interaction.guild.name}','${correctedTitle}','${correctedDesc}','${date}','${heure}')`)
 
                     } else {
                         await interaction.reply({ content: `Erreur(s) au niveau de la **date** et/ou de **l'heure** : \nLa date doit être au format **"JJ/MM/AAAA"**.\nL'heure doit être au format **"HH__h__MM"**.\n*Vous pouvez supprimer ce message. ⬇️*`, ephemeral: true });
@@ -99,7 +116,7 @@ module.exports = async (SoraBot, interaction, message, db) => {
 
                     channel = interaction.channel
                     channel.messages.delete(`${interaction.message.id}`)
-                    await interaction.reply({ content: `La validation a réussi.\n*Vous pouvez supprimer ce message. ⬇️*`, ephemeral: true });
+                    await interaction.reply({ content: `L'événement a bien été supprimé.\n*Vous pouvez supprimer ce message. ⬇️*`, ephemeral: true });
                 } else {
                     await interaction.reply({ content: `La validation a échoué.\n*Vous pouvez supprimer ce message. ⬇️*`, ephemeral: true });
                 }
@@ -133,19 +150,22 @@ module.exports = async (SoraBot, interaction, message, db) => {
                 case "participant":
 
 
+                    SoraBot.db.query(`UPDATE guild_members SET user_tag = '${interaction.user.tag}', nickname = '${interaction.member.nickname}' WHERE user_id = '${interaction_user_id}'`)
+                    SoraBot.db.query(`UPDATE members_event_choice SET choice_name = 'Participant', guild_nickname='${interaction.member.nickname}' WHERE user_id = '${interaction_user_id}' AND event_id = '${interaction.message.id}'`)
+
                     SoraBot.db.query(`SELECT * FROM members_event_choice WHERE event_id = '${interaction.message.id}' AND user_id = '${interaction_user_id}'`, async (err, veryall) => {
                         if (veryall.length < 1) {
-                            await SoraBot.db.query(`INSERT INTO members_event_choice (user_id, guild_nickname, choice_name, event_id) VALUES ('${interaction_user_id}','${username}','Participant','${interaction.message.id}')`)
+                            await SoraBot.db.query(`INSERT INTO members_event_choice (user_id, guild_nickname, choice_name, event_id) VALUES ('${interaction_user_id}','${interaction.member.nickname}','Participant','${interaction.message.id}')`)
                         }
 
                         SoraBot.db.query(`SELECT * FROM members_event_choice WHERE event_id = '${interaction.message.id}' AND user_id = '${interaction_user_id}'`, async (err, all) => {
 
 
                             if (all[0].choice_name === 'Indécis') {
-                                await SoraBot.db.query(`UPDATE members_event_choice SET choice_name = 'Participant' WHERE user_id = '${interaction_user_id}' AND event_id = '${interaction.message.id}'`)
+                                await SoraBot.db.query(`UPDATE members_event_choice SET choice_name = 'Participant', guild_nickname='${interaction.member.nickname}' WHERE user_id = '${interaction_user_id}' AND event_id = '${interaction.message.id}'`)
                             }
                             if (all[0].choice_name === 'Réserviste') {
-                                await SoraBot.db.query(`UPDATE members_event_choice SET choice_name = 'Participant' WHERE user_id = '${interaction_user_id}' AND event_id = '${interaction.message.id}'`)
+                                await SoraBot.db.query(`UPDATE members_event_choice SET choice_name = 'Participant', guild_nickname='${interaction.member.nickname}' WHERE user_id = '${interaction_user_id}' AND event_id = '${interaction.message.id}'`)
                             }
 
                             SoraBot.db.query(`SELECT guild_nickname, choice_name FROM members_event_choice WHERE event_id = '${interaction.message.id}'`, (err, req) => {
@@ -208,7 +228,8 @@ module.exports = async (SoraBot, interaction, message, db) => {
 
                 // INDECIS
                 case "indecis":
-
+                    SoraBot.db.query(`UPDATE guild_members SET user_tag = '${interaction.user.tag}', nickname = '${interaction.member.nickname}' WHERE user_id = '${interaction_user_id}'`)
+                    SoraBot.db.query(`UPDATE members_event_choice SET choice_name = 'Indécis', guild_nickname='${interaction.member.nickname}' WHERE user_id = '${interaction_user_id}' AND event_id = '${interaction.message.id}'`)
 
                     SoraBot.db.query(`SELECT * FROM members_event_choice WHERE event_id = '${interaction.message.id}' AND user_id = '${interaction_user_id}'`, async (err, veryall) => {
                         if (veryall.length < 1) {
@@ -219,10 +240,10 @@ module.exports = async (SoraBot, interaction, message, db) => {
 
 
                             if (all[0].choice_name === 'Participant') {
-                                await SoraBot.db.query(`UPDATE members_event_choice SET choice_name = 'Indécis' WHERE user_id = '${interaction_user_id}' AND event_id = '${interaction.message.id}'`)
+                                await SoraBot.db.query(`UPDATE members_event_choice SET choice_name = 'Indécis', guild_nickname='${interaction.member.nickname}' WHERE user_id = '${interaction_user_id}' AND event_id = '${interaction.message.id}'`)
                             }
                             if (all[0].choice_name === 'Réserviste') {
-                                await SoraBot.db.query(`UPDATE members_event_choice SET choice_name = 'Indécis' WHERE user_id = '${interaction_user_id}' AND event_id = '${interaction.message.id}'`)
+                                await SoraBot.db.query(`UPDATE members_event_choice SET choice_name = 'Indécis', guild_nickname='${interaction.member.nickname}' WHERE user_id = '${interaction_user_id}' AND event_id = '${interaction.message.id}'`)
                             }
 
                             SoraBot.db.query(`SELECT guild_nickname, choice_name FROM members_event_choice WHERE event_id = '${interaction.message.id}'`, (err, req) => {
@@ -288,6 +309,10 @@ module.exports = async (SoraBot, interaction, message, db) => {
 
                 // RESERVISTE
                 case "reserviste":
+
+                    SoraBot.db.query(`UPDATE guild_members SET user_tag = '${interaction.user.tag}', nickname = '${interaction.member.nickname}' WHERE user_id = '${interaction_user_id}'`)
+                    SoraBot.db.query(`UPDATE members_event_choice SET choice_name = 'Réserviste', guild_nickname='${interaction.member.nickname}' WHERE user_id = '${interaction_user_id}' AND event_id = '${interaction.message.id}'`)
+
                     SoraBot.db.query(`SELECT * FROM members_event_choice WHERE event_id = '${interaction.message.id}' AND user_id = '${interaction_user_id}'`, async (err, veryall) => {
                         if (veryall.length < 1) {
                             await SoraBot.db.query(`INSERT INTO members_event_choice (user_id, guild_nickname, choice_name, event_id) VALUES ('${interaction_user_id}','${username}','Indécis','${interaction.message.id}')`)
@@ -297,10 +322,10 @@ module.exports = async (SoraBot, interaction, message, db) => {
 
 
                             if (all[0].choice_name === 'Participant') {
-                                await SoraBot.db.query(`UPDATE members_event_choice SET choice_name = 'Réserviste' WHERE user_id = '${interaction_user_id}' AND event_id = '${interaction.message.id}'`)
+                                await SoraBot.db.query(`UPDATE members_event_choice SET choice_name = 'Réserviste', guild_nickname='${interaction.member.nickname}' WHERE user_id = '${interaction_user_id}' AND event_id = '${interaction.message.id}'`)
                             }
                             if (all[0].choice_name === 'Indécis') {
-                                await SoraBot.db.query(`UPDATE members_event_choice SET choice_name = 'Réserviste' WHERE user_id = '${interaction_user_id}' AND event_id = '${interaction.message.id}'`)
+                                await SoraBot.db.query(`UPDATE members_event_choice SET choice_name = 'Réserviste', guild_nickname='${interaction.member.nickname}' WHERE user_id = '${interaction_user_id}' AND event_id = '${interaction.message.id}'`)
                             }
 
                             SoraBot.db.query(`SELECT guild_nickname, choice_name FROM members_event_choice WHERE event_id = '${interaction.message.id}'`, (err, req) => {
@@ -363,6 +388,7 @@ module.exports = async (SoraBot, interaction, message, db) => {
 
                 // SE RETIRER
                 case "eventCancel":
+                    SoraBot.db.query(`UPDATE guild_members SET user_tag = '${interaction.user.tag}', nickname = '${interaction.member.nickname}' WHERE user_id = '${interaction_user_id}'`)
                     SoraBot.db.query(`SELECT * FROM members_event_choice WHERE event_id = '${interaction.message.id}' AND user_id = '${interaction_user_id}'`, async (err, veryall) => {
 
 
