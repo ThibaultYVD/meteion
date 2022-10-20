@@ -63,6 +63,7 @@ module.exports = {
             .setCustomId('eventTitle')
             .setLabel("Titre.")
             .setStyle(TextInputStyle.Short)
+            .setMaxLength(100)
             .setRequired(true);
 
         const eventDescInput = new TextInputBuilder()

@@ -1,4 +1,5 @@
 const Discord = require("discord.js")
+const { ActionRowBuilder, ModalBuilder, TextInputBuilder, TextInputStyle } = require('discord.js');
 
 module.exports = async (SoraBot, interaction, message, db) => {
 
@@ -71,11 +72,15 @@ module.exports = async (SoraBot, interaction, message, db) => {
                                 .setCustomId('eventCancel')
                                 .setLabel('Se retirer')
                                 .setStyle(Discord.ButtonStyle.Danger),
+                            new Discord.ButtonBuilder()
+                                .setCustomId('eventDelete')
+                                .setLabel(`Annuler l'évenement`)
+                                .setStyle(Discord.ButtonStyle.Danger),
                         );
 
                     const reply = await interaction.reply({ embeds: [embed], components: [row], fetchReply: true })
                     // Ajout de l'event dans la base de données
-                    SoraBot.db.query(`INSERT INTO events(event_id, guild_name, event_title, event_description, event_date, event_hour) VALUES ('${reply.id}', '${interaction.guild.name}','${titre}','${description}','${date}','${heure}')`)
+                    SoraBot.db.query(`INSERT INTO events(channel_id, event_id, event_creator, guild_name, event_title, event_description, event_date, event_hour) VALUES ('${interaction.channel.id}','${reply.id}', '${interaction.user.id}','${interaction.guild.name}','${titre}','${description}','${date}','${heure}')`)
 
                 } else {
                     await interaction.reply({ content: `Erreur(s) au niveau de la **date** et/ou de **l'heure** : \nLa date doit être au format **"JJ/MM/AAAA"**.\nL'heure doit être au format **"HH__h__MM"**.\n*Vous pouvez supprimer ce message. ⬇️*`, ephemeral: true });
@@ -84,13 +89,30 @@ module.exports = async (SoraBot, interaction, message, db) => {
                 await interaction.reply({ content: `Erreur(s) au niveau de la **date** et/ou de **l'heure** : \nLa date doit être au format **"JJ/MM/AAAA"**.\nL'heure doit être au format **"HHhMM"**.\n*Vous pouvez supprimer ce message. ⬇️*`, ephemeral: true });
             }
         }
+
+        if (interaction.customId === 'DeleteEventModal') {
+            const titre = interaction.fields.getTextInputValue('eventTitleDelete');
+
+            if (titre.toLowerCase() === 'supprimer') {
+                SoraBot.db.query(`DELETE FROM events WHERE event_id = ${interaction.message.id}`)
+                SoraBot.db.query(`DELETE FROM members_event_choice WHERE event_id = ${interaction.message.id}`)
+
+                channel = interaction.channel
+                channel.messages.delete(`${interaction.message.id}`)
+                await interaction.reply({ content: `La validation a réussi.\n*Vous pouvez supprimer ce message. ⬇️*`, ephemeral: true });
+            } else {
+                await interaction.reply({ content: `La validation a échoué.\n*Vous pouvez supprimer ce message. ⬇️*`, ephemeral: true });
+            }
+
+
+        }
     }
 
     if (interaction.isButton()) {
 
         //let receivedembed = interaction.message.embeds[0]
         //let event_id = interaction.message.id
-        
+
         let participants = []
         let indecis = []
         let reservistes = []
@@ -406,6 +428,41 @@ module.exports = async (SoraBot, interaction, message, db) => {
                     } else {
                         interaction.deferUpdate()
                     }
+                })
+                break;
+
+            case "eventDelete":
+                SoraBot.db.query(`SELECT event_creator FROM events WHERE event_id = '${interaction.message.id}'`, async (err, req) => {
+
+
+                    if (!req.length < 1) {
+                        if (req[0].event_creator === interaction_user_id) {
+
+                            const modal = new ModalBuilder()
+                                .setCustomId('DeleteEventModal')
+                                .setTitle(`⚠️Annuler un événement⚠️`);
+
+
+                            const eventTitleInput = new TextInputBuilder()
+                                .setCustomId('eventTitleDelete')
+                                .setLabel(`⚠️Entrez "SUPPRIMER" pour annuler l'évent.⚠️`)
+                                .setStyle(TextInputStyle.Short)
+                                .setPlaceholder('SUPPRIMER')
+                                .setRequired(true);
+
+                            const firstActionRow = new ActionRowBuilder().addComponents(eventTitleInput);
+
+                            modal.addComponents(firstActionRow);
+                            //await interaction.reply({ content: `Event suppr.`, ephemeral: true })
+                            await interaction.showModal(modal);
+
+                        } else {
+                            await interaction.reply({ content: `Vous ne pouvez pas supprimer cet événement.`, ephemeral: true })
+                        }
+
+                    }
+
+
                 })
                 break;
 
