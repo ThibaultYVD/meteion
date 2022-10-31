@@ -19,7 +19,7 @@ module.exports = {
             //Variable user quand création d'un event
             let event_creator_id = message.user.id
             let event_creator_tag = message.user.tag
-            let event_creator_nickname = message.member.nickname
+            let event_creator_nickname = message
             let event_creator_guild_id = message.member.guild.id;
             let event_creator_guild_name = message.member.guild.name;
 
@@ -55,7 +55,7 @@ module.exports = {
 
 
             const modal = new ModalBuilder()
-                .setCustomId('myModal')
+                .setCustomId('eventCreationModal')
                 .setTitle(`Création d'un événement.`);
 
 
@@ -88,10 +88,12 @@ module.exports = {
                 .setMaxLength(5)
                 .setRequired(true);
 
+            
             const firstActionRow = new ActionRowBuilder().addComponents(eventTitleInput);
             const secondActionRow = new ActionRowBuilder().addComponents(eventDescInput);
             const thirdActionRow = new ActionRowBuilder().addComponents(DateInput);
             const fourthActionRow = new ActionRowBuilder().addComponents(HourInput);
+            
 
             // Add inputs to the modal
             modal.addComponents(firstActionRow, secondActionRow, thirdActionRow, fourthActionRow);
