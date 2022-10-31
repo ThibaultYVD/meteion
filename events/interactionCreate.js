@@ -120,12 +120,12 @@ module.exports = async (SoraBot, interaction, message, db) => {
                 const titre = interaction.fields.getTextInputValue('eventTitleDelete');
 
                 if (titre.toLowerCase() === 'supprimer') {
-                    SoraBot.db.query(`DELETE FROM events WHERE event_id = ${interaction.message.embeds[0].fields[0].value}`)
-                    SoraBot.db.query(`DELETE FROM members_event_choice WHERE event_id = ${interaction.message.embeds[0].fields[0].value}`)
+                    SoraBot.db.query(`DELETE FROM events WHERE event_id = ${interaction.message.reference.messageId}`)
+                    SoraBot.db.query(`DELETE FROM members_event_choice WHERE event_id = ${interaction.message.reference.messageId}`)
 
                     channel = interaction.channel
                     //channel.messages.delete(`${interaction.message.id}`)
-                    channel.messages.delete(`${interaction.message.embeds[0].fields[0].value}`)
+                    channel.messages.delete(`${interaction.message.reference.messageId}`)
                     await interaction.reply({ content: `L'événement a bien été supprimé.\n*Vous pouvez supprimer ce message. ⬇️*`, ephemeral: true });
                 } else {
                     await interaction.reply({ content: `La validation a échoué.\n*Vous pouvez supprimer ce message. ⬇️*`, ephemeral: true });
@@ -157,7 +157,7 @@ module.exports = async (SoraBot, interaction, message, db) => {
 
                     if (!isNaN(Date.parse(`${dateTest} ${heureTest}`))) {
 
-                        
+
                         SoraBot.db.query(`SELECT guild_nickname, choice_name FROM members_event_choice WHERE event_id = '${interaction.message.reference.messageId}'`, (err, req) => {
 
 
@@ -206,7 +206,10 @@ module.exports = async (SoraBot, interaction, message, db) => {
                                     { name: '🪑 Réservistes', value: `${reservistes}`, inline: true },
                                 )
                                 .setImage('https://i.stack.imgur.com/Fzh0w.png')
-                                .setFooter(interaction.message.embeds[0].footer)
+                                .setFooter({
+                                    text: `Proposé par : ${interaction.user.username}`,
+                                    iconURL: interaction.user.displayAvatarURL({ dynamic: false })
+                                })
 
 
                             var output = titre.split(`'`), i;
@@ -225,7 +228,7 @@ module.exports = async (SoraBot, interaction, message, db) => {
                             correctedDesc = correctedDesc.substring(0, correctedDesc.length - 2);
 
                             SoraBot.db.query(`UPDATE events SET event_title='${correctedTitle}', event_description='${correctedDesc}', event_date='${date}', event_hour='${heure}' WHERE event_id = '${interaction.message.reference.messageId}'`)
-                            
+
                             channel = interaction.channel
                             channel.messages.edit(interaction.message.reference.messageId, { embeds: [embed] })
                             interaction.reply({ content: `L'événement a bien été modifié`, ephemeral: true })
@@ -592,23 +595,19 @@ module.exports = async (SoraBot, interaction, message, db) => {
 
 
                         if (!req.length < 1) {
+                            console.log(interaction)
                             if (req[0].event_creator === interaction_user_id || interaction.user.id === '269715954466816002' || interaction.user.id === '968060045751382046') {
-
-                                let eventid = interaction.message.id
-                                let eventEmbed = interaction.message.embeds[0]
 
                                 let title = interaction.message.embeds[0].title.substring(8, interaction.message.embeds[0].title.length)
 
                                 let date = interaction.message.embeds[0].fields[0].value.substring(5, 15)
                                 let heure = interaction.message.embeds[0].fields[0].value.substring(22, 27)
-                                let eventTitle = interaction.message.embeds[0].title.substring
+
                                 let AdminPanel = new Discord.EmbedBuilder()
                                     .setColor(SoraBot.color)
                                     .setTitle("Administration")
-                                    //.setDescription("Panel ")
                                     .setThumbnail(SoraBot.user.displayAvatarURL({ dynamic: true }))
                                     .addFields(
-                                        { name: `ID de l'event`, value: `${interaction.message.id}` },
                                         { name: 'Titre : ', value: `${title}` },
                                         { name: 'Description : ', value: `${interaction.message.embeds[0].description}` },
                                         { name: 'Date : ', value: `${date}` },
@@ -616,10 +615,10 @@ module.exports = async (SoraBot, interaction, message, db) => {
                                     )
 
                                     .setImage('https://i.stack.imgur.com/Fzh0w.png')
-                                // .setFooter({
-                                //     text: `Proposé par : ${username}`,
-                                //     iconURL: interaction.client.displayAvatarURL({ dynamic: false })
-                                // })
+                                    .setFooter({
+                                        text: `Panel d'administration - ${SoraBot.user.username}`,
+                                        iconURL: SoraBot.user.displayAvatarURL({ dynamic: false })
+                                    })
 
                                 const row = new Discord.ActionRowBuilder()
                                     .addComponents(
