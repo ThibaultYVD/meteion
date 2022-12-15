@@ -40,7 +40,10 @@ module.exports = async (SoraBot, interaction, message, db) => {
                     const [hour, min] = heure.split('h')
                     let heureTest = `${hour}:${min}`
 
-                    const epoch_timestamp = Date.parse(`${dateTest}`)
+                    const epoch_timestamp = Date.parse(`${dateTest} ${heureTest}`)
+
+                    let epoch_timestamp1 = epoch_timestamp.toString()
+                    let correct_epoch_timestamp = epoch_timestamp1.substring(0, epoch_timestamp1.length - 3)
 
                     if (!isNaN(Date.parse(`${dateTest} ${heureTest}`))) {
                         let embed = new Discord.EmbedBuilder()
@@ -49,7 +52,7 @@ module.exports = async (SoraBot, interaction, message, db) => {
                             .setDescription(`${description}`)
                             .setThumbnail(SoraBot.user.displayAvatarURL({ dynamic: false }))
                             .addFields(
-                                { name: 'Date et heure', value: `Le __${date}__ à __${heure}__` },
+                                { name: 'Date et heure', value: `Le <t:${correct_epoch_timestamp}:d> à <t:${correct_epoch_timestamp}:t> (<t:${correct_epoch_timestamp}:R>)` },
                             )
                             .addFields(
                                 { name: '\u200B', value: '\u200B' },
@@ -146,6 +149,7 @@ module.exports = async (SoraBot, interaction, message, db) => {
                 const date = interaction.fields.getTextInputValue('eventDate');
                 const heure = interaction.fields.getTextInputValue('eventHour');
 
+
                 if (date.search('/') === 2 && date.length === 10 && heure.search('h') === 2 && heure.length === 5) {
 
                     const [day, month, year] = date.split('/');
@@ -154,7 +158,11 @@ module.exports = async (SoraBot, interaction, message, db) => {
                     const [hour, min] = heure.split('h')
                     let heureTest = `${hour}:${min}`
 
-                    const epoch_timestamp = Date.parse(`${dateTest}`)
+                    const epoch_timestamp = Date.parse(`${dateTest} ${heureTest}`)
+
+                    let epoch_timestamp1 = epoch_timestamp.toString()
+                    let correct_epoch_timestamp = epoch_timestamp1.substring(0, epoch_timestamp1.length - 3)
+
 
                     if (!isNaN(Date.parse(`${dateTest} ${heureTest}`))) {
 
@@ -198,7 +206,7 @@ module.exports = async (SoraBot, interaction, message, db) => {
                                 .setDescription(description)
                                 .setThumbnail(SoraBot.user.displayAvatarURL({ dynamic: true }))
                                 .addFields(
-                                    { name: 'Date et heure', value: `Le __${date}__ à __${heure}__` },
+                                    { name: 'Date et heure', value: `Le <t:${correct_epoch_timestamp}:d> à <t:${correct_epoch_timestamp}:t> (<t:${correct_epoch_timestamp}:R>)` },
                                 )
                                 .addFields(
                                     { name: '\u200B', value: '\u200B' },
@@ -228,7 +236,7 @@ module.exports = async (SoraBot, interaction, message, db) => {
                             correctedTitle = correctedTitle.substring(0, correctedTitle.length - 2);
                             correctedDesc = correctedDesc.substring(0, correctedDesc.length - 2);
 
-                            SoraBot.db.query(`UPDATE events SET event_title='${correctedTitle}', event_description='${correctedDesc}', event_date='${date}', event_hour='${heure}', epoch_timestamp='${epoch_timestamp} WHERE event_id = '${interaction.message.reference.messageId}'`)
+                            SoraBot.db.query(`UPDATE events SET event_title='${correctedTitle}', event_description='${correctedDesc}', event_date='${date}', event_hour='${heure}', epoch_timestamp='${epoch_timestamp}' WHERE event_id = '${interaction.message.reference.messageId}'`)
 
                             channel = interaction.channel
                             channel.messages.edit(interaction.message.reference.messageId, { embeds: [embed] })
@@ -592,17 +600,17 @@ module.exports = async (SoraBot, interaction, message, db) => {
                 case "eventAdminPanel":
 
 
-                    SoraBot.db.query(`SELECT event_creator FROM events WHERE event_id = '${interaction.message.id}'`, async (err, req) => {
+                    SoraBot.db.query(`SELECT * FROM events WHERE event_id = '${interaction.message.id}'`, async (err, req) => {
 
 
                         if (!req.length < 1) {
-                            console.log(interaction)
+                            //console.log(interaction)
                             if (req[0].event_creator === interaction_user_id || interaction.user.id === '269715954466816002' || interaction.user.id === '968060045751382046') {
 
                                 let title = interaction.message.embeds[0].title.substring(8, interaction.message.embeds[0].title.length)
 
-                                let date = interaction.message.embeds[0].fields[0].value.substring(5, 15)
-                                let heure = interaction.message.embeds[0].fields[0].value.substring(22, 27)
+                                let date = req[0].event_date
+                                let heure = req[0].event_hour
 
                                 let AdminPanel = new Discord.EmbedBuilder()
                                     .setColor(SoraBot.color)
