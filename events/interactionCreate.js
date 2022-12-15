@@ -40,7 +40,7 @@ module.exports = async (SoraBot, interaction, message, db) => {
                     const [hour, min] = heure.split('h')
                     let heureTest = `${hour}:${min}`
 
-
+                    const epoch_timestamp = Date.parse(`${dateTest}`)
 
                     if (!isNaN(Date.parse(`${dateTest} ${heureTest}`))) {
                         let embed = new Discord.EmbedBuilder()
@@ -62,6 +62,7 @@ module.exports = async (SoraBot, interaction, message, db) => {
                                 text: `Proposé par : ${username}`,
                                 iconURL: interaction.user.displayAvatarURL({ dynamic: false }),
                             })
+
 
                         const row = new Discord.ActionRowBuilder()
                             .addComponents(
@@ -106,7 +107,7 @@ module.exports = async (SoraBot, interaction, message, db) => {
 
                         const reply = await interaction.reply({ embeds: [embed], components: [row], fetchReply: true })
                         // Ajout de l'event dans la base de données
-                        SoraBot.db.query(`INSERT INTO events(event_id, channel_id, event_creator, guild_name, event_title, event_description, event_date, event_hour) VALUES ('${reply.id}', '${interaction.channel.id}','${interaction.user.id}','${interaction.guild.name}','${correctedTitle}','${correctedDesc}','${date}','${heure}')`)
+                        SoraBot.db.query(`INSERT INTO events(event_id, channel_id, event_creator, guild_name, event_title, event_description, event_date, event_hour, epoch_timestamp) VALUES ('${reply.id}', '${interaction.channel.id}','${interaction.user.id}','${interaction.guild.name}','${correctedTitle}','${correctedDesc}','${date}','${heure}','${epoch_timestamp}')`)
 
                     } else {
                         await interaction.reply({ content: `Erreur(s) au niveau de la **date** et/ou de **l'heure** : \nLa date doit être au format **"JJ/MM/AAAA"**.\nL'heure doit être au format **"HH__h__MM"**.\n*Vous pouvez supprimer ce message. ⬇️*`, ephemeral: true });
@@ -153,7 +154,7 @@ module.exports = async (SoraBot, interaction, message, db) => {
                     const [hour, min] = heure.split('h')
                     let heureTest = `${hour}:${min}`
 
-
+                    const epoch_timestamp = Date.parse(`${dateTest}`)
 
                     if (!isNaN(Date.parse(`${dateTest} ${heureTest}`))) {
 
@@ -227,7 +228,7 @@ module.exports = async (SoraBot, interaction, message, db) => {
                             correctedTitle = correctedTitle.substring(0, correctedTitle.length - 2);
                             correctedDesc = correctedDesc.substring(0, correctedDesc.length - 2);
 
-                            SoraBot.db.query(`UPDATE events SET event_title='${correctedTitle}', event_description='${correctedDesc}', event_date='${date}', event_hour='${heure}' WHERE event_id = '${interaction.message.reference.messageId}'`)
+                            SoraBot.db.query(`UPDATE events SET event_title='${correctedTitle}', event_description='${correctedDesc}', event_date='${date}', event_hour='${heure}', epoch_timestamp='${epoch_timestamp} WHERE event_id = '${interaction.message.reference.messageId}'`)
 
                             channel = interaction.channel
                             channel.messages.edit(interaction.message.reference.messageId, { embeds: [embed] })
@@ -610,8 +611,8 @@ module.exports = async (SoraBot, interaction, message, db) => {
                                     .addFields(
                                         { name: 'Titre : ', value: `${title}` },
                                         { name: 'Description : ', value: `${interaction.message.embeds[0].description}` },
-                                        { name: 'Date : ', value: `${date}` },
-                                        { name: 'Heure : ', value: `${heure}` },
+                                        { name: 'Date : ', value: `${date}`, inline: true },
+                                        { name: 'Heure : ', value: `${heure}`, inline: true },
                                     )
 
                                     .setImage('https://i.stack.imgur.com/Fzh0w.png')
@@ -658,14 +659,14 @@ module.exports = async (SoraBot, interaction, message, db) => {
                         .setLabel("Titre.")
                         .setStyle(TextInputStyle.Short)
                         .setMaxLength(100)
-                        .setValue(`${interaction.message.embeds[0].fields[1].value}`)
+                        .setValue(`${interaction.message.embeds[0].fields[0].value}`)
                         .setRequired(true);
 
                     const eventEditDescInput = new TextInputBuilder()
                         .setCustomId('eventDesc')
                         .setLabel("Description et/ou détails.")
                         .setMaxLength(200)
-                        .setValue(`${interaction.message.embeds[0].fields[2].value}`)
+                        .setValue(`${interaction.message.embeds[0].fields[1].value}`)
                         .setStyle(TextInputStyle.Paragraph);
 
                     const eventEditDateInput = new TextInputBuilder()
@@ -674,7 +675,7 @@ module.exports = async (SoraBot, interaction, message, db) => {
                         .setStyle(TextInputStyle.Short)
                         .setPlaceholder('01/01/2000')
                         .setMaxLength(10)
-                        .setValue(`${interaction.message.embeds[0].fields[3].value}`)
+                        .setValue(`${interaction.message.embeds[0].fields[2].value}`)
                         .setRequired(true);
 
                     const eventEditHourInput = new TextInputBuilder()
@@ -683,7 +684,7 @@ module.exports = async (SoraBot, interaction, message, db) => {
                         .setStyle(TextInputStyle.Short)
                         .setPlaceholder('00h00')
                         .setMaxLength(5)
-                        .setValue(`${interaction.message.embeds[0].fields[4].value}`)
+                        .setValue(`${interaction.message.embeds[0].fields[3].value}`)
                         .setRequired(true);
 
                     const eventEditTitleRow = new ActionRowBuilder().addComponents(eventEditTitleInput);
