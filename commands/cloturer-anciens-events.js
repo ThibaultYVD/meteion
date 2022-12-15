@@ -20,9 +20,10 @@ module.exports = {
             if (mm < 10) mm = '0' + mm;
 
 
-            const formattedToday = dd + '/' + mm + '/' + yyyy;
+            const formattedToday = mm + '/' + dd + '/' + yyyy;
+            const epoch_timestamp = Date.parse(formattedToday)
 
-            SoraBot.db.query(`SELECT * FROM events WHERE event_date < '${formattedToday}' `, function (err, row) {
+            SoraBot.db.query(`SELECT * FROM events WHERE epoch_timestamp < '${epoch_timestamp}' `, function (err, row) {
 
                 if (row && row.length) {
                     let i
