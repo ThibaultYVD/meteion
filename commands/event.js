@@ -69,7 +69,7 @@ module.exports = {
             const eventDescInput = new TextInputBuilder()
                 .setCustomId('eventDesc')
                 .setLabel("Description et/ou détails.")
-                .setMaxLength(200)
+                .setMaxLength(400)
                 .setStyle(TextInputStyle.Paragraph);
 
             const DateInput = new TextInputBuilder()
