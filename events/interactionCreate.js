@@ -123,7 +123,7 @@ module.exports = async (SoraBot, interaction, message, db) => {
             if (interaction.customId === 'DeleteEventModal') {
                 const titre = interaction.fields.getTextInputValue('eventTitleDelete');
 
-                if (titre.toLowerCase() === 'supprimer') {
+                if (titre.toLowerCase() === 'annuler') {
                     SoraBot.db.query(`DELETE FROM events WHERE event_id = ${interaction.message.reference.messageId}`)
                     SoraBot.db.query(`DELETE FROM members_event_choice WHERE event_id = ${interaction.message.reference.messageId}`)
 
@@ -216,7 +216,7 @@ module.exports = async (SoraBot, interaction, message, db) => {
                                 )
                                 .setImage('https://i.stack.imgur.com/Fzh0w.png')
                                 .setFooter({
-                                    text: `Proposé par : ${interaction.user.username}`,
+                                    text: `Proposé par : ${interaction.member.nickname}`,
                                     iconURL: interaction.user.displayAvatarURL({ dynamic: false })
                                 })
 
@@ -720,9 +720,9 @@ module.exports = async (SoraBot, interaction, message, db) => {
 
                     const eventTitleInput = new TextInputBuilder()
                         .setCustomId('eventTitleDelete')
-                        .setLabel(`⚠️Entrez "SUPPRIMER" pour annuler l'évent.⚠️`)
+                        .setLabel(`⚠️Entrez "ANNULER" pour annuler l'évent.⚠️`)
                         .setStyle(TextInputStyle.Short)
-                        .setPlaceholder('Supprimer')
+                        .setPlaceholder('Annuler')
                         .setRequired(true);
 
                     const firstActionRow = new ActionRowBuilder().addComponents(eventTitleInput);
