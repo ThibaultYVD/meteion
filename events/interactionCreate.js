@@ -673,7 +673,7 @@ module.exports = async (SoraBot, interaction, message, db) => {
                     const eventEditDescInput = new TextInputBuilder()
                         .setCustomId('eventDesc')
                         .setLabel("Description et/ou détails.")
-                        .setMaxLength(200)
+                        .setMaxLength(400)
                         .setValue(`${interaction.message.embeds[0].fields[1].value}`)
                         .setStyle(TextInputStyle.Paragraph);
 
