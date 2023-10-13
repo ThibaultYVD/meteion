@@ -310,6 +310,7 @@ module.exports = async (SoraBot, interaction, message, db) => {
                             SoraBot.db.query(`SELECT guild_nickname, choice_name FROM members_event_choice WHERE event_id = '${interaction.message.id}'`, (err, req) => {
 
 
+
                                 for (let i = 0; i < req.length; i++) {
                                     switch (req[i].choice_name) {
                                         case 'Participant':
@@ -338,6 +339,7 @@ module.exports = async (SoraBot, interaction, message, db) => {
                                     reservistes.push('\u200B')
                                 }
 
+                                console.log(participants)
                                 let embed = new Discord.EmbedBuilder()
                                     .setColor(SoraBot.color)
                                     .setTitle(interaction.message.embeds[0].title)
@@ -604,7 +606,6 @@ module.exports = async (SoraBot, interaction, message, db) => {
 
 
                         if (!req.length < 1) {
-                            //console.log(interaction)
                             if (req[0].event_creator === interaction_user_id || interaction.user.id === '269715954466816002' || interaction.user.id === '968060045751382046') {
 
                                 let title = interaction.message.embeds[0].title.substring(8, interaction.message.embeds[0].title.length)

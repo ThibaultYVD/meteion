@@ -1,5 +1,4 @@
 require("dotenv").config();
-const server = require("./server")
 const Discord = require("discord.js");
 const SoraBot = new Discord.Client({ intents: 3276799 });
 const loadCommands = require("./config/loadCommands")
