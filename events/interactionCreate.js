@@ -173,13 +173,13 @@ module.exports = async (SoraBot, interaction, message, db) => {
                             for (let i = 0; i < req.length; i++) {
                                 switch (req[i].choice_name) {
                                     case 'Participant':
-                                        participants.push('\n - ' + req[i].guild_nickname)
+                                        participants.push(`- ${req[i].guild_nickname}\n`)
                                         break;
                                     case 'Indécis':
-                                        indecis.push('\n - ' + req[i].guild_nickname)
+                                        indecis.push(`- ${req[i].guild_nickname}\n`)
                                         break;
                                     case 'Réserviste':
-                                        reservistes.push('\n - ' + req[i].guild_nickname)
+                                        reservistes.push(`- ${req[i].guild_nickname}\n`)
                                         break;
                                     default:
                                         break;
@@ -249,21 +249,6 @@ module.exports = async (SoraBot, interaction, message, db) => {
                     await interaction.reply({ content: `Erreur(s) au niveau de la **date** et/ou de **l'heure** : \nLa date doit être au format **"JJ/MM/AAAA"**.\nL'heure doit être au format **"HHhMM"**.\n*Vous pouvez supprimer ce message. ⬇️*`, ephemeral: true });
                 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
             }
         }
 
@@ -314,13 +299,13 @@ module.exports = async (SoraBot, interaction, message, db) => {
                                 for (let i = 0; i < req.length; i++) {
                                     switch (req[i].choice_name) {
                                         case 'Participant':
-                                            participants.push('\n - ' + req[i].guild_nickname)
+                                            participants.push(`- ${req[i].guild_nickname}\n`)
                                             break;
                                         case 'Indécis':
-                                            indecis.push('\n - ' + req[i].guild_nickname)
+                                            indecis.push(`- ${req[i].guild_nickname}\n`)
                                             break;
                                         case 'Réserviste':
-                                            reservistes.push('\n - ' + req[i].guild_nickname)
+                                            reservistes.push(`- ${req[i].guild_nickname}\n`)
                                             break;
                                         default:
                                             break;
@@ -338,6 +323,7 @@ module.exports = async (SoraBot, interaction, message, db) => {
                                 if (reservistes.length === 0) {
                                     reservistes.push('\u200B')
                                 }
+
 
                                 console.log(participants)
                                 let embed = new Discord.EmbedBuilder()
@@ -393,13 +379,13 @@ module.exports = async (SoraBot, interaction, message, db) => {
                                 for (let i = 0; i < req.length; i++) {
                                     switch (req[i].choice_name) {
                                         case 'Participant':
-                                            participants.push('\n - ' + req[i].guild_nickname)
+                                            participants.push(`- ${req[i].guild_nickname}\n`)
                                             break;
                                         case 'Indécis':
-                                            indecis.push('\n - ' + req[i].guild_nickname)
+                                            indecis.push(`- ${req[i].guild_nickname}\n`)
                                             break;
                                         case 'Réserviste':
-                                            reservistes.push('\n - ' + req[i].guild_nickname)
+                                            reservistes.push(`- ${req[i].guild_nickname}\n`)
                                             break;
                                         default:
                                             break;
@@ -473,13 +459,13 @@ module.exports = async (SoraBot, interaction, message, db) => {
                                 for (let i = 0; i < req.length; i++) {
                                     switch (req[i].choice_name) {
                                         case 'Participant':
-                                            participants.push('\n - ' + req[i].guild_nickname)
+                                            participants.push(`- ${req[i].guild_nickname}\n`)
                                             break;
                                         case 'Indécis':
-                                            indecis.push('\n - ' + req[i].guild_nickname)
+                                            indecis.push(`- ${req[i].guild_nickname}\n`)
                                             break;
                                         case 'Réserviste':
-                                            reservistes.push('\n - ' + req[i].guild_nickname)
+                                            reservistes.push(`- ${req[i].guild_nickname}\n`)
                                             break;
                                         default:
                                             break;
@@ -542,13 +528,13 @@ module.exports = async (SoraBot, interaction, message, db) => {
                                     for (let i = 0; i < req.length; i++) {
                                         switch (req[i].choice_name) {
                                             case 'Participant':
-                                                participants.push('\n - ' + req[i].guild_nickname)
+                                                participants.push(`- ${req[i].guild_nickname}\n`)
                                                 break;
                                             case 'Indécis':
-                                                indecis.push('\n - ' + req[i].guild_nickname)
+                                                indecis.push(`- ${req[i].guild_nickname}\n`)
                                                 break;
                                             case 'Réserviste':
-                                                reservistes.push('\n - ' + req[i].guild_nickname)
+                                                reservistes.push(`- ${req[i].guild_nickname}\n`)
                                                 break;
                                             default:
                                                 break;
