@@ -10,9 +10,9 @@ module.exports = async (SoraBot) => {
 
         SoraBot.db.connect(function (err) {
             if (err) {
-                console.log(err)
-                console.log('\n/!\\ ERROR : Connexion à la base de données impossible. /!\\\nMerci de vérifier les variables de connexion dans le fichier .env.')
-                console.log(`\nLe lancement de ${SoraBot.user.tag} à échouer.`);
+                console.log(err +
+                    '\n/!\\ ERROR : Connexion à la base de données impossible. /!\\\nMerci de vérifier les variables de connexion dans le fichier .env.'+
+                    `\nLe lancement de ${SoraBot.user.tag} à échouer.`)
 
                 process.exit(0);
             }
