@@ -173,13 +173,13 @@ module.exports = async (SoraBot, interaction, message, db) => {
                             for (let i = 0; i < req.length; i++) {
                                 switch (req[i].choice_name) {
                                     case 'Participant':
-                                        participants.push(`- ${req[i].guild_nickname}\n`)
+                                        participants.push(req[i].guild_nickname)
                                         break;
                                     case 'Indécis':
-                                        indecis.push(`- ${req[i].guild_nickname}\n`)
+                                        indecis.push(req[i].guild_nickname)
                                         break;
                                     case 'Réserviste':
-                                        reservistes.push(`- ${req[i].guild_nickname}\n`)
+                                        reservistes.push(req[i].guild_nickname)
                                         break;
                                     default:
                                         break;
@@ -200,25 +200,38 @@ module.exports = async (SoraBot, interaction, message, db) => {
 
 
 
+                            let formattedParticipants = ""
+                            for (let i = 0; i < participants.length; i++) {
+                                formattedParticipants += `- ${participants[i]}\n`
+                            }
+
+                            let formattedIndecis = ""
+                            for (let i = 0; i < indecis.length; i++) {
+                                formattedIndecis += `- ${indecis[i]}\n`
+                            }
+
+                            let formattedReservistes = ""
+                            for (let i = 0; i < reservistes.length; i++) {
+                                formattedReservistes += `- ${reservistes[i]}\n`
+                            }
+
                             let embed = new Discord.EmbedBuilder()
                                 .setColor(SoraBot.color)
-                                .setTitle(`Event : ${titre}`)
-                                .setDescription(description)
+                                .setTitle(interaction.message.embeds[0].title)
+                                .setDescription(interaction.message.embeds[0].description)
                                 .setThumbnail(SoraBot.user.displayAvatarURL({ dynamic: true }))
                                 .addFields(
-                                    { name: 'Date et heure', value: `Le <t:${correct_epoch_timestamp}:d> à <t:${correct_epoch_timestamp}:t> (<t:${correct_epoch_timestamp}:R>)` },
+                                    { name: 'Date et heure', value: interaction.message.embeds[0].fields[0].value },
                                 )
                                 .addFields(
                                     { name: '\u200B', value: '\u200B' },
-                                    { name: '✅ Participants', value: `${participants}`, inline: true },
-                                    { name: '❓Indécis', value: `${indecis}`, inline: true },
-                                    { name: '🪑 Réservistes', value: `${reservistes}`, inline: true },
+                                    { name: '✅ Participants', value: formattedParticipants, inline: true },
+                                    { name: '❓Indécis', value: formattedIndecis, inline: true },
+                                    { name: '🪑 Réservistes', value: formattedReservistes, inline: true },
                                 )
                                 .setImage('https://i.stack.imgur.com/Fzh0w.png')
-                                .setFooter({
-                                    text: `Proposé par : ${interaction.member.nickname}`,
-                                    iconURL: interaction.user.displayAvatarURL({ dynamic: false })
-                                })
+                                .setFooter(interaction.message.embeds[0].footer)
+
 
 
                             var output = titre.split(`'`), i;
@@ -299,49 +312,21 @@ module.exports = async (SoraBot, interaction, message, db) => {
                                 for (let i = 0; i < req.length; i++) {
                                     switch (req[i].choice_name) {
                                         case 'Participant':
-                                            participants.push(`- ${req[i].guild_nickname}\n`)
+                                            participants.push(req[i].guild_nickname)
                                             break;
                                         case 'Indécis':
-                                            indecis.push(`- ${req[i].guild_nickname}\n`)
+                                            indecis.push(req[i].guild_nickname)
                                             break;
                                         case 'Réserviste':
-                                            reservistes.push(`- ${req[i].guild_nickname}\n`)
+                                            reservistes.push(req[i].guild_nickname)
                                             break;
                                         default:
                                             break;
                                     }
                                 }
 
-                                if (participants.length === 0) {
-                                    participants.push('\u200B')
-                                }
+                                let embed = drawEmbed(SoraBot, interaction, participants, indecis, reservistes)
 
-                                if (indecis.length === 0) {
-                                    indecis.push('\u200B')
-                                }
-
-                                if (reservistes.length === 0) {
-                                    reservistes.push('\u200B')
-                                }
-
-
-                                console.log(participants)
-                                let embed = new Discord.EmbedBuilder()
-                                    .setColor(SoraBot.color)
-                                    .setTitle(interaction.message.embeds[0].title)
-                                    .setDescription(interaction.message.embeds[0].description)
-                                    .setThumbnail(SoraBot.user.displayAvatarURL({ dynamic: true }))
-                                    .addFields(
-                                        { name: 'Date et heure', value: interaction.message.embeds[0].fields[0].value },
-                                    )
-                                    .addFields(
-                                        { name: '\u200B', value: '\u200B' },
-                                        { name: '✅ Participants', value: `${participants}`, inline: true },
-                                        { name: '❓Indécis', value: `${indecis}`, inline: true },
-                                        { name: '🪑 Réservistes', value: `${reservistes}`, inline: true },
-                                    )
-                                    .setImage('https://i.stack.imgur.com/Fzh0w.png')
-                                    .setFooter(interaction.message.embeds[0].footer)
 
                                 interaction.message.edit({ embeds: [embed] });
                             })
@@ -379,13 +364,13 @@ module.exports = async (SoraBot, interaction, message, db) => {
                                 for (let i = 0; i < req.length; i++) {
                                     switch (req[i].choice_name) {
                                         case 'Participant':
-                                            participants.push(`- ${req[i].guild_nickname}\n`)
+                                            participants.push(req[i].guild_nickname)
                                             break;
                                         case 'Indécis':
-                                            indecis.push(`- ${req[i].guild_nickname}\n`)
+                                            indecis.push(req[i].guild_nickname)
                                             break;
                                         case 'Réserviste':
-                                            reservistes.push(`- ${req[i].guild_nickname}\n`)
+                                            reservistes.push(req[i].guild_nickname)
                                             break;
                                         default:
                                             break;
@@ -393,34 +378,7 @@ module.exports = async (SoraBot, interaction, message, db) => {
                                 }
 
 
-                                if (participants.length === 0) {
-                                    participants.push('\u200B')
-                                }
-
-                                if (indecis.length === 0) {
-                                    indecis.push('\u200B')
-                                }
-
-                                if (reservistes.length === 0) {
-                                    reservistes.push('\u200B')
-                                }
-
-                                let embed = new Discord.EmbedBuilder()
-                                    .setColor(SoraBot.color)
-                                    .setTitle(interaction.message.embeds[0].title)
-                                    .setDescription(interaction.message.embeds[0].description)
-                                    .setThumbnail(SoraBot.user.displayAvatarURL({ dynamic: true }))
-                                    .addFields(
-                                        { name: 'Date et heure', value: interaction.message.embeds[0].fields[0].value },
-                                    )
-                                    .addFields(
-                                        { name: '\u200B', value: '\u200B' },
-                                        { name: '✅ Participants', value: `${participants}`, inline: true },
-                                        { name: '❓Indécis', value: `${indecis}`, inline: true },
-                                        { name: '🪑 Réservistes', value: `${reservistes}`, inline: true },
-                                    )
-                                    .setImage('https://i.stack.imgur.com/Fzh0w.png')
-                                    .setFooter(interaction.message.embeds[0].footer)
+                                let embed = drawEmbed(SoraBot, interaction, participants, indecis, reservistes)
 
                                 interaction.message.edit({ embeds: [embed] });
                             })
@@ -459,13 +417,13 @@ module.exports = async (SoraBot, interaction, message, db) => {
                                 for (let i = 0; i < req.length; i++) {
                                     switch (req[i].choice_name) {
                                         case 'Participant':
-                                            participants.push(`- ${req[i].guild_nickname}\n`)
+                                            participants.push(req[i].guild_nickname)
                                             break;
                                         case 'Indécis':
-                                            indecis.push(`- ${req[i].guild_nickname}\n`)
+                                            indecis.push(req[i].guild_nickname)
                                             break;
                                         case 'Réserviste':
-                                            reservistes.push(`- ${req[i].guild_nickname}\n`)
+                                            reservistes.push(req[i].guild_nickname)
                                             break;
                                         default:
                                             break;
@@ -473,34 +431,7 @@ module.exports = async (SoraBot, interaction, message, db) => {
                                 }
 
 
-                                if (participants.length === 0) {
-                                    participants.push('\u200B')
-                                }
-
-                                if (indecis.length === 0) {
-                                    indecis.push('\u200B')
-                                }
-
-                                if (reservistes.length === 0) {
-                                    reservistes.push('\u200B')
-                                }
-
-                                let embed = new Discord.EmbedBuilder()
-                                    .setColor(SoraBot.color)
-                                    .setTitle(interaction.message.embeds[0].title)
-                                    .setDescription(interaction.message.embeds[0].description)
-                                    .setThumbnail(SoraBot.user.displayAvatarURL({ dynamic: true }))
-                                    .addFields(
-                                        { name: 'Date et heure', value: interaction.message.embeds[0].fields[0].value },
-                                    )
-                                    .addFields(
-                                        { name: '\u200B', value: '\u200B' },
-                                        { name: '✅ Participants', value: `${participants}`, inline: true },
-                                        { name: '❓Indécis', value: `${indecis}`, inline: true },
-                                        { name: '🪑 Réservistes', value: `${reservistes}`, inline: true },
-                                    )
-                                    .setImage('https://i.stack.imgur.com/Fzh0w.png')
-                                    .setFooter(interaction.message.embeds[0].footer)
+                                let embed = drawEmbed(SoraBot, interaction, participants, indecis, reservistes)
 
                                 interaction.message.edit({ embeds: [embed] });
                             })
@@ -528,13 +459,13 @@ module.exports = async (SoraBot, interaction, message, db) => {
                                     for (let i = 0; i < req.length; i++) {
                                         switch (req[i].choice_name) {
                                             case 'Participant':
-                                                participants.push(`- ${req[i].guild_nickname}\n`)
+                                                participants.push(req[i].guild_nickname)
                                                 break;
                                             case 'Indécis':
-                                                indecis.push(`- ${req[i].guild_nickname}\n`)
+                                                indecis.push(req[i].guild_nickname)
                                                 break;
                                             case 'Réserviste':
-                                                reservistes.push(`- ${req[i].guild_nickname}\n`)
+                                                reservistes.push(req[i].guild_nickname)
                                                 break;
                                             default:
                                                 break;
@@ -542,34 +473,7 @@ module.exports = async (SoraBot, interaction, message, db) => {
                                     }
 
 
-                                    if (participants.length === 0) {
-                                        participants.push('\u200B')
-                                    }
-
-                                    if (indecis.length === 0) {
-                                        indecis.push('\u200B')
-                                    }
-
-                                    if (reservistes.length === 0) {
-                                        reservistes.push('\u200B')
-                                    }
-
-                                    let embed = new Discord.EmbedBuilder()
-                                        .setColor(SoraBot.color)
-                                        .setTitle(interaction.message.embeds[0].title)
-                                        .setDescription(interaction.message.embeds[0].description)
-                                        .setThumbnail(SoraBot.user.displayAvatarURL({ dynamic: true }))
-                                        .addFields(
-                                            { name: 'Date et heure', value: interaction.message.embeds[0].fields[0].value },
-                                        )
-                                        .addFields(
-                                            { name: '\u200B', value: '\u200B' },
-                                            { name: '✅ Participants', value: `${participants}`, inline: true },
-                                            { name: '❓Indécis', value: `${indecis}`, inline: true },
-                                            { name: '🪑 Réservistes', value: `${reservistes}`, inline: true },
-                                        )
-                                        .setImage('https://i.stack.imgur.com/Fzh0w.png')
-                                        .setFooter(interaction.message.embeds[0].footer)
+                                    let embed = drawEmbed(SoraBot, interaction, participants, indecis, reservistes)
 
                                     interaction.message.edit({ embeds: [embed] });
                                     interaction.deferUpdate()
@@ -732,4 +636,37 @@ module.exports = async (SoraBot, interaction, message, db) => {
     }
 
 
+}
+
+function formatList(list) {
+    if (list.length === 0) {
+        return '\u200B'; // Renvoie un espace sans largeur pour une liste vide
+    } else {
+        // Si la liste n'est pas vide, formate les éléments
+        const formattedList = list.map(item => `- ${item}\n`);
+        return formattedList.join(''); // Fusionne les éléments formatés en une seule chaîne
+    }
+}
+
+function drawEmbed(SoraBot, interaction, participants, indecis, reservistes) {
+    const formattedParticipants = formatList(participants);
+    const formattedIndecis = formatList(indecis);
+    const formattedReservistes = formatList(reservistes);
+
+    const embed = new Discord.EmbedBuilder()
+        .setColor(SoraBot.color)
+        .setTitle(interaction.message.embeds[0].title)
+        .setDescription(interaction.message.embeds[0].description)
+        .setThumbnail(SoraBot.user.displayAvatarURL({ dynamic: true }))
+        .addFields(
+            { name: 'Date et heure', value: interaction.message.embeds[0].fields[0].value },
+            { name: '\u200B', value: '\u200B' },
+            { name: '✅ Participants', value: formattedParticipants, inline: true },
+            { name: '❓Indécis', value: formattedIndecis, inline: true },
+            { name: '🪑 Réservistes', value: formattedReservistes, inline: true },
+        )
+        .setImage('https://i.stack.imgur.com/Fzh0w.png')
+        .setFooter(interaction.message.embeds[0].footer);
+
+    return embed;
 }
