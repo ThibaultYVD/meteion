@@ -1,3 +1,4 @@
+require("dotenv").config();
 const Discord = require("discord.js")
 const { ActionRowBuilder, ModalBuilder, TextInputBuilder, TextInputStyle } = require('discord.js');
 
@@ -82,7 +83,7 @@ module.exports = async (SoraBot, interaction, message, db) => {
                                     .setLabel('Réserviste')
                                     .setStyle(Discord.ButtonStyle.Primary),
                                 new Discord.ButtonBuilder()
-                                    .setCustomId('eventCancel')
+                                    .setCustomId('eventRetreat')
                                     .setLabel('Se retirer')
                                     .setStyle(Discord.ButtonStyle.Danger),
                                 new Discord.ButtonBuilder()
@@ -271,186 +272,28 @@ module.exports = async (SoraBot, interaction, message, db) => {
             let indecis = []
             let reservistes = []
 
-            interaction_user_id = interaction.user.id
-
-            // let username
-            // if (interaction.member.nickname === null) {
-            //     username = interaction.user.id
-            // } else {
-            //     username = interaction.member.nickname
-            // }
-
-
             switch (interaction.customId) {
 
-                // PARTICIPANT
+
                 case "participant":
-
-
-                    SoraBot.db.query(`UPDATE guild_members SET user_tag = '${interaction.user.tag}', nickname = '${username}' WHERE user_id = '${interaction_user_id}'`)
-                    SoraBot.db.query(`UPDATE members_event_choice SET choice_name = 'Participant', guild_nickname='${username}' WHERE user_id = '${interaction_user_id}' AND event_id = '${interaction.message.id}'`)
-
-                    SoraBot.db.query(`SELECT * FROM members_event_choice WHERE event_id = '${interaction.message.id}' AND user_id = '${interaction_user_id}'`, async (err, veryall) => {
-                        if (veryall.length < 1) {
-                            await SoraBot.db.query(`INSERT INTO members_event_choice (user_id, guild_nickname, choice_name, event_id) VALUES ('${interaction_user_id}','${username}','Participant','${interaction.message.id}')`)
-                        }
-
-                        SoraBot.db.query(`SELECT * FROM members_event_choice WHERE event_id = '${interaction.message.id}' AND user_id = '${interaction_user_id}'`, async (err, all) => {
-
-
-                            if (all[0].choice_name === 'Indécis') {
-                                await SoraBot.db.query(`UPDATE members_event_choice SET choice_name = 'Participant', guild_nickname='${username}' WHERE user_id = '${interaction_user_id}' AND event_id = '${interaction.message.id}'`)
-                            }
-                            if (all[0].choice_name === 'Réserviste') {
-                                await SoraBot.db.query(`UPDATE members_event_choice SET choice_name = 'Participant', guild_nickname='${username}' WHERE user_id = '${interaction_user_id}' AND event_id = '${interaction.message.id}'`)
-                            }
-
-                            SoraBot.db.query(`SELECT guild_nickname, choice_name FROM members_event_choice WHERE event_id = '${interaction.message.id}'`, (err, req) => {
-
-
-
-                                for (let i = 0; i < req.length; i++) {
-                                    switch (req[i].choice_name) {
-                                        case 'Participant':
-                                            participants.push(req[i].guild_nickname)
-                                            break;
-                                        case 'Indécis':
-                                            indecis.push(req[i].guild_nickname)
-                                            break;
-                                        case 'Réserviste':
-                                            reservistes.push(req[i].guild_nickname)
-                                            break;
-                                        default:
-                                            break;
-                                    }
-                                }
-
-                                let embed = drawEmbed(SoraBot, interaction, participants, indecis, reservistes)
-
-
-                                interaction.message.edit({ embeds: [embed] });
-                            })
-                        })
-
-                    })
-                    await interaction.deferUpdate()
+                    updateChoice(SoraBot, interaction, username, "Participant");
                     break;
-
-
-
-                // INDECIS
                 case "indecis":
-                    SoraBot.db.query(`UPDATE guild_members SET user_tag = '${interaction.user.tag}', nickname = '${username}' WHERE user_id = '${interaction_user_id}'`)
-                    SoraBot.db.query(`UPDATE members_event_choice SET choice_name = 'Indécis', guild_nickname='${username}' WHERE user_id = '${interaction_user_id}' AND event_id = '${interaction.message.id}'`)
-
-                    SoraBot.db.query(`SELECT * FROM members_event_choice WHERE event_id = '${interaction.message.id}' AND user_id = '${interaction_user_id}'`, async (err, veryall) => {
-                        if (veryall.length < 1) {
-                            await SoraBot.db.query(`INSERT INTO members_event_choice (user_id, guild_nickname, choice_name, event_id) VALUES ('${interaction_user_id}','${username}','Indécis','${interaction.message.id}')`)
-                        }
-
-                        SoraBot.db.query(`SELECT * FROM members_event_choice WHERE event_id = '${interaction.message.id}' AND user_id = '${interaction_user_id}'`, async (err, all) => {
-
-
-                            if (all[0].choice_name === 'Participant') {
-                                await SoraBot.db.query(`UPDATE members_event_choice SET choice_name = 'Indécis', guild_nickname='${username}' WHERE user_id = '${interaction_user_id}' AND event_id = '${interaction.message.id}'`)
-                            }
-                            if (all[0].choice_name === 'Réserviste') {
-                                await SoraBot.db.query(`UPDATE members_event_choice SET choice_name = 'Indécis', guild_nickname='${username}' WHERE user_id = '${interaction_user_id}' AND event_id = '${interaction.message.id}'`)
-                            }
-
-                            SoraBot.db.query(`SELECT guild_nickname, choice_name FROM members_event_choice WHERE event_id = '${interaction.message.id}'`, (err, req) => {
-
-
-                                for (let i = 0; i < req.length; i++) {
-                                    switch (req[i].choice_name) {
-                                        case 'Participant':
-                                            participants.push(req[i].guild_nickname)
-                                            break;
-                                        case 'Indécis':
-                                            indecis.push(req[i].guild_nickname)
-                                            break;
-                                        case 'Réserviste':
-                                            reservistes.push(req[i].guild_nickname)
-                                            break;
-                                        default:
-                                            break;
-                                    }
-                                }
-
-
-                                let embed = drawEmbed(SoraBot, interaction, participants, indecis, reservistes)
-
-                                interaction.message.edit({ embeds: [embed] });
-                            })
-                        })
-
-                    })
-                    await interaction.deferUpdate()
+                    updateChoice(SoraBot, interaction, username, "Indécis");
                     break;
-
-
-
-                // RESERVISTE
                 case "reserviste":
-
-                    SoraBot.db.query(`UPDATE guild_members SET user_tag = '${interaction.user.tag}', nickname = '${username}' WHERE user_id = '${interaction_user_id}'`)
-                    SoraBot.db.query(`UPDATE members_event_choice SET choice_name = 'Réserviste', guild_nickname='${username}' WHERE user_id = '${interaction_user_id}' AND event_id = '${interaction.message.id}'`)
-
-                    SoraBot.db.query(`SELECT * FROM members_event_choice WHERE event_id = '${interaction.message.id}' AND user_id = '${interaction_user_id}'`, async (err, veryall) => {
-                        if (veryall.length < 1) {
-                            await SoraBot.db.query(`INSERT INTO members_event_choice (user_id, guild_nickname, choice_name, event_id) VALUES ('${interaction_user_id}','${username}','Indécis','${interaction.message.id}')`)
-                        }
-
-                        SoraBot.db.query(`SELECT * FROM members_event_choice WHERE event_id = '${interaction.message.id}' AND user_id = '${interaction_user_id}'`, async (err, all) => {
-
-
-                            if (all[0].choice_name === 'Participant') {
-                                await SoraBot.db.query(`UPDATE members_event_choice SET choice_name = 'Réserviste', guild_nickname='${username}' WHERE user_id = '${interaction_user_id}' AND event_id = '${interaction.message.id}'`)
-                            }
-                            if (all[0].choice_name === 'Indécis') {
-                                await SoraBot.db.query(`UPDATE members_event_choice SET choice_name = 'Réserviste', guild_nickname='${username}' WHERE user_id = '${interaction_user_id}' AND event_id = '${interaction.message.id}'`)
-                            }
-
-                            SoraBot.db.query(`SELECT guild_nickname, choice_name FROM members_event_choice WHERE event_id = '${interaction.message.id}'`, (err, req) => {
-
-
-                                for (let i = 0; i < req.length; i++) {
-                                    switch (req[i].choice_name) {
-                                        case 'Participant':
-                                            participants.push(req[i].guild_nickname)
-                                            break;
-                                        case 'Indécis':
-                                            indecis.push(req[i].guild_nickname)
-                                            break;
-                                        case 'Réserviste':
-                                            reservistes.push(req[i].guild_nickname)
-                                            break;
-                                        default:
-                                            break;
-                                    }
-                                }
-
-
-                                let embed = drawEmbed(SoraBot, interaction, participants, indecis, reservistes)
-
-                                interaction.message.edit({ embeds: [embed] });
-                            })
-                        })
-                    })
-                    await interaction.deferUpdate()
+                    updateChoice(SoraBot, interaction, username, "Réserviste");
                     break;
-
-
 
                 // SE RETIRER
-                case "eventCancel":
-                    SoraBot.db.query(`UPDATE guild_members SET user_tag = '${interaction.user.tag}', nickname = '${username}' WHERE user_id = '${interaction_user_id}'`)
-                    SoraBot.db.query(`SELECT * FROM members_event_choice WHERE event_id = '${interaction.message.id}' AND user_id = '${interaction_user_id}'`, async (err, veryall) => {
+                case "eventRetreat":
+                    SoraBot.db.query(`UPDATE guild_members SET user_tag = '${interaction.user.tag}', nickname = '${username}' WHERE user_id = '${interaction.user.id}'`)
+                    SoraBot.db.query(`SELECT * FROM members_event_choice WHERE event_id = '${interaction.message.id}' AND user_id = '${interaction.user.id}'`, async (err, veryall) => {
 
 
                         if (!veryall.length < 1) {
 
-                            SoraBot.db.query(`DELETE FROM members_event_choice WHERE event_id = '${interaction.message.id}' AND user_id = '${interaction_user_id}'`, async (err, all) => {
+                            SoraBot.db.query(`DELETE FROM members_event_choice WHERE event_id = '${interaction.message.id}' AND user_id = '${interaction.user.id}'`, async (err, all) => {
 
 
                                 SoraBot.db.query(`SELECT guild_nickname, choice_name FROM members_event_choice WHERE event_id = '${interaction.message.id}'`, (err, req) => {
@@ -491,19 +334,19 @@ module.exports = async (SoraBot, interaction, message, db) => {
                 // Admin Panel
                 case "eventAdminPanel":
 
+                    const eventID = interaction.message.id;
+                    SoraBot.db.query(`SELECT * FROM events WHERE event_id = '${eventID}'`, async (err, req) => {
+                        if (req.length > 0) {
+                            const isAdmin = req[0].event_creator === interaction.user.id ||
+                                interaction.user.id === process.env.SUPERADMIN1 ||
+                                interaction.user.id === process.env.SUPERADMIN2;
 
-                    SoraBot.db.query(`SELECT * FROM events WHERE event_id = '${interaction.message.id}'`, async (err, req) => {
+                            if (isAdmin) {
+                                const title = interaction.message.embeds[0].title.substring(8);
+                                const date = req[0].event_date;
+                                const heure = req[0].event_hour;
 
-
-                        if (!req.length < 1) {
-                            if (req[0].event_creator === interaction_user_id || interaction.user.id === '269715954466816002' || interaction.user.id === '968060045751382046') {
-
-                                let title = interaction.message.embeds[0].title.substring(8, interaction.message.embeds[0].title.length)
-
-                                let date = req[0].event_date
-                                let heure = req[0].event_hour
-
-                                let AdminPanel = new Discord.EmbedBuilder()
+                                const AdminPanel = new Discord.EmbedBuilder()
                                     .setColor(SoraBot.color)
                                     .setTitle("Administration")
                                     .setThumbnail(SoraBot.user.displayAvatarURL({ dynamic: true }))
@@ -513,12 +356,11 @@ module.exports = async (SoraBot, interaction, message, db) => {
                                         { name: 'Date : ', value: `${date}`, inline: true },
                                         { name: 'Heure : ', value: `${heure}`, inline: true },
                                     )
-
                                     .setImage('https://i.stack.imgur.com/Fzh0w.png')
                                     .setFooter({
                                         text: `Panel d'administration - ${SoraBot.user.username}`,
                                         iconURL: SoraBot.user.displayAvatarURL({ dynamic: false })
-                                    })
+                                    });
 
                                 const row = new Discord.ActionRowBuilder()
                                     .addComponents(
@@ -532,12 +374,9 @@ module.exports = async (SoraBot, interaction, message, db) => {
                                             .setStyle(Discord.ButtonStyle.Danger),
                                     );
 
-                                []
-
-                                await interaction.reply({ embeds: [AdminPanel], components: [row], ephemeral: true })
-
+                                await interaction.reply({ embeds: [AdminPanel], components: [row], ephemeral: true });
                             } else {
-                                await interaction.reply({ content: `Vous n'avez pas les droits sur cet événement.`, ephemeral: true })
+                                await interaction.reply({ content: `Vous n'avez pas les droits sur cet événement.`, ephemeral: true });
                             }
                         }
                     })
@@ -586,13 +425,12 @@ module.exports = async (SoraBot, interaction, message, db) => {
                         .setValue(`${interaction.message.embeds[0].fields[3].value}`)
                         .setRequired(true);
 
-                    const eventEditTitleRow = new ActionRowBuilder().addComponents(eventEditTitleInput);
-                    const eventEditDescRow = new ActionRowBuilder().addComponents(eventEditDescInput);
-                    const eventEditDateRow = new ActionRowBuilder().addComponents(eventEditDateInput);
-                    const eventEditHourRow = new ActionRowBuilder().addComponents(eventEditHourInput);
-
                     // Add inputs to the modal
-                    modalEdit.addComponents(eventEditTitleRow, eventEditDescRow, eventEditDateRow, eventEditHourRow);
+                    modalEdit.addComponents(
+                        new ActionRowBuilder().addComponents(eventEditTitleInput),
+                        new ActionRowBuilder().addComponents(eventEditDescInput),
+                        new ActionRowBuilder().addComponents(eventEditDateInput),
+                        new ActionRowBuilder().addComponents(eventEditHourInput));
 
                     // Show the modal to the user
                     await interaction.showModal(modalEdit);
@@ -616,9 +454,8 @@ module.exports = async (SoraBot, interaction, message, db) => {
                         .setPlaceholder('Annuler')
                         .setRequired(true);
 
-                    const firstActionRow = new ActionRowBuilder().addComponents(eventTitleInput);
 
-                    modal.addComponents(firstActionRow);
+                    modal.addComponents(new ActionRowBuilder().addComponents(eventTitleInput));
                     await interaction.showModal(modal);
 
                     //await interaction.deferUpdate()
@@ -637,6 +474,56 @@ module.exports = async (SoraBot, interaction, message, db) => {
 
 
 }
+
+
+function updateChoice(SoraBot, interaction, username, choice) {
+    try {
+        // Mise à jour de l'utilisateur dans la base de données
+        SoraBot.db.query(`UPDATE guild_members SET user_tag = '${interaction.user.tag}', nickname = '${username}' WHERE user_id = '${interaction.user.id}'`);
+        SoraBot.db.query(`UPDATE members_event_choice SET choice_name = '${choice}', guild_nickname='${username}' WHERE user_id = '${interaction.user.id}' AND event_id = '${interaction.message.id}'`);
+
+        // Vérifie si l'utilisateur a déjà fait un choix pour cet événement
+        SoraBot.db.query(`SELECT * FROM members_event_choice WHERE event_id = '${interaction.message.id}' AND user_id = '${interaction.user.id}'`, async (err, all) => {
+            if (all.length < 1) {
+                // Si l'utilisateur n'a pas encore fait de choix, l'ajoute à la base de données
+                await SoraBot.db.query(`INSERT INTO members_event_choice (user_id, guild_nickname, choice_name, event_id) VALUES ('${interaction.user.id}','${username}','${choice}','${interaction.message.id}')`);
+            } else {
+                // Si l'utilisateur a déjà fait un choix, met à jour son choix
+                await SoraBot.db.query(`UPDATE members_event_choice SET choice_name = '${choice}', guild_nickname='${username}' WHERE user_id = '${interaction.user.id}' AND event_id = '${interaction.message.id}'`);
+            }
+
+            // Met à jour les listes de participants, d'indécis et de réservistes
+            SoraBot.db.query(`SELECT guild_nickname, choice_name FROM members_event_choice WHERE event_id = '${interaction.message.id}'`, (err, req) => {
+                const participants = [];
+                const indecis = [];
+                const reservistes = [];
+
+                for (let i = 0; i < req.length; i++) {
+                    switch (req[i].choice_name) {
+                        case 'Participant':
+                            participants.push(req[i].guild_nickname);
+                            break;
+                        case 'Indécis':
+                            indecis.push(req[i].guild_nickname);
+                            break;
+                        case 'Réserviste':
+                            reservistes.push(req[i].guild_nickname);
+                            break;
+                    }
+                }
+
+                // Met à jour l'embed
+                let embed = drawEmbed(SoraBot, interaction, participants, indecis, reservistes);
+                interaction.message.edit({ embeds: [embed] });
+                interaction.deferUpdate()
+            });
+        });
+    } catch (err) {
+        console.log(err)
+    }
+
+}
+
 
 function formatList(list) {
     if (list.length === 0) {
