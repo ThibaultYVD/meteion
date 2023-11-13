@@ -1,7 +1,10 @@
 const Discord = require("discord.js");
 const interactionCreate = require("../events/interactionCreate");
+const { getDate } = require("../functions/date");
+const { getErrorEmbed } = require("../functions/error")
 
 module.exports = {
+
     name: "cloturer-anciens-events",
     description: "Clôture les anciens événements et supprime l'annonce.",
     permission: 'Aucune',
@@ -11,17 +14,7 @@ module.exports = {
     async run(SoraBot, message, args) {
 
         try {
-            const today = new Date();
-            const yyyy = today.getFullYear();
-            let mm = today.getMonth() + 1; // Months start at 0!
-            let dd = today.getDate();
-
-            if (dd < 10) dd = '0' + dd;
-            if (mm < 10) mm = '0' + mm;
-
-
-            const formattedToday = mm + '/' + dd + '/' + yyyy;
-            const epoch_timestamp = Date.parse(formattedToday)
+            const epoch_timestamp = Date.parse(getDate())
 
             SoraBot.db.query(`SELECT * FROM events WHERE epoch_timestamp < '${epoch_timestamp}' `, function (err, row) {
 
@@ -38,21 +31,11 @@ module.exports = {
 
                         let eventid = row[i].event_id
 
-                        var output = event_title.split(`'`), a;
-                        var correctedTitle = ""
-                        for (a = 0; a < output.length; a++) {
-                            correctedTitle += `${output[a]}''`
-                        }
+                        // Utilisation d'expressions régulières pour retirer les apostrophes à la fin des chaînes
+                        event_title = event_title.replace(/''+$/, '');
+                        event_description = event_description.replace(/''+$/, '');
 
-                        var output1 = event_description.split(`'`), a;
-                        let correctedDesc = ""
-                        for (a = 0; a < output1.length; a++) {
-                            correctedDesc += `${output1[a]}''`
-                        }
-
-                        correctedTitle = correctedTitle.substring(0, correctedTitle.length - 2);
-                        correctedDesc = correctedDesc.substring(0, correctedDesc.length - 2);
-
+                        
                         if (row[i].channel_id === message.channel.id) {
                             SoraBot.db.query(`SELECT COUNT(*) AS participantCount FROM members_event_choice WHERE event_id = '${eventid}' AND choice_name = 'Participant'`, function (err, count0) {
 
@@ -65,7 +48,7 @@ module.exports = {
                                         let reservistes = count2[0].RéservisteCount
 
                                         SoraBot.db.query(`INSERT INTO events_archives (guild_name, event_title, event_description, event_date, event_hour, total_participant, total_indecis, total_reserviste) 
-                                    VALUES ('${guild_name}','${correctedTitle}','${correctedDesc}','${event_date}','${event_hour}',${participants},${indécis},${reservistes})`)
+                                    VALUES ('${guild_name}','${event_title}','${event_description}','${event_date}','${event_hour}',${participants},${indécis},${reservistes})`)
 
                                         SoraBot.db.query(`DELETE FROM events WHERE event_id = ${eventid}`)
                                         SoraBot.db.query(`DELETE FROM members_event_choice WHERE event_id = ${eventid}`)
@@ -99,17 +82,11 @@ module.exports = {
                 }
             })
         } catch (error) {
-            const errEmbed = new Discord.EmbedBuilder()
-                .setTitle("New Error")
-                .setColor("#FF0000")
-                .setDescription("An error just occured!**\n\nERROR:\n\n** ```" + error + "```")
-                .setTimestamp()
-                .setFooter("Anti-Crash System")
-
-            message.reply({ embeds: [errEmbed] })
+            message.reply({ embeds: [getErrorEmbed(error)] })
         }
 
 
     }
 
 }
+
