@@ -1,5 +1,5 @@
 const Discord = require("discord.js");
-const { ActionRowBuilder, ModalBuilder, TextInputBuilder, TextInputStyle } = require('discord.js');
+const { createEventModal } = require("../functions/event");
 
 module.exports = {
     name: "event",
@@ -52,54 +52,9 @@ module.exports = {
                 }
             })
 
-
-
-            const modal = new ModalBuilder()
-                .setCustomId('eventCreationModal')
-                .setTitle(`Création d'un événement.`);
-
-
-            const eventTitleInput = new TextInputBuilder()
-                .setCustomId('eventTitle')
-                .setLabel("Titre.")
-                .setStyle(TextInputStyle.Short)
-                .setMaxLength(100)
-                .setRequired(true);
-
-            const eventDescInput = new TextInputBuilder()
-                .setCustomId('eventDesc')
-                .setLabel("Description et/ou détails.")
-                .setMaxLength(400)
-                .setStyle(TextInputStyle.Paragraph);
-
-            const DateInput = new TextInputBuilder()
-                .setCustomId('eventDate')
-                .setLabel("Date de l'événement.")
-                .setStyle(TextInputStyle.Short)
-                .setPlaceholder('01/01/2000')
-                .setMaxLength(10)
-                .setRequired(true);
-
-            const HourInput = new TextInputBuilder()
-                .setCustomId('eventHour')
-                .setLabel("Heure de l'événement.")
-                .setStyle(TextInputStyle.Short)
-                .setPlaceholder('00h00')
-                .setMaxLength(5)
-                .setRequired(true);
-
-            
-            const firstActionRow = new ActionRowBuilder().addComponents(eventTitleInput);
-            const secondActionRow = new ActionRowBuilder().addComponents(eventDescInput);
-            const thirdActionRow = new ActionRowBuilder().addComponents(DateInput);
-            const fourthActionRow = new ActionRowBuilder().addComponents(HourInput);
-            
-
-            // Add inputs to the modal
-            modal.addComponents(firstActionRow, secondActionRow, thirdActionRow, fourthActionRow);
-
             // Show the modal to the user
-            await message.showModal(modal);
+            await message.showModal(createEventModal());
+            
         } catch (error) {
             console.log(error)
         }
