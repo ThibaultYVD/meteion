@@ -12,12 +12,11 @@ module.exports = async (SoraBot) => {
             if (err) {
                 console.log(err +
                     '\n/!\\ ERROR : Connexion à la base de données impossible. /!\\\nMerci de vérifier les variables de connexion dans le fichier .env.'+
-                    `\nLe lancement de ${SoraBot.user.tag} à échouer.`)
+                    `\nLe lancement de ${SoraBot.user.tag} a échoué.`)
 
                 process.exit(0);
             }
             console.log('\nConnecté à la base de données MySQL.\n');
-
         }),
             
         await loadSlashCommands(SoraBot)
