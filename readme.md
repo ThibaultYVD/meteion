@@ -4,7 +4,8 @@ Météion is a NodeJs app with the DiscordJs module. This application is used to
 
 ## Installation
 
-This application isn't installable. The bot will be accessible via a public link later.
+You must have a Discord account and have the authorization to add a Discord Application in the server.
+The bot is accessible via a this link : https://discord.com/api/oauth2/authorize?client_id=1029859620199616666&permissions=17620103457856&scope=bot%20applications.commands.
 
 ## Usage
 
