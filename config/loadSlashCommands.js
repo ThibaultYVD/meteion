@@ -2,11 +2,11 @@ const Discord = require("discord.js");
 const { REST } = require("@discordjs/rest")
 const { Routes } = require("discord.js")
 
-module.exports = async (SoraBot) => {
+module.exports = async (client) => {
     try {
         let commands = [];
 
-        SoraBot.commands.forEach(async command => {
+        client.commands.forEach(async command => {
 
             let slashcommand = new Discord.SlashCommandBuilder()
                 .setName(command.name)
@@ -23,9 +23,9 @@ module.exports = async (SoraBot) => {
             await commands.push(slashcommand)
         })
 
-        const rest = new REST({ version: "10" }).setToken(SoraBot.token)
+        const rest = new REST({ version: "10" }).setToken(client.token)
 
-        await rest.put(Routes.applicationCommands(SoraBot.user.id), { body: commands })
+        await rest.put(Routes.applicationCommands(client.user.id), { body: commands })
         console.log("Commandes slashs sont opérationnelles.")
     } catch (error) {
         console.log(error)

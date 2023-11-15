@@ -17,7 +17,7 @@ module.exports = {
 
 
 
-    async run(SoraBot, message, args, db) {
+    async run(client, message, args, db) {
 
         let number = args.getNumber("nombre")
 

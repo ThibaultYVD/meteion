@@ -1,13 +1,12 @@
 require("dotenv").config();
 const Discord = require("discord.js")
-const { updateChoice, redrawEmbed, formatEventDateHeureValue, createEventEmbed, getEventEmbedRows, sendMessage } = require("../functions/event");
-const { getAdminPanelEmbed, getAdminPanelRows } = require("../functions/adminPanel")
-const { getEventEditModal } = require("../functions/eventEdit")
-const { getEventDeleteModal } = require("../functions/eventDelete")
+const { createEventEmbed, getEventEmbedRows, getAdminPanelEmbed, getAdminPanelRows } = require("../functions/embeds")
+const { updateChoice, redrawEmbed, formatEventDateHeureValue, sendMessage } = require("../functions/event");
+const { getEventEditModal, getEventDeleteModal } = require("../functions/modals")
 const { formatEventDate, formatEventHour } = require("../functions/date")
 
 
-module.exports = async (SoraBot, interaction, message, db) => {
+module.exports = async (client, interaction, message, db) => {
     try {
         let username;
 
@@ -19,13 +18,13 @@ module.exports = async (SoraBot, interaction, message, db) => {
 
         if (interaction.type === Discord.InteractionType.ApplicationCommandAutocomplete && interaction.commandName === "help") {
             let entry = interaction.options.getFocused();
-            let choices = SoraBot.commands.filter(cmd => cmd.name.includes(entry));
-            await interaction.respond(entry === "" ? SoraBot.commands.map(cmd => ({ name: cmd.name, value: cmd.name })) : choices.map(choice => ({ name: choice.name, value: choice.name })));
+            let choices = client.commands.filter(cmd => cmd.name.includes(entry));
+            await interaction.respond(entry === "" ? client.commands.map(cmd => ({ name: cmd.name, value: cmd.name })) : choices.map(choice => ({ name: choice.name, value: choice.name })));
         }
 
         if (interaction.type === Discord.InteractionType.ApplicationCommand) {
             let command = require(`../commands/${interaction.commandName}`);
-            command.run(SoraBot, interaction, interaction.options, SoraBot.db);
+            command.run(client, interaction, interaction.options, client.db);
         }
 
 
@@ -50,11 +49,11 @@ module.exports = async (SoraBot, interaction, message, db) => {
                             titre.replace(/'/g, "\\'");
                             description.replace(/'/g, "\\'");
 
-                            const embed = createEventEmbed(SoraBot, interaction, titre, description, date, heure);
+                            const embed = createEventEmbed(client, interaction, titre, description, date, heure);
                             const reply = await interaction.reply({ embeds: [embed], components: [getEventEmbedRows()], fetchReply: true });
 
 
-                            let channel = SoraBot.channels.cache.get(interaction.channel.id);
+                            let channel = client.channels.cache.get(interaction.channel.id);
 
                             const differenceTemps = epoch_timestamp - Date.now();
                             let differenceTempsTest = differenceTemps - 3600000
@@ -62,12 +61,12 @@ module.exports = async (SoraBot, interaction, message, db) => {
                             let timeoutId
 
                             if (differenceTempsTest > 0) {
-                                timeoutId = setTimeout(() => sendMessage(SoraBot, interaction, message, channel, titre, reply.id), differenceTemps - 3600000); // Soustraire une heure en millisecondes (1 heure = 3600000 ms)
+                                timeoutId = setTimeout(() => sendMessage(client, interaction, message, channel, titre, reply.id), differenceTemps - 3600000); // Soustraire une heure en millisecondes (1 heure = 3600000 ms)
                             }
 
 
                             // Ajout de l'event dans la base de données
-                            SoraBot.db.query(`INSERT INTO events (event_id, channel_id, event_creator, guild_name, event_title, event_description, event_date, event_hour, epoch_timestamp, rappel, rappelMessageId) 
+                            client.db.query(`INSERT INTO events (event_id, channel_id, event_creator, guild_name, event_title, event_description, event_date, event_hour, epoch_timestamp, rappel, rappelMessageId) 
                             VALUES ('${reply.id}', '${interaction.channel.id}','${interaction.user.id}','${interaction.guild.name}',"${titre}","${description}",'${date}','${heure}','${epoch_timestamp}','${timeoutId}','Null')`);
 
 
@@ -90,12 +89,12 @@ module.exports = async (SoraBot, interaction, message, db) => {
                     if (titre.toLowerCase() === 'annuler') {
                         const eventId = interaction.message.reference.messageId;
 
-                        SoraBot.db.query(`SELECT rappel FROM events WHERE event_id=${eventId}`, (err, req) => {
+                        client.db.query(`SELECT rappel FROM events WHERE event_id=${eventId}`, (err, req) => {
                             clearTimeout(req[0].rappel);
                         })
 
-                        SoraBot.db.query(`DELETE FROM events WHERE event_id = ${eventId}`)
-                        SoraBot.db.query(`DELETE FROM members_event_choice WHERE event_id = ${eventId}`)
+                        client.db.query(`DELETE FROM events WHERE event_id = ${eventId}`)
+                        client.db.query(`DELETE FROM members_event_choice WHERE event_id = ${eventId}`)
 
                         channel = interaction.channel
                         channel.messages.delete(eventId)
@@ -124,7 +123,7 @@ module.exports = async (SoraBot, interaction, message, db) => {
                         if (!isNaN(Date.parse(`${formatEventDate(date)} ${formatEventHour(heure)}`))) {
 
 
-                            SoraBot.db.query(`SELECT guild_nickname, choice_name FROM members_event_choice WHERE event_id = '${interaction.message.reference.messageId}'`, (err, req) => {
+                            client.db.query(`SELECT guild_nickname, choice_name FROM members_event_choice WHERE event_id = '${interaction.message.reference.messageId}'`, (err, req) => {
 
 
                                 for (let i = 0; i < req.length; i++) {
@@ -151,24 +150,24 @@ module.exports = async (SoraBot, interaction, message, db) => {
                                     iconURL: interaction.user.displayAvatarURL({ dynamic: false }),
                                 })
 
-                                const embed = redrawEmbed(SoraBot, titre, description, formatEventDateHeureValue(date, heure), participants, indecis, reservistes, footer)
+                                const embed = redrawEmbed(client, titre, description, formatEventDateHeureValue(date, heure), participants, indecis, reservistes, footer)
 
-                                SoraBot.db.query(`SELECT rappel FROM events WHERE event_id=${interaction.message.reference.messageId}`, (err, req) => {
+                                client.db.query(`SELECT rappel FROM events WHERE event_id=${interaction.message.reference.messageId}`, (err, req) => {
                                     clearTimeout(req[0].rappel);
 
                                     const differenceTemps = epoch_timestamp - Date.now();
                                     let differenceTempsTest = differenceTemps - 3600000
 
-                                    let channel = SoraBot.channels.cache.get(interaction.channel.id);
+                                    let channel = client.channels.cache.get(interaction.channel.id);
 
                                     titre = titre.substring(8)
                                     let timeoutId
 
                                     if (differenceTempsTest > 0) {
-                                        timeoutId = setTimeout(() => sendMessage(SoraBot, interaction, message, channel, titre, interaction.message.reference.messageId), differenceTemps - 3600000); // Soustraire une heure en millisecondes (1 heure = 3600000 ms)
+                                        timeoutId = setTimeout(() => sendMessage(client, interaction, message, channel, titre, interaction.message.reference.messageId), differenceTemps - 3600000); // Soustraire une heure en millisecondes (1 heure = 3600000 ms)
                                     }
 
-                                    SoraBot.db.query(`UPDATE events 
+                                    client.db.query(`UPDATE events 
                                     SET event_title="${titre}", event_description="${description}", event_date='${date}', event_hour='${heure}', epoch_timestamp='${epoch_timestamp}', rappel='${timeoutId}' WHERE event_id = '${interaction.message.reference.messageId}'`)
 
                                     channel = interaction.channel
@@ -196,26 +195,26 @@ module.exports = async (SoraBot, interaction, message, db) => {
 
 
                 case "participant":
-                    await updateChoice(SoraBot, interaction, username, "Participant");
+                    await updateChoice(client, interaction, username, "Participant");
                     break;
 
                 case "indecis":
-                    await updateChoice(SoraBot, interaction, username, "Indécis");
+                    await updateChoice(client, interaction, username, "Indécis");
                     break;
 
                 case "reserviste":
-                    await updateChoice(SoraBot, interaction, username, "Réserviste");
+                    await updateChoice(client, interaction, username, "Réserviste");
                     break;
 
                 case "eventRetreat":
-                    await updateChoice(SoraBot, interaction, username, "Se retirer")
+                    await updateChoice(client, interaction, username, "Se retirer")
                     break;
 
 
 
                 // Admin Panel
                 case "eventAdminPanel":
-                    SoraBot.db.query(`SELECT * FROM events WHERE event_id = '${interaction.message.id}'`, async (err, req) => {
+                    client.db.query(`SELECT * FROM events WHERE event_id = '${interaction.message.id}'`, async (err, req) => {
                         if (req.length > 0) {
                             const isAdmin = req[0].event_creator === interaction.user.id ||
                                 interaction.user.id === process.env.SUPERADMIN1 ||
@@ -228,7 +227,7 @@ module.exports = async (SoraBot, interaction, message, db) => {
                                 let heure = req[0].event_hour
 
                                 await interaction.reply({
-                                    embeds: [getAdminPanelEmbed(SoraBot, titre, description, date, heure)], components: [getAdminPanelRows()], ephemeral: true
+                                    embeds: [getAdminPanelEmbed(client, titre, description, date, heure)], components: [getAdminPanelRows()], ephemeral: true
                                 });
                             } else {
                                 await interaction.reply({ content: `Vous n'avez pas les droits sur cet événement.`, ephemeral: true });

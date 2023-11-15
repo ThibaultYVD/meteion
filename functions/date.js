@@ -29,4 +29,5 @@ function formatEventHour(heure){
     const [hour, min] = heure.split('h')
     return `${hour}:${min}`
 }
+
 module.exports = { getDate, formatEventDate, formatEventHour }

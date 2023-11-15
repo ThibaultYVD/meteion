@@ -1,5 +1,4 @@
-const Discord = require("discord.js");
-const { createEventModal } = require("../functions/event");
+const { getEventCreationModal } = require("../functions/modals");
 
 module.exports = {
     name: "event",
@@ -9,7 +8,7 @@ module.exports = {
     category: "Evénements",
 
 
-    async run(SoraBot, message, args, db) {
+    async run(client, message, args, db) {
         try {
             // Variables guilds
             let message_guild_id = message.guild.id;
@@ -53,8 +52,8 @@ module.exports = {
             })
 
             // Show the modal to the user
-            await message.showModal(createEventModal());
-            
+            await message.showModal(getEventCreationModal());
+
         } catch (error) {
             console.log(error)
         }
