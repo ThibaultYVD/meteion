@@ -7,7 +7,7 @@ const { ActionRowBuilder, ModalBuilder, TextInputBuilder, TextInputStyle } = req
 function getEventDeleteModal() {
     const modal = new ModalBuilder()
         .setCustomId('DeleteEventModal')
-        .setTitle(`⚠️Annuler un événement⚠️`);
+        .setTitle(`Annuler un événement`);
 
 
     const eventTitleInput = new TextInputBuilder()

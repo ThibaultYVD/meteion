@@ -18,13 +18,15 @@ function createEventModal() {
         .setLabel("Titre.")
         .setStyle(TextInputStyle.Short)
         .setMaxLength(100)
-        .setRequired(true);
+        .setRequired(true)
+        .setValue('test')
 
     const eventDescInput = new TextInputBuilder()
         .setCustomId('eventDesc')
         .setLabel("Description et/ou détails.")
         .setMaxLength(400)
-        .setStyle(TextInputStyle.Paragraph);
+        .setStyle(TextInputStyle.Paragraph)
+        .setValue('test')
 
     const DateInput = new TextInputBuilder()
         .setCustomId('eventDate')
@@ -32,7 +34,8 @@ function createEventModal() {
         .setStyle(TextInputStyle.Short)
         .setPlaceholder('01/01/2000')
         .setMaxLength(10)
-        .setRequired(true);
+        .setRequired(true)
+        .setValue('15/11/2023')
 
     const HourInput = new TextInputBuilder()
         .setCustomId('eventHour')
@@ -43,18 +46,70 @@ function createEventModal() {
         .setRequired(true);
 
 
-    const firstActionRow = new ActionRowBuilder().addComponents(eventTitleInput);
-    const secondActionRow = new ActionRowBuilder().addComponents(eventDescInput);
-    const thirdActionRow = new ActionRowBuilder().addComponents(DateInput);
-    const fourthActionRow = new ActionRowBuilder().addComponents(HourInput);
-
-
     // Add inputs to the modal
-    modal.addComponents(firstActionRow, secondActionRow, thirdActionRow, fourthActionRow);
+    modal.addComponents(
+        new ActionRowBuilder().addComponents(eventTitleInput),
+        new ActionRowBuilder().addComponents(eventDescInput),
+        new ActionRowBuilder().addComponents(DateInput),
+        new ActionRowBuilder().addComponents(HourInput));
 
     return modal
 }
 
+function createEventEmbed(SoraBot, interaction, titre, description, date, heure) {
+    let embed = new Discord.EmbedBuilder()
+        .setColor(SoraBot.color)
+        .setTitle(`Event : ${titre}`)
+        .setDescription(`${description}`)
+        .setThumbnail(SoraBot.user.displayAvatarURL({ dynamic: false }))
+        .addFields(
+            { name: 'Date et heure', value: formatEventDateHeureValue(date, heure) },
+        )
+        .addFields(
+            { name: '\u200B', value: '\u200B' },
+            { name: '✅ Participants', value: '\u200B', inline: true },
+            { name: '❓Indécis', value: '\u200B', inline: true },
+            { name: '🪑 Réservistes', value: '\u200B', inline: true },
+        )
+        .setImage('https://i.stack.imgur.com/Fzh0w.png')
+        .setFooter({
+            text: `Proposé par : ${interaction.user.username}`,
+            iconURL: interaction.user.displayAvatarURL({ dynamic: false }),
+        })
+
+    return embed
+
+}
+
+function getEventEmbedRows() {
+    const row = new Discord.ActionRowBuilder()
+        .addComponents(
+            new Discord.ButtonBuilder()
+                .setCustomId('participant')
+                .setLabel('Participant')
+                .setStyle(Discord.ButtonStyle.Primary),
+            new Discord.ButtonBuilder()
+                .setCustomId('indecis')
+                .setLabel('Indécis')
+                .setStyle(Discord.ButtonStyle.Primary),
+            new Discord.ButtonBuilder()
+                .setCustomId('reserviste')
+                .setLabel('Réserviste')
+                .setStyle(Discord.ButtonStyle.Primary),
+            new Discord.ButtonBuilder()
+                .setCustomId('eventRetreat')
+                .setLabel('Se retirer')
+                .setStyle(Discord.ButtonStyle.Danger),
+            new Discord.ButtonBuilder()
+                .setCustomId('eventAdminPanel')
+                .setLabel('Administration')
+                .setStyle(Discord.ButtonStyle.Danger),
+        );
+
+    []
+
+    return row
+}
 
 /**
  * Met à jour le choix de l'utilisateur en mettant à jour dans la BDD puis redessine l'embed'.
@@ -95,7 +150,7 @@ function updateChoice(SoraBot, interaction, username, choice) {
                         }
 
                         // Met à jour l'embed
-                        let embed = redrawEmbed(SoraBot, interaction, interaction.message.embeds[0].title, interaction.message.embeds[0].description, interaction.message.embeds[0].fields[0].value, participants, indecis, reservistes);
+                        let embed = redrawEmbed(SoraBot, interaction.message.embeds[0].title, interaction.message.embeds[0].description, interaction.message.embeds[0].fields[0].value, participants, indecis, reservistes, interaction.message.embeds[0].footer);
                         interaction.message.edit({ embeds: [embed] });
                         interaction.deferUpdate()
 
@@ -141,7 +196,7 @@ function updateChoice(SoraBot, interaction, username, choice) {
                     }
 
                     // Met à jour l'embed
-                    let embed = redrawEmbed(SoraBot, interaction, interaction.message.embeds[0].title, interaction.message.embeds[0].description, interaction.message.embeds[0].fields[0].value, participants, indecis, reservistes, interaction.message.embeds[0].footer);
+                    let embed = redrawEmbed(SoraBot, interaction.message.embeds[0].title, interaction.message.embeds[0].description, interaction.message.embeds[0].fields[0].value, participants, indecis, reservistes, interaction.message.embeds[0].footer);
                     interaction.message.edit({ embeds: [embed] });
                     interaction.deferUpdate()
                 });
@@ -173,7 +228,7 @@ function formatList(list) {
  * Actualise l'embed d'event.
  * @returns {Embed} d'un event.
  */
-function redrawEmbed(SoraBot, interaction, title, description, dateheure, participants, indecis, reservistes, footer) {
+function redrawEmbed(SoraBot, title, description, dateheure, participants, indecis, reservistes, footer) {
     const formattedParticipants = formatList(participants);
     const formattedIndecis = formatList(indecis);
     const formattedReservistes = formatList(reservistes);
@@ -205,4 +260,15 @@ function formatEventDateHeureValue(date, heure) {
     return `Le <t:${correct_epoch_timestamp}:d> à <t:${correct_epoch_timestamp}:t> (<t:${correct_epoch_timestamp}:R>)`
 
 }
-module.exports = { createEventModal, updateChoice, redrawEmbed, formatEventDateHeureValue }
+
+
+async function sendMessage(SoraBot, interaction, message, channel, event_title, eventId) {
+    const messageSent = await channel.send(`## 📝 L'événement "${event_title}" commence dans une heure !\nMerci de prévenir en cas de retard ou d'absence !`);
+
+    SoraBot.db.query(`UPDATE events 
+    SET rappelMessageId='${messageSent.id}' WHERE event_id = '${eventId}'`)
+
+
+}
+
+module.exports = { createEventModal, updateChoice, redrawEmbed, formatEventDateHeureValue, createEventEmbed, getEventEmbedRows, sendMessage }

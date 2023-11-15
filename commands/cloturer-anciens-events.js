@@ -84,9 +84,6 @@ module.exports = {
         } catch (error) {
             message.reply({ embeds: [getErrorEmbed(error)] })
         }
-
-
     }
-
 }
 
