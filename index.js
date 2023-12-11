@@ -13,3 +13,5 @@ client.login(token).then((token) => {
 
 loadCommands(client)
 loadEvents(client)
+
+
