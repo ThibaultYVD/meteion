@@ -7,7 +7,6 @@ module.exports = async (client) => {
     try {
         client.db = await loadDB()
 
-
         client.db.connect(function (err) {
             if (err) {
                 console.log(err +
