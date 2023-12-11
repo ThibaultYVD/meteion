@@ -2,7 +2,6 @@ const {EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle} = require("di
 const { formatEventDateHeureValue } = require("./event")
 
 function createEventEmbed(client, interaction, titre, description, date, heure) {
-    console.log(interaction)
     let embed = new EmbedBuilder()
         .setColor(client.color)
         .setTitle(`Event : ${titre}`)
