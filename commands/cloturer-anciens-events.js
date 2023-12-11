@@ -1,6 +1,6 @@
 const Discord = require("discord.js");
-const { getErrorEmbed } = require("../functions/embeds")
-const { archivingEvent } = require("../functions/cloturer-events")
+const { getErrorEmbed } = require("../modules/embeds")
+const { archivingEvent } = require("../modules/cloturer-events")
 
 module.exports = {
 

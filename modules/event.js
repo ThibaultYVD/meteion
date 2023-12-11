@@ -1,5 +1,5 @@
 const Discord = require("discord.js")
-const { formatEventDate, formatEventHour } = require("../functions/date")
+const { formatEventDate, formatEventHour } = require("../modules/date")
 
 
 /**
@@ -153,13 +153,5 @@ function formatEventDateHeureValue(date, heure) {
 }
 
 
-async function sendMessage(client, interaction, message, channel, event_title, eventId) {
-    const messageSent = await channel.send(`## 📝 L'événement "${event_title}" commence dans une heure !\nMerci de prévenir en cas de retard ou d'absence !`);
 
-    client.db.query(`UPDATE events 
-    SET rappelMessageId='${messageSent.id}' WHERE event_id = '${eventId}'`)
-
-
-}
-
-module.exports = { updateChoice, redrawEmbed, formatEventDateHeureValue, sendMessage }
+module.exports = { updateChoice, redrawEmbed, formatEventDateHeureValue}

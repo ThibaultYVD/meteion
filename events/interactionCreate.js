@@ -1,12 +1,12 @@
 require("dotenv").config();
 const Discord = require("discord.js")
-const { createEventEmbed, getEventEmbedRows, getAdminPanelEmbed, getAdminPanelRows } = require("../functions/embeds")
-const { updateChoice, redrawEmbed, formatEventDateHeureValue, sendMessage } = require("../functions/event");
-const { getEventEditModal, getEventDeleteModal } = require("../functions/modals")
-const { formatEventDate, formatEventHour } = require("../functions/date")
+const { createEventEmbed, getEventEmbedRows, getAdminPanelEmbed, getAdminPanelRows } = require("../modules/embeds")
+const { updateChoice, redrawEmbed, formatEventDateHeureValue, sendMessage } = require("../modules/event");
+const { getEventEditModal, getEventDeleteModal } = require("../modules/modals")
+const { formatEventDate, formatEventHour } = require("../modules/date")
 
 
-module.exports = async (client, interaction, message, db) => {
+module.exports = async (client, interaction, message) => {
     try {
         let username;
 
@@ -43,7 +43,9 @@ module.exports = async (client, interaction, message, db) => {
                     const isValidHour = heure.search('h') === 2 && heure.length === 5;
 
                     if (isValidDate && isValidHour) {
-                        const epoch_timestamp = Date.parse(`${formatEventDate(date)} ${formatEventHour(heure)}`);
+                        let epoch_timestamp = Date.parse(`${formatEventDate(date)} ${formatEventHour(heure)}`);
+
+                        epoch_timestamp = epoch_timestamp.toString().slice(0, -3);
 
                         if (!isNaN(epoch_timestamp)) {
                             titre.replace(/'/g, "\\'");
@@ -52,24 +54,9 @@ module.exports = async (client, interaction, message, db) => {
                             const embed = createEventEmbed(client, interaction, titre, description, date, heure);
                             const reply = await interaction.reply({ embeds: [embed], components: [getEventEmbedRows()], fetchReply: true });
 
-
-                            let channel = client.channels.cache.get(interaction.channel.id);
-
-                            const differenceTemps = epoch_timestamp - Date.now();
-                            let differenceTempsTest = differenceTemps - 3600000
-
-                            let timeoutId
-
-                            if (differenceTempsTest > 0) {
-                                timeoutId = setTimeout(() => sendMessage(client, interaction, message, channel, titre, reply.id), differenceTemps - 3600000); // Soustraire une heure en millisecondes (1 heure = 3600000 ms)
-                            }
-
-
                             // Ajout de l'event dans la base de données
-                            client.db.query(`INSERT INTO events (event_id, channel_id, event_creator, guild_name, event_title, event_description, event_date, event_hour, epoch_timestamp, rappel, rappelMessageId) 
-                            VALUES ('${reply.id}', '${interaction.channel.id}','${interaction.user.id}','${interaction.guild.name}',"${titre}","${description}",'${date}','${heure}','${epoch_timestamp}','${timeoutId}','Null')`);
-
-
+                            client.db.query(`INSERT INTO events (event_id, channel_id, event_creator, guild_name, event_title, event_description, event_date, event_hour, epoch_timestamp, rappelMessageId) 
+                            VALUES ('${reply.id}', '${interaction.channel.id}','${interaction.user.id}','${interaction.guild.name}',"${titre}","${description}",'${date}','${heure}','${epoch_timestamp}', 'Null')`);
 
 
                         } else {
@@ -89,9 +76,6 @@ module.exports = async (client, interaction, message, db) => {
                     if (titre.toLowerCase() === 'annuler') {
                         const eventId = interaction.message.reference.messageId;
 
-                        client.db.query(`SELECT rappel FROM events WHERE event_id=${eventId}`, (err, req) => {
-                            clearTimeout(req[0].rappel);
-                        })
 
                         client.db.query(`DELETE FROM events WHERE event_id = ${eventId}`)
                         client.db.query(`DELETE FROM members_event_choice WHERE event_id = ${eventId}`)
@@ -119,7 +103,8 @@ module.exports = async (client, interaction, message, db) => {
                     if (date.search('/') === 2 && date.length === 10 && heure.search('h') === 2 && heure.length === 5) {
 
                         let epoch_timestamp = Date.parse(`${formatEventDate(date)} ${formatEventHour(heure)}`)
-
+                        epoch_timestamp = epoch_timestamp.toString().slice(0, -3);
+                        
                         if (!isNaN(Date.parse(`${formatEventDate(date)} ${formatEventHour(heure)}`))) {
 
 
@@ -152,28 +137,15 @@ module.exports = async (client, interaction, message, db) => {
 
                                 const embed = redrawEmbed(client, titre, description, formatEventDateHeureValue(date, heure), participants, indecis, reservistes, footer)
 
-                                client.db.query(`SELECT rappel FROM events WHERE event_id=${interaction.message.reference.messageId}`, (err, req) => {
-                                    clearTimeout(req[0].rappel);
+                                let channel = client.channels.cache.get(interaction.channel.id);
 
-                                    const differenceTemps = epoch_timestamp - Date.now();
-                                    let differenceTempsTest = differenceTemps - 3600000
+                                titre = titre.substring(8)
+                                client.db.query(`UPDATE events 
+                                    SET event_title="${titre}", event_description="${description}", event_date='${date}', event_hour='${heure}', epoch_timestamp='${epoch_timestamp}' WHERE event_id = '${interaction.message.reference.messageId}'`)
 
-                                    let channel = client.channels.cache.get(interaction.channel.id);
-
-                                    titre = titre.substring(8)
-                                    let timeoutId
-
-                                    if (differenceTempsTest > 0) {
-                                        timeoutId = setTimeout(() => sendMessage(client, interaction, message, channel, titre, interaction.message.reference.messageId), differenceTemps - 3600000); // Soustraire une heure en millisecondes (1 heure = 3600000 ms)
-                                    }
-
-                                    client.db.query(`UPDATE events 
-                                    SET event_title="${titre}", event_description="${description}", event_date='${date}', event_hour='${heure}', epoch_timestamp='${epoch_timestamp}', rappel='${timeoutId}' WHERE event_id = '${interaction.message.reference.messageId}'`)
-
-                                    channel = interaction.channel
-                                    channel.messages.edit(interaction.message.reference.messageId, { embeds: [embed] })
-                                    interaction.reply({ content: `L'événement a bien été modifié`, ephemeral: true })
-                                })
+                                channel = interaction.channel
+                                channel.messages.edit(interaction.message.reference.messageId, { embeds: [embed] })
+                                interaction.reply({ content: `L'événement a bien été modifié`, ephemeral: true })
 
 
                             })

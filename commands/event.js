@@ -1,4 +1,4 @@
-const { getEventCreationModal } = require("../functions/modals");
+const { getEventCreationModal } = require("../modules/modals");
 
 module.exports = {
     name: "event",
