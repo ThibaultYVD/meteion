@@ -8,12 +8,8 @@ async function eventReminderInterval(client, channel) {
 
                 // Parcourez la liste des evenst
                 for (const event of events) {
-                    console.log(event)
-
                     let channel = client.channels.cache.get(event.channel_id);
-
                     const messageSent = await channel.send(`## 📝 L'événement "${event.event_title}" commence <t:${event.epoch_timestamp}:R> !\nMerci de prévenir en cas de retard ou d'absence !`);
-                    console.log(messageSent.id)
                     client.db.query(`UPDATE events SET rappelMessageId='${messageSent.id}' WHERE event_id = '${event.event_id}'`)
                 }
             }
