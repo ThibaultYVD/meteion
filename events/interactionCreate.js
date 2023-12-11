@@ -11,7 +11,7 @@ module.exports = async (client, interaction, message) => {
         let username;
 
         if (interaction.member.nickname === null) {
-            username = interaction.user.username;
+            username = interaction.user.globalName;
         } else {
             username = interaction.member.nickname;
         }
@@ -104,7 +104,7 @@ module.exports = async (client, interaction, message) => {
 
                         let epoch_timestamp = Date.parse(`${formatEventDate(date)} ${formatEventHour(heure)}`)
                         epoch_timestamp = epoch_timestamp.toString().slice(0, -3);
-                        
+
                         if (!isNaN(Date.parse(`${formatEventDate(date)} ${formatEventHour(heure)}`))) {
 
 
