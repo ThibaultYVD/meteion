@@ -148,7 +148,7 @@ function formatEventDateHeureValue(date, heure) {
     let epoch_timestamp1 = epoch_timestamp.toString()
     let correct_epoch_timestamp = epoch_timestamp1.substring(0, epoch_timestamp1.length - 3)
 
-    return `Le <t:${correct_epoch_timestamp}:d> à <t:${correct_epoch_timestamp}:t> (<t:${correct_epoch_timestamp}:R>)`
+    return `Le <t:${correct_epoch_timestamp}:F> (<t:${correct_epoch_timestamp}:R>)`
 
 }
 
