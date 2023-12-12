@@ -1,10 +1,10 @@
 const Discord = require("discord.js");
 const loadSlashCommands = require("../config/loadSlashCommands");
 const loadDB = require("../config/db")
-//const { eventReminderInterval } = require("../jobs/eventReminder")
 const createEventReminderJob = require("../jobs/eventReminder")
+const createCloseEventJob = require("../jobs/closeEvent")
 
-module.exports = async (client, channel) => {
+module.exports = async (client) => {
 
     try {
         client.db = await loadDB()
@@ -25,7 +25,9 @@ module.exports = async (client, channel) => {
 
         // Lancement des jobs
         const eventReminderJob = createEventReminderJob(client);
+        const closeEventJob = createCloseEventJob(client);
         eventReminderJob.start()
+        closeEventJob.start()
 
         console.log(`\n${client.user.tag} est en ligne.`);
     } catch (error) {

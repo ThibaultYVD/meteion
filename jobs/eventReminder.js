@@ -2,7 +2,7 @@ const { CronJob } = require("cron");
 
 module.exports = (client) => {
     const job = new CronJob(
-        '0 * * * * *', // cronTime
+        '0 * * * * *', // se lance toutes les minutes
         () => eventReminder(client), // onTick (utilise une fonction anonyme pour passer le client)
         null, // onComplete
         false, // start
