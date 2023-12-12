@@ -1,7 +1,8 @@
 const Discord = require("discord.js");
 const loadSlashCommands = require("../config/loadSlashCommands");
 const loadDB = require("../config/db")
-const { eventReminderInterval } = require("../jobs/eventReminder")
+//const { eventReminderInterval } = require("../jobs/eventReminder")
+const createEventReminderJob = require("../jobs/eventReminder")
 
 module.exports = async (client, channel) => {
 
@@ -18,11 +19,13 @@ module.exports = async (client, channel) => {
             }
             console.log('\nConnecté à la base de données MySQL.\n');
 
-            
-        }),
 
+        }),
             await loadSlashCommands(client)
-            await eventReminderInterval(client, channel)
+
+        // Lancement des jobs
+        const eventReminderJob = createEventReminderJob(client);
+        eventReminderJob.start()
 
         console.log(`\n${client.user.tag} est en ligne.`);
     } catch (error) {
