@@ -1,6 +1,7 @@
 const { CronJob } = require("cron");
 const { archivingEvent } = require("../modules/cloturer-events")
 const { getDate } = require("../modules/date")
+const { createInfoLog, createWarnLog, createErrorLog } = require("../modules/logs")
 
 module.exports = (client) => {
     const job = new CronJob(
@@ -43,8 +44,9 @@ async function closeEvent(client) {
             });
         });
 
+        createInfoLog(client, `Le job closeEvent a été exécuté avec succès.`, "jobs/closeEvent.js", "null")
     } catch (error) {
-        console.log(error)
+        createErrorLog(client, `Le job closeEvent a échoué.`, "jobs/closeEvent.js", "null")
     }
 }
 

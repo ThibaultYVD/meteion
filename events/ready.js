@@ -3,6 +3,7 @@ const loadSlashCommands = require("../config/loadSlashCommands");
 const loadDB = require("../config/db")
 const createEventReminderJob = require("../jobs/eventReminder")
 const createCloseEventJob = require("../jobs/closeEvent")
+const { createInfoLog, createWarnLog, createErrorLog } = require("../modules/logs")
 
 module.exports = async (client) => {
 
@@ -14,6 +15,7 @@ module.exports = async (client) => {
                 console.log(err +
                     '\n/!\\ ERROR : Connexion à la base de données impossible. /!\\\nMerci de vérifier les variables de connexion dans le fichier .env.' +
                     `\nLe lancement de ${client.user.tag} a échoué.`)
+                createErrorLog(client, `Le lancement du client a échoué : Connexion à la base de données impossible.`, "events/ready.js", "null")
 
                 process.exit(0);
             }
@@ -31,7 +33,7 @@ module.exports = async (client) => {
 
         console.log(`\n${client.user.tag} est en ligne.`);
     } catch (error) {
-        console.log(error)
+        createErrorLog(client, `Le lancement du client a échoué.`, "events/ready.js", "null")
     }
 
 }

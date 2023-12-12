@@ -1,16 +1,15 @@
 const Discord = require("discord.js")
 const { formatEventDate, formatEventHour } = require("../modules/date")
-
+const { createInfoLog, createWarnLog, createErrorLog } = require("./logs")
 
 /**
  * Met à jour le choix de l'utilisateur en mettant à jour dans la BDD puis redessine l'embed'.
  */
 function updateChoice(client, interaction, username, choice) {
-    try {
-        client.db.query(`UPDATE guild_members SET user_tag = '${interaction.user.tag}', nickname = '${username}' WHERE user_id = '${interaction.user.id}'`)
+    client.db.query(`UPDATE guild_members SET user_tag = '${interaction.user.tag}', nickname = '${username}' WHERE user_id = '${interaction.user.id}'`)
 
-        if (choice == "Se retirer") {
-
+    if (choice == "Se retirer") {
+        try {
             client.db.query(`SELECT * FROM members_event_choice WHERE event_id = '${interaction.message.id}' AND user_id = '${interaction.user.id}'`, async (err, all) => {
 
 
@@ -51,7 +50,11 @@ function updateChoice(client, interaction, username, choice) {
                     interaction.deferUpdate()
                 }
             })
-        } else {
+        } catch (err) {
+            createErrorLog(client, `La mise à jour du choix ${choice} dans l'event avec l'id ${interaction.message.id} a échoué.`, "modules/event.js", interaction.user.id)
+        }
+    } else {
+        try {
             // Mise à jour de l'utilisateur dans la base de données
             client.db.query(`UPDATE members_event_choice SET choice_name = '${choice}', guild_nickname='${username}' WHERE user_id = '${interaction.user.id}' AND event_id = '${interaction.message.id}'`);
 
@@ -91,12 +94,10 @@ function updateChoice(client, interaction, username, choice) {
                     interaction.deferUpdate()
                 });
             });
+        } catch (error) {
+            createErrorLog(client, `La mise à jour du choix ${choice} dans l'event avec l'id ${interaction.message.id} a échoué.`, "modules/event.js", interaction.user.id)
         }
-
-    } catch (err) {
-        console.log(err)
     }
-
 }
 
 /**
@@ -104,12 +105,16 @@ function updateChoice(client, interaction, username, choice) {
  * @returns {String} formatté.
  */
 function formatList(list) {
-    if (list.length === 0) {
-        return '\u200B'; // Renvoie un espace sans largeur pour une liste vide
-    } else {
-        // Si la liste n'est pas vide, formate les éléments
-        const formattedList = list.map(item => `- ${item}\n`);
-        return formattedList.join(''); // Fusionne les éléments formatés en une seule chaîne
+    try {
+        if (list.length === 0) {
+            return '\u200B'; // Renvoie un espace sans largeur pour une liste vide
+        } else {
+            // Si la liste n'est pas vide, formate les éléments
+            const formattedList = list.map(item => `- ${item}\n`);
+            return formattedList.join(''); // Fusionne les éléments formatés en une seule chaîne
+        }
+    } catch (error) {
+        createErrorLog(client, `Le formattage de la liste des personnes a échoué.`, "modules/event.js", "null")
     }
 }
 
@@ -118,40 +123,47 @@ function formatList(list) {
  * @returns {Embed} d'un event.
  */
 function redrawEmbed(client, title, description, dateheure, participants, indecis, reservistes, footer) {
-    const formattedParticipants = formatList(participants);
-    const formattedIndecis = formatList(indecis);
-    const formattedReservistes = formatList(reservistes);
-    const embed = new Discord.EmbedBuilder()
-        .setColor(client.color)
-        .setTitle(title)
-        .setDescription(description)
-        .setThumbnail(client.user.displayAvatarURL({ dynamic: true }))
-        .addFields(
-            { name: 'Date et heure', value: dateheure },
-            { name: '\u200B', value: '\u200B' },
-            { name: '✅ Participants', value: formattedParticipants, inline: true },
-            { name: '❓Indécis', value: formattedIndecis, inline: true },
-            { name: '🪑 Réservistes', value: formattedReservistes, inline: true },
-        )
-        .setImage('https://i.stack.imgur.com/Fzh0w.png')
-        .setFooter(footer);
-
-    return embed;
+    try {
+        const formattedParticipants = formatList(participants);
+        const formattedIndecis = formatList(indecis);
+        const formattedReservistes = formatList(reservistes);
+        const embed = new Discord.EmbedBuilder()
+            .setColor(client.color)
+            .setTitle(title)
+            .setDescription(description)
+            .setThumbnail(client.user.displayAvatarURL({ dynamic: true }))
+            .addFields(
+                { name: 'Date et heure', value: dateheure },
+                { name: '\u200B', value: '\u200B' },
+                { name: '✅ Participants', value: formattedParticipants, inline: true },
+                { name: '❓Indécis', value: formattedIndecis, inline: true },
+                { name: '🪑 Réservistes', value: formattedReservistes, inline: true },
+            )
+            .setImage('https://i.stack.imgur.com/Fzh0w.png')
+            .setFooter(footer);
+    
+        return embed;
+    } catch (error) {
+        createErrorLog(client, `Le redessin de l'embed a échoué.`, "modules/event.js", "null")
+    }
 }
 
 
 
 function formatEventDateHeureValue(date, heure) {
-
-    const epoch_timestamp = Date.parse(`${formatEventDate(date)} ${formatEventHour(heure)}`)
-
-    let epoch_timestamp1 = epoch_timestamp.toString()
-    let correct_epoch_timestamp = epoch_timestamp1.substring(0, epoch_timestamp1.length - 3)
-
-    return `Le <t:${correct_epoch_timestamp}:F> (<t:${correct_epoch_timestamp}:R>)`
+    try {
+        const epoch_timestamp = Date.parse(`${formatEventDate(date)} ${formatEventHour(heure)}`)
+    
+        let epoch_timestamp1 = epoch_timestamp.toString()
+        let correct_epoch_timestamp = epoch_timestamp1.substring(0, epoch_timestamp1.length - 3)
+    
+        return `Le <t:${correct_epoch_timestamp}:F> (<t:${correct_epoch_timestamp}:R>)`
+    } catch (error) {
+        createErrorLog(client, `Le formattage de la date et de l'heure de l'event a échoué.`, "modules/event.js", "null")
+    }
 
 }
 
 
 
-module.exports = { updateChoice, redrawEmbed, formatEventDateHeureValue}
+module.exports = { updateChoice, redrawEmbed, formatEventDateHeureValue }

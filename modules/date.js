@@ -1,4 +1,3 @@
-
 /**
  * Obtient la date actuelle sous le format mm/dd/yyyy.
  * @returns {Date} La date actuelle .
