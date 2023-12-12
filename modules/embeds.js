@@ -1,7 +1,7 @@
 const {EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle} = require("discord.js")
 const { formatEventDateHeureValue } = require("./event")
 
-function createEventEmbed(client, interaction, titre, description, date, heure) {
+function createEventEmbed(client, interaction, username, titre, description, date, heure) {
     let embed = new EmbedBuilder()
         .setColor(client.color)
         .setTitle(`Event : ${titre}`)
@@ -18,7 +18,7 @@ function createEventEmbed(client, interaction, titre, description, date, heure) 
         )
         .setImage('https://i.stack.imgur.com/Fzh0w.png')
         .setFooter({
-            text: `Proposé par : ${interaction.user.username}`,
+            text: `Proposé par : ${username}`,
             iconURL: interaction.user.displayAvatarURL({ dynamic: false }),
         })
 

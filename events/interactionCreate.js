@@ -51,7 +51,7 @@ module.exports = async (client, interaction, message) => {
                             titre.replace(/'/g, "\\'");
                             description.replace(/'/g, "\\'");
 
-                            const embed = createEventEmbed(client, interaction, titre, description, date, heure);
+                            const embed = createEventEmbed(client, interaction, username, titre, description, date, heure);
                             const reply = await interaction.reply({ embeds: [embed], components: [getEventEmbedRows()], fetchReply: true });
 
                             // Ajout de l'event dans la base de données
