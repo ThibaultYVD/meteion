@@ -1,4 +1,5 @@
 const { getEventCreationModal } = require("../modules/modals");
+const { createInfoLog, createWarnLog, createErrorLog } = require("../modules/logs")
 
 module.exports = {
     name: "event",
@@ -51,11 +52,13 @@ module.exports = {
                 }
             })
 
+            createInfoLog(client, `La commande /event a été utilisé.`, "commands/event.js", event_creator_id)
+
             // Show the modal to the user
             await message.showModal(getEventCreationModal());
 
         } catch (error) {
-            console.log(error)
+            createInfoLog(client, `La commande /event a été utilisé mais a échoué.`, "commands/event.js", event_creator_id)
         }
 
 
