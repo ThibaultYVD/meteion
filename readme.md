@@ -1,4 +1,4 @@
-# Meteion
+# Météion
 
 Météion is a NodeJs app with the DiscordJs module. This application is used to create and organise events with other people in Discord.
 
@@ -19,4 +19,4 @@ The creator of the event can manage it by accessing the Admin Panel via the "Adm
 When the event's time come, a reminder is sent 1 hour before the beginning of the event.
 
 
-A second command, "/cloturer-anciens-event" is used to put the event that has been finished in archive and delete the according messages (event and reminder messages)
+The bot will send a message 1 hour before the beginning of the event automatically and delete the completed events messages every monday at 00h01 (UTC+1).
