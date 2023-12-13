@@ -19,11 +19,9 @@ module.exports = {
             //Variable user quand création d'un event
             let event_creator_id = message.user.id
             let event_creator_tag = message.user.tag
-            let event_creator_nickname = message
+            let event_creator_nickname = message.member.nickname
             let event_creator_guild_id = message.member.guild.id;
             let event_creator_guild_name = message.member.guild.name;
-
-
 
             // Ajout du serveur ou actualisation dans la base de données
             db.query(`SELECT * FROM guilds WHERE guild_id = '${message_guild_id}'`, function (err, row) {
