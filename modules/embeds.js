@@ -102,7 +102,7 @@ function getSettingsEmbed(client, closeEventValue, eventReminderValue) {
         .setColor(client.color)
         .setTitle("Paramètres de Météion")
         .addFields(
-            { name: '📅 Paramètres des événements', value: ' ' },
+            { name: '📅 Paramètres des événements', value: "------------------------" },
             { name: '- Suppression automatique des événements', value: closeEventValue, inline: true },
             { name: "- Envoie d'un message de rappel", value: eventReminderValue, inline: true },
         )

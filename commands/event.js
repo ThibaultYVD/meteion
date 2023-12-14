@@ -58,7 +58,5 @@ module.exports = {
         } catch (error) {
             createInfoLog(client, `La commande /event a été utilisé mais a échoué.`, "commands/event.js", event_creator_id)
         }
-
-
     }
 }

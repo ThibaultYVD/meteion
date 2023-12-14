@@ -267,12 +267,9 @@ module.exports = async (client, interaction, message) => {
                 default:
                     break;
             }
-
-
         }
     } catch (error) {
         console.log(error)
     }
 }
-
 
