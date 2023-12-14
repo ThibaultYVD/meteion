@@ -46,11 +46,11 @@ module.exports = async (client, interaction, message) => {
                         const isValidHour = heure.search('h') === 2 && heure.length === 5;
 
                         if (isValidDate && isValidHour) {
-                            let epoch_timestamp = Date.parse(`${formatEventDate(date)} ${formatEventHour(heure)}`);
+                            let epochTimestamp = Date.parse(`${formatEventDate(date)} ${formatEventHour(heure)}`);
 
-                            epoch_timestamp = epoch_timestamp.toString().slice(0, -3);
+                            epochTimestamp = epochTimestamp.toString().slice(0, -3);
 
-                            if (!isNaN(epoch_timestamp)) {
+                            if (!isNaN(epochTimestamp)) {
                                 titre.replace(/'/g, "\\'");
                                 description.replace(/'/g, "\\'");
 
@@ -58,8 +58,8 @@ module.exports = async (client, interaction, message) => {
                                 const reply = await interaction.reply({ embeds: [embed], components: [getEventEmbedRows()], fetchReply: true });
 
                                 // Ajout de l'event dans la base de données
-                                client.db.query(`INSERT INTO events (event_id, channel_id, event_creator, guild_id, event_title, event_description, event_date, event_hour, epoch_timestamp, rappelMessageId) 
-                                VALUES ('${reply.id}', '${interaction.channel.id}','${interaction.user.id}','${interaction.guild.id}',"${titre}","${description}",'${date}','${heure}','${epoch_timestamp}', 'Null')`);
+                                client.db.query(`INSERT INTO events (event_id, channel_id, event_creator, guild_id, event_title, event_description, event_date, event_hour, epoch_timestamp, rappel_message_id) 
+                                VALUES ('${reply.id}', '${interaction.channel.id}','${interaction.user.id}','${interaction.guild.id}',"${titre}","${description}",'${date}','${heure}','${epochTimestamp}', 'Null')`);
 
 
                             } else {
@@ -73,6 +73,7 @@ module.exports = async (client, interaction, message) => {
                         break;
 
                     } catch (error) {
+                        console.log(error)
                         createErrorLog(client, `L'interaction eventCreationModal a échoué.`, "events/interactionCreate.js", interaction.user.id)
                     }
 
@@ -84,16 +85,20 @@ module.exports = async (client, interaction, message) => {
 
                         if (titre.toLowerCase() === 'annuler') {
                             const eventId = interaction.message.reference.messageId;
-
-
-                            client.db.query(`DELETE FROM events WHERE event_id = ${eventId}`)
-                            client.db.query(`DELETE FROM members_event_choice WHERE event_id = ${eventId}`)
-
                             channel = interaction.channel
-                            channel.messages.delete(eventId)
-                            await interaction.reply({ content: `L'événement a bien été supprimé.\n*Vous pouvez supprimer ce message. ⬇️*`, ephemeral: true });
+
+                            client.db.query(`SELECT rappel_message_id FROM events WHERE event_id = ${eventId}`, async (req, res) => {
+                                if (res[0].rappel_message_id !== 'Null') channel.messages.delete(res[0].rappel_message_id)
+
+                                client.db.query(`DELETE FROM events WHERE event_id = ${eventId}`)
+                                client.db.query(`DELETE FROM members_event_choice WHERE event_id = ${eventId}`)
+
+                                channel.messages.delete(eventId)
+                                await interaction.deferUpdate()
+                            })
+
                         } else {
-                            await interaction.reply({ content: `La validation a échoué.\n*Vous pouvez supprimer ce message. ⬇️*`, ephemeral: true });
+                            await interaction.reply({ content: `la validation a échouée; vous n'avez pas entré "annuler"`, ephemeral: true });
                         }
 
                         createInfoLog(client, `L'interaction eventDeleteModal a été exécuté avec succès.`, "events/interactionCreate.js", interaction.user.id)
@@ -117,8 +122,8 @@ module.exports = async (client, interaction, message) => {
 
                         if (date.search('/') === 2 && date.length === 10 && heure.search('h') === 2 && heure.length === 5) {
 
-                            let epoch_timestamp = Date.parse(`${formatEventDate(date)} ${formatEventHour(heure)}`)
-                            epoch_timestamp = epoch_timestamp.toString().slice(0, -3);
+                            let epochTimestamp = Date.parse(`${formatEventDate(date)} ${formatEventHour(heure)}`)
+                            epochTimestamp = epochTimestamp.toString().slice(0, -3);
 
                             if (!isNaN(Date.parse(`${formatEventDate(date)} ${formatEventHour(heure)}`))) {
 
@@ -156,19 +161,18 @@ module.exports = async (client, interaction, message) => {
 
                                     titre = titre.substring(8)
                                     client.db.query(`UPDATE events 
-                                        SET event_title="${titre}", event_description="${description}", event_date='${date}', event_hour='${heure}', epoch_timestamp='${epoch_timestamp}' WHERE event_id = '${interaction.message.reference.messageId}'`)
+                                        SET event_title="${titre}", event_description="${description}", event_date='${date}', event_hour='${heure}', epoch_timestamp='${epochTimestamp}' WHERE event_id = '${interaction.message.reference.messageId}'`)
 
                                     channel = interaction.channel
                                     channel.messages.edit(interaction.message.reference.messageId, { embeds: [embed] })
-                                    interaction.reply({ content: `L'événement a bien été modifié`, ephemeral: true })
-
+                                    interaction.deferUpdate()
 
                                 })
                             } else {
-                                await interaction.reply({ content: `Erreur(s) au niveau de la **date** et/ou de **l'heure** : \nLa date doit être au format **"JJ/MM/AAAA"**.\nL'heure doit être au format **"HH__h__MM"**.\n*Vous pouvez supprimer ce message. ⬇️*`, ephemeral: true });
+                                await interaction.reply({ content: `Erreur(s) au niveau de la **date** et/ou de **l'heure** : \nLa date doit être au format **"JJ/MM/AAAA"**.\nL'heure doit être au format **"HH__h__MM"**.`, ephemeral: true });
                             }
                         } else {
-                            await interaction.reply({ content: `Erreur(s) au niveau de la **date** et/ou de **l'heure** : \nLa date doit être au format **"JJ/MM/AAAA"**.\nL'heure doit être au format **"HHhMM"**.\n*Vous pouvez supprimer ce message. ⬇️*`, ephemeral: true });
+                            await interaction.reply({ content: `Erreur(s) au niveau de la **date** et/ou de **l'heure** : \nLa date doit être au format **"JJ/MM/AAAA"**.\nL'heure doit être au format **"HHhMM"**.`, ephemeral: true });
                         }
 
                         createInfoLog(client, `L'interaction eventEditModal a été exécuté avec succès.`, "events/interactionCreate.js", interaction.user.id)
@@ -183,7 +187,6 @@ module.exports = async (client, interaction, message) => {
         }
 
         if (interaction.isButton()) {
-            let embed, closeEventValue, eventReminderValue
             switch (interaction.customId) {
 
 
@@ -207,17 +210,17 @@ module.exports = async (client, interaction, message) => {
 
                 // Admin Panel
                 case "eventAdminPanel":
-                    client.db.query(`SELECT * FROM events WHERE event_id = '${interaction.message.id}'`, async (err, req) => {
-                        if (req.length > 0) {
-                            const isAdmin = req[0].event_creator === interaction.user.id ||
+                    client.db.query(`SELECT * FROM events WHERE event_id = '${interaction.message.id}'`, async (req, res) => {
+                        if (res.length > 0) {
+                            const isAdmin = res[0].event_creator === interaction.user.id ||
                                 interaction.user.id === process.env.SUPERADMIN1 ||
                                 interaction.user.id === process.env.SUPERADMIN2;
 
                             if (isAdmin) {
                                 let titre = interaction.message.embeds[0].title.substring(8)
                                 let description = interaction.message.embeds[0].description
-                                let date = req[0].event_date
-                                let heure = req[0].event_hour
+                                let date = res[0].event_date
+                                let heure = res[0].event_hour
 
                                 await interaction.reply({
                                     embeds: [getAdminPanelEmbed(client, titre, description, date, heure)], components: [getAdminPanelRows()], ephemeral: true
@@ -252,11 +255,11 @@ module.exports = async (client, interaction, message) => {
 
 
                 case "toggleCloseEvent":
-                    toggleSettingValue(client, interaction, 1, "closeEventValue");
+                    toggleSettingValue(client, interaction, 1, "close_event_value");
                     break;
 
                 case "toggleEventReminder":
-                    toggleSettingValue(client, interaction, 2, "eventReminderValue");
+                    toggleSettingValue(client, interaction, 2, "event_reminder_value");
                     break;
 
                 case "deleteSettingsMessage":

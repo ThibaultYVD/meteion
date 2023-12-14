@@ -22,10 +22,10 @@ function toggleSettingValue(client, interaction, settingFieldIndex, dbColumn) {
         client.db.query(`UPDATE guilds SET ${dbColumn} = '${newValue}' WHERE guild_id = '${interaction.message.guild.id}'`);
 
         switch (dbColumn) {
-            case "closeEventValue":
+            case "close_event_value":
                 embed = getSettingsEmbed(client, newValue, eventReminderValue);
                 break;
-            case "eventReminderValue":
+            case "event_reminder_value":
                 embed = getSettingsEmbed(client, closeEventValue, newValue);
                 break;
             default:

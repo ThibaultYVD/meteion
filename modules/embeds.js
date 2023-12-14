@@ -47,7 +47,7 @@ function getEventEmbedRows() {
                 .setStyle(ButtonStyle.Danger),
             new ButtonBuilder()
                 .setCustomId('eventAdminPanel')
-                .setLabel('Administration')
+                .setLabel("Gérer l'événement")
                 .setStyle(ButtonStyle.Danger),
         );
 
@@ -62,7 +62,7 @@ function getEventEmbedRows() {
  * @returns {embed}.
  */
 function getAdminPanelEmbed(client, title, description, date, heure) {
-    const AdminPanel = new EmbedBuilder()
+    const embed = new EmbedBuilder()
         .setColor(client.color)
         .setTitle("Administration")
         .setThumbnail(client.user.displayAvatarURL({ dynamic: true }))
@@ -78,7 +78,7 @@ function getAdminPanelEmbed(client, title, description, date, heure) {
             iconURL: client.user.displayAvatarURL({ dynamic: false })
         });
 
-    return AdminPanel
+    return embed
 }
 
 function getAdminPanelRows() {
@@ -98,7 +98,7 @@ function getAdminPanelRows() {
 }
 
 function getSettingsEmbed(client, closeEventValue, eventReminderValue) {
-    const settingsEmbed = new EmbedBuilder()
+    const embed = new EmbedBuilder()
         .setColor(client.color)
         .setTitle("Paramètres de Météion")
         .addFields(
@@ -112,7 +112,7 @@ function getSettingsEmbed(client, closeEventValue, eventReminderValue) {
             iconURL: client.user.displayAvatarURL({ dynamic: false })
         });
 
-    return settingsEmbed
+    return embed
 }
 
 function getSettingsRows() {
@@ -140,7 +140,7 @@ function getSettingsRows() {
  * @returns {embed}.
  */
 function getErrorEmbed(error) {
-    return errEmbed = new EmbedBuilder()
+    return embed = new EmbedBuilder()
         .setTitle("New Error")
         .setColor("#FF0000")
         .setDescription("An error just occured!**\n\nERROR:\n\n** ```" + error + "```")

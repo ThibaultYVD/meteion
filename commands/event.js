@@ -11,52 +11,41 @@ module.exports = {
 
     async run(client, message, args, db) {
         try {
-            // Variables guilds
-            let message_guild_id = message.guild.id;
-            let message_guild_name = message.guild.name;
-            let message_guild_total_members = message.guild.memberCount;
-
-            //Variable user quand création d'un event
-            let event_creator_id = message.user.id
-            let event_creator_tag = message.user.tag
-            let event_creator_nickname = message.member.nickname
-            let event_creator_guild_id = message.member.guild.id;
-            let event_creator_guild_name = message.member.guild.name;
-
             // Ajout du serveur ou actualisation dans la base de données
-            db.query(`SELECT * FROM guilds WHERE guild_id = '${message_guild_id}'`, function (err, row) {
-                if (row && row.length) {
-                    db.query(`UPDATE guilds SET guild_name = '${message_guild_name}', guild_total_members = ${message_guild_total_members} WHERE guild_id = '${message_guild_id}'`)
+            client.db.query(`SELECT * FROM guilds WHERE guild_id = '${message.guild.id}'`, function (req, res) {
+                if (res.length != 0) {
+                    client.db.query(`UPDATE guilds SET guild_name = '${message.guild.name}', guild_total_members = ${message.guild.memberCount} WHERE guild_id = '${message.guild.id}'`)
                 } else {
-                    db.query(`INSERT INTO guilds (guild_id, guild_name, guild_total_members, closeEventValue, eventReminderValue) VALUE ('${message_guild_id}', '${message_guild_name}', ${message_guild_total_members}, '✅ Activé', '✅ Activé')`)
+                    client.db.query(`INSERT INTO guilds (guild_id, guild_name, guild_total_members, close_event_value, event_reminder_value) VALUE ('${message.guild.id}', '${message.guild.name}', ${message.guild.memberCount}, '✅ Activé', '✅ Activé')`)
                 }
             })
 
             // Ajout de l'utilisateur qui a créé l'event dans la bdd
-            db.query(`SELECT * FROM users WHERE user_id = '${event_creator_id}'`, function (err, row) {
-                if (row && row.length) {
-                    db.query(`UPDATE users SET user_tag = '${event_creator_tag}' WHERE user_id = ${event_creator_id}`)
+            client.db.query(`SELECT * FROM users WHERE user_id = '${message.user.id}'`, function (req, res) {
+                if (res.length != 0) {
+                    client.db.query(`UPDATE users SET user_tag = '${message.user.tag}' WHERE user_id = ${message.user.id}`)
                 } else {
-                    db.query(`INSERT INTO users (user_id, user_tag) VALUE ('${event_creator_id}', '${event_creator_tag}')`)
+                    client.db.query(`INSERT INTO users (user_id, user_tag) VALUE ('${message.user.id}', '${message.user.tag}')`)
                 }
             })
 
             // Ajout du membre qui a créé l'event dans la bdd
-            db.query(`SELECT * FROM guild_members WHERE user_id = '${event_creator_id}'`, function (err, row) {
-                if (row && row.length) {
-                    db.query(`UPDATE guild_members SET user_tag = '${event_creator_tag}', nickname = '${event_creator_nickname}', guild_name = '${event_creator_guild_name}' WHERE user_id = '${event_creator_id}'`)
+            client.db.query(`SELECT * FROM guild_members WHERE user_id = '${message.user.id}'`, function (req, res) {
+                if (res.length != 0) {
+                    client.db.query(`UPDATE guild_members SET user_tag = '${message.user.tag}', nickname = '${message.member.nickname}', guild_name = '${message.member.guild.name}' WHERE user_id = '${message.user.id}'`)
                 } else {
-                    db.query(`INSERT INTO guild_members (user_id, user_tag, guild_name, nickname) VALUE ('${event_creator_id}', '${event_creator_tag}', '${event_creator_guild_name}', '${event_creator_nickname}')`)
+                    client.db.query(`INSERT INTO guild_members (user_id, user_tag, guild_name, nickname) VALUE ('${message.user.id}', '${message.user.tag}', '${message.member.guild.name}', '${message.member.nickname}')`)
                 }
             })
 
-            createInfoLog(client, `La commande /event a été utilisé.`, "commands/event.js", event_creator_id)
+            createInfoLog(client, `La commande /event a été utilisé.`, "commands/event.js", message.user.id)
 
             // Show the modal to the user
             await message.showModal(getEventCreationModal());
 
         } catch (error) {
-            createInfoLog(client, `La commande /event a été utilisé mais a échoué.`, "commands/event.js", event_creator_id)
+            console.log(error)
+            createInfoLog(client, `La commande /event a été utilisé mais a échoué.`, "commands/event.js", message.user.id)
         }
     }
 }

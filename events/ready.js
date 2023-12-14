@@ -10,9 +10,9 @@ module.exports = async (client) => {
     try {
         client.db = await loadDB()
 
-        client.db.connect(function (err) {
-            if (err) {
-                console.log(err +
+        client.db.connect(function (error) {
+            if (error) {
+                console.log(error +
                     '\n/!\\ ERROR : Connexion à la base de données impossible. /!\\\nMerci de vérifier les variables de connexion dans le fichier .env.' +
                     `\nLe lancement de ${client.user.tag} a échoué.`)
 
