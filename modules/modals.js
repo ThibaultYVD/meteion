@@ -59,7 +59,7 @@ function getEventCreationModal() {
  * @returns {modal}.
  */
 function getEventEditModal(title, description, date, heure) {
-    const modalEdit = new ModalBuilder()
+    const modal = new ModalBuilder()
         .setCustomId('eventEditModal')
         .setTitle(`Modification d'un événement.`);
 
@@ -98,13 +98,13 @@ function getEventEditModal(title, description, date, heure) {
         .setRequired(true);
 
     // Add inputs to the modal
-    modalEdit.addComponents(
+    modal.addComponents(
         new ActionRowBuilder().addComponents(eventEditTitleInput),
         new ActionRowBuilder().addComponents(eventEditDescInput),
         new ActionRowBuilder().addComponents(eventEditDateInput),
         new ActionRowBuilder().addComponents(eventEditHourInput));
 
-    return modalEdit
+    return modal
 }
 
 
