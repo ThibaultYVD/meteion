@@ -14,8 +14,9 @@ module.exports = (client) => {
 
 async function eventReminder(client) {
     try {
-        const sql = "SELECT * FROM events WHERE rappelMessageId = 'Null' AND epoch_timestamp < UNIX_TIMESTAMP(NOW()) + 3600";
+        const sql = "SELECT events.* FROM events JOIN guilds ON events.guild_id = guilds.guild_id WHERE rappelMessageId = 'Null' AND epoch_timestamp < UNIX_TIMESTAMP(NOW()) + 3600 AND guilds.eventReminderValue = '✅ Activé'";
         client.db.query(sql, async (req, events) => {
+
             if (events.length === 0) return
 
             // Parcourez la liste des événements
