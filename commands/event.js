@@ -28,7 +28,7 @@ module.exports = {
                 if (row && row.length) {
                     db.query(`UPDATE guilds SET guild_name = '${message_guild_name}', guild_total_members = ${message_guild_total_members} WHERE guild_id = '${message_guild_id}'`)
                 } else {
-                    db.query(`INSERT INTO guilds (guild_id, guild_name, guild_total_members) VALUE ('${message_guild_id}', '${message_guild_name}', ${message_guild_total_members})`)
+                    db.query(`INSERT INTO guilds (guild_id, guild_name, guild_total_members, closeEventValue, eventReminderValue) VALUE ('${message_guild_id}', '${message_guild_name}', ${message_guild_total_members}, '✅ Activé', '✅ Activé')`)
                 }
             })
 

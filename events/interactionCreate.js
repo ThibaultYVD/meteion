@@ -5,6 +5,8 @@ const { updateChoice, redrawEmbed, formatEventDateHeureValue, sendMessage } = re
 const { getEventEditModal, getEventDeleteModal } = require("../modules/modals")
 const { formatEventDate, formatEventHour } = require("../modules/date")
 const { createInfoLog, createWarnLog, createErrorLog } = require("../modules/logs")
+const { toggleSettingValue } = require("../modules/settings")
+const { PermissionsBitField } = require('discord.js');
 
 module.exports = async (client, interaction, message) => {
     try {
@@ -56,8 +58,8 @@ module.exports = async (client, interaction, message) => {
                                 const reply = await interaction.reply({ embeds: [embed], components: [getEventEmbedRows()], fetchReply: true });
 
                                 // Ajout de l'event dans la base de données
-                                client.db.query(`INSERT INTO events (event_id, channel_id, event_creator, guild_name, event_title, event_description, event_date, event_hour, epoch_timestamp, rappelMessageId) 
-                                VALUES ('${reply.id}', '${interaction.channel.id}','${interaction.user.id}','${interaction.guild.name}',"${titre}","${description}",'${date}','${heure}','${epoch_timestamp}', 'Null')`);
+                                client.db.query(`INSERT INTO events (event_id, channel_id, event_creator, guild_id, event_title, event_description, event_date, event_hour, epoch_timestamp, rappelMessageId) 
+                                VALUES ('${reply.id}', '${interaction.channel.id}','${interaction.user.id}','${interaction.guild.id}',"${titre}","${description}",'${date}','${heure}','${epoch_timestamp}', 'Null')`);
 
 
                             } else {
@@ -77,16 +79,16 @@ module.exports = async (client, interaction, message) => {
 
                 case "DeleteEventModal":
                     try {
-                        
+
                         titre = interaction.fields.getTextInputValue('eventTitleDelete');
-    
+
                         if (titre.toLowerCase() === 'annuler') {
                             const eventId = interaction.message.reference.messageId;
-    
-    
+
+
                             client.db.query(`DELETE FROM events WHERE event_id = ${eventId}`)
                             client.db.query(`DELETE FROM members_event_choice WHERE event_id = ${eventId}`)
-    
+
                             channel = interaction.channel
                             channel.messages.delete(eventId)
                             await interaction.reply({ content: `L'événement a bien été supprimé.\n*Vous pouvez supprimer ce message. ⬇️*`, ephemeral: true });
@@ -107,23 +109,23 @@ module.exports = async (client, interaction, message) => {
                         let participants = []
                         let indecis = []
                         let reservistes = []
-    
+
                         titre = interaction.fields.getTextInputValue('eventTitle');
                         description = interaction.fields.getTextInputValue('eventDesc');
                         date = interaction.fields.getTextInputValue('eventDate');
                         heure = interaction.fields.getTextInputValue('eventHour');
-    
+
                         if (date.search('/') === 2 && date.length === 10 && heure.search('h') === 2 && heure.length === 5) {
-    
+
                             let epoch_timestamp = Date.parse(`${formatEventDate(date)} ${formatEventHour(heure)}`)
                             epoch_timestamp = epoch_timestamp.toString().slice(0, -3);
-    
+
                             if (!isNaN(Date.parse(`${formatEventDate(date)} ${formatEventHour(heure)}`))) {
-    
-    
+
+
                                 client.db.query(`SELECT guild_nickname, choice_name FROM members_event_choice WHERE event_id = '${interaction.message.reference.messageId}'`, (err, req) => {
-    
-    
+
+
                                     for (let i = 0; i < req.length; i++) {
                                         switch (req[i].choice_name) {
                                             case 'Participant':
@@ -139,28 +141,28 @@ module.exports = async (client, interaction, message) => {
                                                 break;
                                         }
                                     }
-    
+
                                     titre = ("Event : " + titre).replace(/'/g, "\\'");
                                     description.replace(/'/g, "\\'")
-    
+
                                     const footer = ({
                                         text: `Proposé par : ${interaction.user.username}`,
                                         iconURL: interaction.user.displayAvatarURL({ dynamic: false }),
                                     })
-    
+
                                     const embed = redrawEmbed(client, titre, description, formatEventDateHeureValue(date, heure), participants, indecis, reservistes, footer)
-    
+
                                     let channel = client.channels.cache.get(interaction.channel.id);
-    
+
                                     titre = titre.substring(8)
                                     client.db.query(`UPDATE events 
                                         SET event_title="${titre}", event_description="${description}", event_date='${date}', event_hour='${heure}', epoch_timestamp='${epoch_timestamp}' WHERE event_id = '${interaction.message.reference.messageId}'`)
-    
+
                                     channel = interaction.channel
                                     channel.messages.edit(interaction.message.reference.messageId, { embeds: [embed] })
                                     interaction.reply({ content: `L'événement a bien été modifié`, ephemeral: true })
-    
-    
+
+
                                 })
                             } else {
                                 await interaction.reply({ content: `Erreur(s) au niveau de la **date** et/ou de **l'heure** : \nLa date doit être au format **"JJ/MM/AAAA"**.\nL'heure doit être au format **"HH__h__MM"**.\n*Vous pouvez supprimer ce message. ⬇️*`, ephemeral: true });
@@ -181,6 +183,7 @@ module.exports = async (client, interaction, message) => {
         }
 
         if (interaction.isButton()) {
+            let embed, closeEventValue, eventReminderValue
             switch (interaction.customId) {
 
 
@@ -245,6 +248,20 @@ module.exports = async (client, interaction, message) => {
                 // Annuler l'évent
                 case "eventDelete":
                     await interaction.showModal(getEventDeleteModal());
+                    break;
+
+
+                case "toggleCloseEvent":
+                    toggleSettingValue(client, interaction, 1, "closeEventValue");
+                    break;
+
+                case "toggleEventReminder":
+                    toggleSettingValue(client, interaction, 2, "eventReminderValue");
+                    break;
+
+                case "deleteSettingsMessage":
+                    if (interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) interaction.message.delete()
+                    else interaction.reply({ content: `Seuls les administrateurs du serveur peuvent supprimer ce message.`, ephemeral: true })
                     break;
 
                 default:

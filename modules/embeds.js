@@ -1,4 +1,4 @@
-const {EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle} = require("discord.js")
+const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require("discord.js")
 const { formatEventDateHeureValue } = require("./event")
 
 function createEventEmbed(client, interaction, username, titre, description, date, heure) {
@@ -97,6 +97,43 @@ function getAdminPanelRows() {
     return row
 }
 
+function getSettingsEmbed(client, closeEventValue, eventReminderValue) {
+    const settingsEmbed = new EmbedBuilder()
+        .setColor(client.color)
+        .setTitle("Paramètres de Météion")
+        .addFields(
+            { name: '📅 Paramètres des événements', value: ' ' },
+            { name: '- Suppression automatique des événements', value: closeEventValue, inline: true },
+            { name: "- Envoie d'un message de rappel", value: eventReminderValue, inline: true },
+        )
+        .setImage('https://i.stack.imgur.com/Fzh0w.png')
+        .setFooter({
+            text: `Paramètres de ${client.user.username}`,
+            iconURL: client.user.displayAvatarURL({ dynamic: false })
+        });
+
+    return settingsEmbed
+}
+
+function getSettingsRows() {
+    const row = new ActionRowBuilder()
+        .addComponents(
+            new ButtonBuilder()
+                .setCustomId('toggleCloseEvent')
+                .setLabel(`Changer Suppression automatique des événements`)
+                .setStyle(ButtonStyle.Primary),
+            new ButtonBuilder()
+                .setCustomId('toggleEventReminder')
+                .setLabel(`Changer Envoie d'un message de rappel`)
+                .setStyle(ButtonStyle.Primary),
+            new ButtonBuilder()
+                .setCustomId('deleteSettingsMessage')
+                .setLabel(`Supprimer ce message`)
+                .setStyle(ButtonStyle.Danger),
+        );
+
+    return row
+}
 
 /**
  * Obtient l'embed pour afficher des erreurs'.
@@ -111,4 +148,4 @@ function getErrorEmbed(error) {
         .setFooter("Anti-Crash System")
 }
 
-module.exports = { createEventEmbed, getEventEmbedRows, getAdminPanelEmbed, getAdminPanelRows, getErrorEmbed }
+module.exports = { createEventEmbed, getEventEmbedRows, getAdminPanelEmbed, getAdminPanelRows, getSettingsEmbed, getSettingsRows, getErrorEmbed }

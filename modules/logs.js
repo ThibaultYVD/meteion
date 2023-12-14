@@ -1,7 +1,6 @@
 async function createInfoLog(client, logMessage, source, user_id) {
     sql = `INSERT INTO logs(log_level, message, source, user_id) VALUES ("info","${logMessage}","${source}","${user_id}")`
     client.db.query(sql)
-    console.log(sql)
 }
 
 async function createWarnLog(client, logMessage, source, user_id) {

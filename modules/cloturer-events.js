@@ -1,6 +1,6 @@
 const { createInfoLog, createWarnLog, createErrorLog } = require("./logs")
 
-function archivingEvent(client, event_id, guild_name, title, description, date, heure) {
+function archivingEvent(client, event_id, guild_id, title, description, date, heure) {
     try {
         // Compter les participants, les indécis et les réservistes
         client.db.query(`SELECT COUNT(*) AS participantCount FROM members_event_choice WHERE event_id = '${event_id}' AND choice_name = 'Participant'`, function (err, count0) {
@@ -11,8 +11,8 @@ function archivingEvent(client, event_id, guild_name, title, description, date, 
                     const reservistes = count2[0].RéservisteCount;
 
                     // Archiver l'événement
-                    client.db.query(`INSERT INTO events_archives (guild_name, event_title, event_description, event_date, event_hour, total_participant, total_indecis, total_reserviste) 
-                VALUES ('${guild_name}','${title}','${description}','${date}','${heure}',${participants},${indécis},${reservistes})`);
+                    client.db.query(`INSERT INTO events_archives (guild_id, event_title, event_description, event_date, event_hour, total_participant, total_indecis, total_reserviste) 
+                VALUES ('${guild_id}','${title}','${description}','${date}','${heure}',${participants},${indécis},${reservistes})`);
 
                     // Supprimer l'événement de la table events
                     client.db.query(`DELETE FROM events WHERE event_id = ${event_id}`);
