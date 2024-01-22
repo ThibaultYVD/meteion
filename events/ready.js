@@ -1,4 +1,3 @@
-const Discord = require("discord.js");
 const loadSlashCommands = require("../config/loadSlashCommands");
 const loadDB = require("../config/db")
 const createEventReminderJob = require("../jobs/eventReminder")
