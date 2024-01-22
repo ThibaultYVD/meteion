@@ -1,6 +1,6 @@
-const Discord = require("discord.js");
 const { getSettingsEmbed, getSettingsRows } = require("../modules/embeds");
 const { PermissionsBitField } = require('discord.js');
+
 module.exports = {
     name: "settings",
     description: "Accéder aux paramètres de Météion.",

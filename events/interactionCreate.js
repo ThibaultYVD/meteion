@@ -210,28 +210,31 @@ module.exports = async (client, interaction, message) => {
 
                 // Admin Panel
                 case "eventAdminPanel":
-                    client.db.query(`SELECT * FROM events WHERE event_id = '${interaction.message.id}'`, async (req, res) => {
-                        if (res.length > 0) {
-                            const isAdmin = res[0].event_creator === interaction.user.id ||
-                                interaction.user.id === process.env.SUPERADMIN1 ||
-                                interaction.user.id === process.env.SUPERADMIN2;
+                    try{
+                        client.db.query(`SELECT * FROM events WHERE event_id = '${interaction.message.id}'`, async (req, res) => {
+                            if (res.length > 0) {
+                                const isAdmin = res[0].event_creator === interaction.user.id ||
+                                    interaction.user.id === process.env.SUPERADMIN1 ||
+                                    interaction.user.id === process.env.SUPERADMIN2;
+    
+                                if (isAdmin) {
+                                    let titre = interaction.message.embeds[0].title.substring(8)
+                                    let description = interaction.message.embeds[0].description
+                                    let date = res[0].event_date
+                                    let heure = res[0].event_hour
+    
+                                    await interaction.reply({
+                                        embeds: [getAdminPanelEmbed(client, titre, description, date, heure)], components: [getAdminPanelRows()], ephemeral: true
+                                    });
+                                } else {
+                                    await interaction.reply({ content: `Vous n'avez pas les droits sur cet événement.`, ephemeral: true });
+                                }
+                            } 
+                        })
 
-                            if (isAdmin) {
-                                let titre = interaction.message.embeds[0].title.substring(8)
-                                let description = interaction.message.embeds[0].description
-                                let date = res[0].event_date
-                                let heure = res[0].event_hour
-
-                                await interaction.reply({
-                                    embeds: [getAdminPanelEmbed(client, titre, description, date, heure)], components: [getAdminPanelRows()], ephemeral: true
-                                });
-                            } else {
-                                await interaction.reply({ content: `Vous n'avez pas les droits sur cet événement.`, ephemeral: true });
-                            }
-                        } else {
-                            await interaction.reply({ content: `erreur`, ephemeral: true });
-                        }
-                    })
+                    }catch(error){
+                        console.log(error)
+                    }
                     break;
 
 

@@ -1,4 +1,5 @@
 const fs = require("fs");
+
 module.exports = async (client) => {
   try {
     fs.readdirSync("./commands").filter((f) => f.endsWith(".js")).forEach(async (file) => {

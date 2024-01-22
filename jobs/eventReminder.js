@@ -3,7 +3,7 @@ const { createInfoLog, createWarnLog, createErrorLog } = require("../modules/log
 
 module.exports = (client) => {
     const job = new CronJob(
-        '0 * * * * *', // se lance toutes les minutes
+        '* * * * * *', // se lance toutes les minutes
         () => eventReminder(client), // onTick (utilise une fonction anonyme pour passer le client)
         null, // onComplete
         false, // start
@@ -16,7 +16,7 @@ async function eventReminder(client) {
     try {
         const sql = "SELECT events.* FROM events JOIN guilds ON events.guild_id = guilds.guild_id WHERE rappel_message_id = 'Null' AND epoch_timestamp < UNIX_TIMESTAMP(NOW()) + 3600 AND guilds.event_reminder_value = '✅ Activé'";
         client.db.query(sql, async (req, events) => {
-
+            
             if (events.length === 0) return
 
             // Parcourez la liste des événements
