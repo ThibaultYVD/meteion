@@ -6,7 +6,8 @@ const { createInfoLog, createWarnLog, createErrorLog } = require("./logs")
  * Met à jour le choix de l'utilisateur en mettant à jour dans la BDD puis redessine l'embed'.
  */
 function updateChoice(client, interaction, username, choice) {
-    client.db.query(`UPDATE guild_members SET user_tag = '${interaction.user.tag}', nickname = '${username}' WHERE user_id = '${interaction.user.id}'`)
+    
+    client.db.query(`UPDATE guild_members SET user_tag = '${interaction.user.tag}', nickname = "${username}" WHERE user_id = '${interaction.user.id}'`)
 
     if (choice == "Se retirer") {
         try {
@@ -56,16 +57,16 @@ function updateChoice(client, interaction, username, choice) {
     } else {
         try {
             // Mise à jour de l'utilisateur dans la base de données
-            client.db.query(`UPDATE members_event_choice SET choice_name = '${choice}', guild_nickname='${username}' WHERE user_id = '${interaction.user.id}' AND event_id = '${interaction.message.id}'`);
+            client.db.query(`UPDATE members_event_choice SET choice_name = '${choice}', guild_nickname="${username}" WHERE user_id = '${interaction.user.id}' AND event_id = '${interaction.message.id}'`);
 
             // Vérifie si l'utilisateur a déjà fait un choix pour cet événement
             client.db.query(`SELECT * FROM members_event_choice WHERE event_id = '${interaction.message.id}' AND user_id = '${interaction.user.id}'`, async (err, all) => {
                 if (all.length < 1) {
                     // Si l'utilisateur n'a pas encore fait de choix, l'ajoute à la base de données
-                    await client.db.query(`INSERT INTO members_event_choice (user_id, guild_nickname, choice_name, event_id) VALUES ('${interaction.user.id}','${username}','${choice}','${interaction.message.id}')`);
+                    await client.db.query(`INSERT INTO members_event_choice (user_id, guild_nickname, choice_name, event_id) VALUES ('${interaction.user.id}',"${username}",'${choice}','${interaction.message.id}')`);
                 } else {
                     // Si l'utilisateur a déjà fait un choix, met à jour son choix
-                    await client.db.query(`UPDATE members_event_choice SET choice_name = '${choice}', guild_nickname='${username}' WHERE user_id = '${interaction.user.id}' AND event_id = '${interaction.message.id}'`);
+                    await client.db.query(`UPDATE members_event_choice SET choice_name = '${choice}', guild_nickname="${username}" WHERE user_id = '${interaction.user.id}' AND event_id = '${interaction.message.id}'`);
                 }
 
                 // Met à jour les listes de participants, d'indécis et de réservistes
