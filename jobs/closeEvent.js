@@ -5,8 +5,8 @@ const { createInfoLog, createWarnLog, createErrorLog } = require("../modules/log
 
 module.exports = (client) => {
     const job = new CronJob(
-        //'1 0 * * 1', // Se lance tout les lundis à 00h01
-        '0 * * * * *', // se lance toutes les secondes (TEST ONLY)
+        '1 0 * * 1', // Se lance tout les lundis à 00h01
+        //'* * * * * *', // se lance toutes les secondes (TEST ONLY)
         () => closeEvent(client), // onTick (utilise une fonction anonyme pour passer le client)
         null, // onComplete
         false, // start

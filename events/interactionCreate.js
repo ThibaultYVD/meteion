@@ -16,7 +16,9 @@ module.exports = async (client, interaction, message) => {
             username = interaction.user.globalName;
         } else {
             username = interaction.member.nickname;
+            
         }
+        username.replace(/'/g, "\\'");
 
         if (interaction.type === Discord.InteractionType.ApplicationCommandAutocomplete && interaction.commandName === "help") {
             let entry = interaction.options.getFocused();

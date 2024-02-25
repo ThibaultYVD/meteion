@@ -32,7 +32,7 @@ module.exports = {
             // Ajout du membre qui a créé l'event dans la bdd
             client.db.query(`SELECT * FROM guild_members WHERE user_id = '${message.user.id}'`, function (req, res) {
                 if (res.length != 0) {
-                    client.db.query(`UPDATE guild_members SET user_tag = '${message.user.tag}', nickname = '${message.member.nickname}', guild_name = '${message.member.guild.name}' WHERE user_id = '${message.user.id}'`)
+                    client.db.query(`UPDATE guild_members SET user_tag = '${message.user.tag}', nickname = "${message.member.nickname}", guild_name = '${message.member.guild.name}' WHERE user_id = '${message.user.id}'`)
                 } else {
                     client.db.query(`INSERT INTO guild_members (user_id, user_tag, guild_name, nickname) VALUE ('${message.user.id}', '${message.user.tag}', '${message.member.guild.name}', '${message.member.nickname}')`)
                 }
