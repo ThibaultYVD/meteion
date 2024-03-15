@@ -16,7 +16,7 @@ module.exports = async (client, interaction, message) => {
             username = interaction.user.globalName;
         } else {
             username = interaction.member.nickname;
-            
+
         }
         username.replace(/'/g, "\\'");
 
@@ -161,13 +161,21 @@ module.exports = async (client, interaction, message) => {
 
                                     let channel = client.channels.cache.get(interaction.channel.id);
 
-                                    titre = titre.substring(8)
-                                    client.db.query(`UPDATE events 
-                                        SET event_title="${titre}", event_description="${description}", event_date='${date}', event_hour='${heure}', epoch_timestamp='${epochTimestamp}' WHERE event_id = '${interaction.message.reference.messageId}'`)
+                                    client.db.query(`SELECT rappel_message_id FROM events WHERE event_id = '${interaction.message.reference.messageId}'`, (err, res) => {
+                                        
+                                        if (res[0].rappel_message_id != 'Null') {
+                                            channel.messages.delete(res[0].rappel_message_id)
+                                        }
 
-                                    channel = interaction.channel
-                                    channel.messages.edit(interaction.message.reference.messageId, { embeds: [embed] })
-                                    interaction.deferUpdate()
+                                        titre = titre.substring(8)
+                                        client.db.query(`UPDATE events 
+                                            SET event_title="${titre}", event_description="${description}", event_date='${date}', event_hour='${heure}', epoch_timestamp='${epochTimestamp}', rappel_message_id='Null' WHERE event_id = '${interaction.message.reference.messageId}'`)
+
+                                        channel = interaction.channel
+                                        channel.messages.edit(interaction.message.reference.messageId, { embeds: [embed] })
+                                        interaction.deferUpdate()
+                                    })
+
 
                                 })
                             } else {
@@ -212,29 +220,29 @@ module.exports = async (client, interaction, message) => {
 
                 // Admin Panel
                 case "eventAdminPanel":
-                    try{
+                    try {
                         client.db.query(`SELECT * FROM events WHERE event_id = '${interaction.message.id}'`, async (req, res) => {
                             if (res.length > 0) {
                                 const isAdmin = res[0].event_creator === interaction.user.id ||
                                     interaction.user.id === process.env.SUPERADMIN1 ||
                                     interaction.user.id === process.env.SUPERADMIN2;
-    
+
                                 if (isAdmin) {
                                     let titre = interaction.message.embeds[0].title.substring(8)
                                     let description = interaction.message.embeds[0].description
                                     let date = res[0].event_date
                                     let heure = res[0].event_hour
-    
+
                                     await interaction.reply({
                                         embeds: [getAdminPanelEmbed(client, titre, description, date, heure)], components: [getAdminPanelRows()], ephemeral: true
                                     });
                                 } else {
                                     await interaction.reply({ content: `Vous n'avez pas les droits sur cet événement.`, ephemeral: true });
                                 }
-                            } 
+                            }
                         })
 
-                    }catch(error){
+                    } catch (error) {
                         console.log(error)
                     }
                     break;
