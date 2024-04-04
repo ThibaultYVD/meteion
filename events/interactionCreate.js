@@ -10,6 +10,7 @@ const { PermissionsBitField } = require('discord.js');
 
 module.exports = async (client, interaction, message) => {
     try {
+
         let username;
 
         if (interaction.member.nickname === null) {
@@ -162,7 +163,7 @@ module.exports = async (client, interaction, message) => {
                                     let channel = client.channels.cache.get(interaction.channel.id);
 
                                     client.db.query(`SELECT rappel_message_id FROM events WHERE event_id = '${interaction.message.reference.messageId}'`, (err, res) => {
-                                        
+
                                         if (res[0].rappel_message_id != 'Null') {
                                             channel.messages.delete(res[0].rappel_message_id)
                                         }
@@ -190,6 +191,42 @@ module.exports = async (client, interaction, message) => {
                     } catch (error) {
                         createErrorLog(client, `L'interaction eventEditModal a échoué.`, "events/interactionCreate.js", interaction.user.id)
                     }
+
+
+                case "broadcastConfirm":
+                    try {
+                        let broadcastMessage = interaction.fields.getTextInputValue('broadcastMessage');
+                        client.db.query(`SELECT activeChannel FROM guilds`, (err, res) => {
+                            if (err) {
+                                console.error(err);
+                                return;
+                            }
+
+                            // Supprimer les éléments vides de la liste
+                            const activeChannels = res.filter(row => row.activeChannel !== '');
+
+                            // Boucler sur les éléments restants
+
+                            for (const row of activeChannels) {
+                                const activeChannelId = row.activeChannel;
+                                const activeChannel = client.channels.cache.get(activeChannelId);
+
+                                if (activeChannel) {
+                                    activeChannel.send({content:`## ℹ️ Message du développeur de Météion:\n ${broadcastMessage}`});
+                                } else {
+                                    return
+                                }
+                            }
+
+                        });
+                        interaction.deferUpdate();
+                        break;
+
+                    } catch (error) {
+                        console.log(error)
+                        createErrorLog(client, `L'interaction eventCreationModal a échoué.`, "events/interactionCreate.js", interaction.user.id)
+                    }
+
 
                 default:
                     break;

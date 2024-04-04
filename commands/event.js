@@ -13,10 +13,11 @@ module.exports = {
         try {
             // Ajout du serveur ou actualisation dans la base de données
             client.db.query(`SELECT * FROM guilds WHERE guild_id = '${message.guild.id}'`, function (req, res) {
+                console.log(db)
                 if (res.length != 0) {
-                    client.db.query(`UPDATE guilds SET guild_name = '${message.guild.name}', guild_total_members = ${message.guild.memberCount} WHERE guild_id = '${message.guild.id}'`)
+                    client.db.query(`UPDATE guilds SET guild_name = '${message.guild.name}', guild_total_members = ${message.guild.memberCount}, activeChannel = '${message.channel.id}' WHERE guild_id = '${message.guild.id}'`)
                 } else {
-                    client.db.query(`INSERT INTO guilds (guild_id, guild_name, guild_total_members, close_event_value, event_reminder_value) VALUE ('${message.guild.id}', '${message.guild.name}', ${message.guild.memberCount}, '✅ Activé', '✅ Activé')`)
+                    client.db.query(`INSERT INTO guilds (guild_id, guild_name, guild_total_members, close_event_value, event_reminder_value, activeChannel) VALUE ('${message.guild.id}', '${message.guild.name}', ${message.guild.memberCount}, '✅ Activé', '✅ Activé', '${message.channel.id}')`)
                 }
             })
 
