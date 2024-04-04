@@ -16,14 +16,14 @@ function getEventCreationModal() {
         .setStyle(TextInputStyle.Short)
         .setMaxLength(100)
         .setRequired(true)
-        //.setValue('test')
+    //.setValue('test')
 
     const eventDescInput = new TextInputBuilder()
         .setCustomId('eventDesc')
         .setLabel("Description et/ou détails.")
         .setMaxLength(400)
         .setStyle(TextInputStyle.Paragraph)
-        //.setValue('test')
+    //.setValue('test')
 
     const DateInput = new TextInputBuilder()
         .setCustomId('eventDate')
@@ -32,7 +32,7 @@ function getEventCreationModal() {
         .setPlaceholder('01/01/2000')
         .setMaxLength(10)
         .setRequired(true)
-        //.setValue('15/11/2023')
+    //.setValue('15/11/2023')
 
     const HourInput = new TextInputBuilder()
         .setCustomId('eventHour')
@@ -128,4 +128,23 @@ function getEventDeleteModal() {
     return modal
 }
 
-module.exports = {getEventCreationModal, getEventEditModal, getEventDeleteModal}
+function getBroadCastForm() {
+    const modal = new ModalBuilder()
+        .setCustomId('broadcastConfirm')
+        .setTitle(`Message à envoyer à TOUT les serveurs`);
+
+
+    const broadCastForm = new TextInputBuilder()
+        .setCustomId('broadcastMessage')
+        .setLabel("Message à envoyer.")
+        .setStyle(TextInputStyle.Paragraph)
+        .setMaxLength(500)
+        .setRequired(true);
+
+
+    modal.addComponents(new ActionRowBuilder().addComponents(broadCastForm));
+
+    return modal
+}
+
+module.exports = { getEventCreationModal, getEventEditModal, getEventDeleteModal, getBroadCastForm }
