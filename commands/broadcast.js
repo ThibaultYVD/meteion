@@ -2,7 +2,7 @@ require("dotenv").config();
 const { getBroadCastForm } = require("../modules/modals");
 module.exports = {
     name: "broadcast",
-    description: "Envoie un message à l'intégralité des serveurs",
+    description: "Commande réservé au développeur de Météion.",
     permission: "Aucune",
     dm: false,
     category: "Autre",
@@ -18,9 +18,6 @@ module.exports = {
         } else {
             message.showModal(getBroadCastForm())
         }
-
-
-
 
     }
 }
