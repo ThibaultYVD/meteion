@@ -1,7 +1,7 @@
 {
   "name": "meteion",
   "version": "1.2.3",
-  "description": "",
+  "description": "Météion is a NodeJs app with the DiscordJs module. This application is used to create and organise events with other people in Discord.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -10,9 +10,19 @@
   "license": "ISC",
   "dependencies": {
     "@discordjs/rest": "^1.6.0",
-    "cron": "^3.1.6",
+    "cron": "^3.1.7",
     "discord.js": "^14.14.1",
-    "dotenv": "^16.0.3",
-    "mysql": "^2.18.1"
-  }
+    "dotenv": "^16.4.5",
+    "mysql": "^2.18.1",
+    "n": "^9.2.3",
+    "nvm": "^0.0.4"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ThibaultYVD/meteion.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ThibaultYVD/meteion/issues"
+  },
+  "homepage": "https://github.com/ThibaultYVD/meteion#readme"
 }
