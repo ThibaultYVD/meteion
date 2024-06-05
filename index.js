@@ -26,7 +26,7 @@ const requestListener = function (req, res) {
 };
 
 const server = http.createServer(requestListener)
-server.timeout = 300000;
+
 server.listen(port, host, () => {
   console.log(`Server is running on http://${host}:${port}`);
 });
