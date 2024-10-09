@@ -1,5 +1,5 @@
 const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
-const db = require('../models/Models');
+const db = require('../client/models/Models');
 
 module.exports = {
 	customId: 'eventCreationModal',
