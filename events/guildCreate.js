@@ -1,5 +1,5 @@
 const { Events } = require('discord.js');
-const db = require('../client/models/Models');
+const db = require('../models/Models');
 
 // INFO: Ajout ou modification des informations du serveur auquel le bot rejoint.
 module.exports = {
