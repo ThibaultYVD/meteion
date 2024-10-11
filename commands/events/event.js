@@ -15,25 +15,51 @@ module.exports = {
 			const { guild, user, member } = interaction;
 
 			// INFO: Met à jour les infos du serveur et de l'utilisateur à l'utilisation de la commande
-
 			await Promise.all([
-				db.Guild.upsert({
-					guild_id: guild.id,
-					guild_name: guild.name,
-					guild_total_members: guild.memberCount,
-				}),
-				db.User.upsert({
-					user_id: user.id,
-					username: user.username,
-					global_name: user.globalName,
-					added_date: new Date(),
-				}),
-				db.GuildMember.upsert({
-					guild_id: guild.id,
-					user_id: user.id,
-					user_nickname: member.nickname,
-					last_bot_interaction: new Date(),
-				}),
+				(async () => {
+					const [guildRecord, created] = await db.Guild.findOrCreate({
+						where: { guild_id: guild.id },
+						defaults: {
+							guild_name: guild.name,
+							guild_total_members: guild.memberCount,
+							added_date: new Date(),
+						},
+					});
+
+					if (!created) {
+						await guildRecord.update({
+							guild_name: guild.name,
+							guild_total_members: guild.memberCount,
+						});
+					}
+				})(),
+
+				// Met à jour ou insère l'utilisateur d'abord dans la table 'users'
+				(async () => {
+					const [userRecord, created] = await db.User.findOrCreate({
+						where: { user_id: user.id },
+						defaults: {
+							username: user.username,
+							global_name: user.globalName,
+							added_date: new Date(),
+						},
+					});
+
+					if (!created) {
+						await userRecord.update({
+							username: user.username,
+							global_name: user.globalName,
+						});
+					}
+
+					// Une fois l'utilisateur créé/mis à jour, insérer/mise à jour dans 'guild_members'
+					await db.GuildMember.upsert({
+						guild_id: guild.id,
+						user_id: user.id,
+						user_nickname: member.nickname,
+						last_bot_interaction: new Date(),
+					});
+				})(),
 			]);
 
 			await interaction.showModal(getEventCreationModal());

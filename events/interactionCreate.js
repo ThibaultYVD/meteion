@@ -12,6 +12,16 @@ for (const file of modalFiles) {
 	modals[modal.customId] = modal;
 }
 
+// INFO: Charger dynamiquement les fichiers de boutons
+const buttons = {};
+const buttonsPath = path.join(__dirname, '../buttons');
+const buttonFiles = fs.readdirSync(buttonsPath).filter(file => file.endsWith('.js'));
+
+for (const file of buttonFiles) {
+	const button = require(path.join(buttonsPath, file));
+	buttons[button.customId] = button;
+}
+
 module.exports = {
 	name: Events.InteractionCreate,
 	async execute(interaction) {
@@ -57,12 +67,26 @@ module.exports = {
 			}
 			else {
 				console.warn(`Aucun gestionnaire trouvé pour le modal: ${interaction.customId}`);
+				await interaction.reply({ content: 'Une erreur est survenue lors de la soumission du formulaire.', ephemeral: true });
 			}
 		}
 
 		// INFO: Gérer les interactions de boutons
 		else if (interaction.isButton()) {
-		     // TODO: Logique pour gérer les boutons
+			const buttonHandler = buttons[interaction.customId];
+			if (buttonHandler) {
+				try {
+					await buttonHandler.execute(interaction);
+				}
+				catch (error) {
+					console.error(`Erreur lors de l'exécution du bouton ${interaction.customId}:`, error);
+					await interaction.reply({ content: 'Une erreur est survenue lors de l\'interaction avec le bouton.', ephemeral: true });
+				}
+			}
+			else {
+				console.warn(`Aucun gestionnaire trouvé pour le bouton: ${interaction.customId}`);
+				await interaction.reply({ content: 'Une erreur est survenue lors de l\'interaction avec le bouton.', ephemeral: true });
+			}
 		}
 	},
 };
