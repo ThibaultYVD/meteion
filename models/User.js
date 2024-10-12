@@ -1,5 +1,5 @@
 module.exports = (sequelize, Sequelize) => {
-	const Guild = sequelize.define('users', {
+	const User = sequelize.define('users', {
 		user_id: {
 			type: Sequelize.STRING,
 			primaryKey: true,
@@ -19,5 +19,6 @@ module.exports = (sequelize, Sequelize) => {
 	}, {
 	});
 
-	return Guild;
+	return User;
 };
+

@@ -43,7 +43,6 @@ module.exports = {
 				embeds: [embed],
 				components: [getEventEmbedRows()],
 				fetchReply: true,
-				ephemeral: true,
 			});
 
 			await db.Event.create({
@@ -98,12 +97,12 @@ function createEventEmbed(client, interaction, username, titre, description, dat
 		.setDescription(`${description}`)
 		.addFields(
 			{ name: '\u200B', value: '\u200B' },
-			{ name: '📅 Date et heure', value: formatEventDateHeureValue(date, heure), inline: true },
+			{ name: '📅 Temps' + '\u200B'.repeat(10), value: formatEventDateHeureValue(date, heure), inline: true },
 			{ name: '📍Lieu de rassemblement', value: `*${place}*`, inline: true },
 			{ name: '\u200B', value: '\u200B' },
-			{ name: `✅ Participants (${9})`, value: '\u200B', inline: true },
-			{ name: `❓Indécis (${3})`, value: '\u200B', inline: true },
-			{ name: `🪑 Réservistes (${0})`, value: '\u200B', inline: true },
+			{ name: '✅ Participants (0)', value: '\u200B', inline: true },
+			{ name: '❓Indécis (0)', value: '\u200B', inline: true },
+			{ name: '🪑 Réservistes (0)', value: '\u200B', inline: true },
 			{ name: '\u200B', value: '\u200B' },
 		)
 		.setFooter({
@@ -117,23 +116,23 @@ function getEventEmbedRows() {
 	return new ActionRowBuilder().addComponents(
 		new ButtonBuilder()
 			.setCustomId('participant')
-			.setLabel('Participant')
-			.setStyle(ButtonStyle.Primary),
+			.setLabel('✅')
+			.setStyle(ButtonStyle.Secondary),
 		new ButtonBuilder()
 			.setCustomId('indecis')
-			.setLabel('Indécis')
-			.setStyle(ButtonStyle.Primary),
+			.setLabel('❓')
+			.setStyle(ButtonStyle.Secondary),
 		new ButtonBuilder()
 			.setCustomId('reserviste')
-			.setLabel('Réserviste')
+			.setLabel('🪑')
+			.setStyle(ButtonStyle.Secondary),
+		new ButtonBuilder()
+			.setCustomId('eventEdit')
+			.setLabel('Modifier')
 			.setStyle(ButtonStyle.Primary),
 		new ButtonBuilder()
-			.setCustomId('eventRetreat')
-			.setLabel('Se retirer')
-			.setStyle(ButtonStyle.Danger),
-		new ButtonBuilder()
-			.setCustomId('eventAdminPanel')
-			.setLabel('Gérer l\'événement')
+			.setCustomId('eventDelete')
+			.setLabel('Supprimer')
 			.setStyle(ButtonStyle.Danger),
 	);
 }
@@ -141,7 +140,7 @@ function getEventEmbedRows() {
 function formatEventDateHeureValue(date, heure) {
 	try {
 		const epochTimestamp = Math.floor(Date.parse(`${formatEventDate(date)} ${formatEventHour(heure)}`) / 1000);
-		return `Le <t:${epochTimestamp}:F> (<t:${epochTimestamp}:R>)`;
+		return `<t:${epochTimestamp}:F>\n*<t:${epochTimestamp}:R>*`;
 	}
 	catch (error) {
 		console.error('Erreur dans formatEventDateHeureValue:', error);
