@@ -1,18 +1,12 @@
 module.exports = (sequelize, Sequelize) => {
-	const Guild = sequelize.define('guild_members', {
+	const GuildMember = sequelize.define('guild_members', {
 		guild_id: {
 			type: Sequelize.STRING,
-			references:{
-				model:'Guild',
-				key:'guild_id',
-			},
+			primaryKey:true,
 		},
 		user_id: {
 			type: Sequelize.STRING,
-			references:{
-				model:'User',
-				key:'user_id',
-			},
+			primaryKey:true,
 		},
 		user_nickname: {
 			type: Sequelize.STRING,
@@ -23,7 +17,8 @@ module.exports = (sequelize, Sequelize) => {
 			allowNull: false,
 		},
 	}, {
+		timestamps: false,
 	});
 
-	return Guild;
+	return GuildMember;
 };
