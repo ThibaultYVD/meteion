@@ -102,11 +102,11 @@ function createEventEmbed(client, interaction, username, titre, description, dat
 			{ name: '\u200B', value: '\u200B' },
 			{ name: '✅ Participants (0)', value: '\u200B', inline: true },
 			{ name: '❓Indécis (0)', value: '\u200B', inline: true },
-			{ name: '🪑 Réservistes (0)', value: '\u200B', inline: true },
+			{ name: '🪑 En réserve (0)', value: '\u200B', inline: true },
 			{ name: '\u200B', value: '\u200B' },
 		)
 		.setFooter({
-			text: `${username}`,
+			text: `Créé par ${username}`,
 			iconURL: interaction.member.displayAvatarURL({ dynamic: true }),
 		});
 	return embed;

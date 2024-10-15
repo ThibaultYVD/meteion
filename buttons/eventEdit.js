@@ -5,9 +5,11 @@ module.exports = {
 	customId: 'eventEdit',
 	async execute(interaction) {
 		try {
-			const embed = interaction.message.embeds[0];
-
 			const currentEvent = await db.Event.findByPk(interaction.message.id);
+
+			const isAdmin = currentEvent.user_id === interaction.user.id || interaction.user.id === process.env.SUPERADMIN1;
+			if (!isAdmin) return interaction.reply({ content: 'Vous n\'avez pas les droits sur cet événement.', ephemeral: true });
+
 			await interaction.showModal(getEventEditModal(currentEvent));
 		}
 		catch (error) {
