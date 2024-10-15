@@ -1,4 +1,5 @@
 const db = require('../models/Models');
+const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 
 module.exports = {
 	customId: 'indecis',
@@ -53,7 +54,7 @@ module.exports = {
 			]);
 
 
-			await handleUserChoice(interaction);
+			const isIndecis = await handleUserChoice(interaction);
 
 			const userChoices = await db.sequelize.query(`
 				SELECT u.global_name, gm.user_nickname, c.choice_id, c.choice_name
@@ -80,11 +81,13 @@ module.exports = {
 			embed.fields[indecisFieldIndex].name = `❓Indécis (${indecis.length})`;
 			embed.fields[indecisFieldIndex].value = formatList(indecis);
 
-			const reservisteFieldIndex = embed.fields.findIndex(field => field.name.includes('Réserviste'));
-			embed.fields[reservisteFieldIndex].name = `🪑 Réservistes (${reservistes.length})`;
+			const reservisteFieldIndex = embed.fields.findIndex(field => field.name.includes('En réserve'));
+			embed.fields[reservisteFieldIndex].name = `🪑 En réserve (${reservistes.length})`;
 			embed.fields[reservisteFieldIndex].value = formatList(reservistes);
 
-			await interaction.message.edit({ embeds: [embed] });
+			const updatedButtons = updateButtons(isIndecis);
+
+			await interaction.message.edit({ embeds: [embed], components: [updatedButtons] });
 			await interaction.deferUpdate();
 
 		}
@@ -134,7 +137,7 @@ async function handleUserChoice(interaction) {
 			db.Choice.findOne({ where: { choice_name: 'Indécis' } }),
 		]);
 
-
+		let isIndecis = false;
 		if (!event) throw new Error(`L'événement avec l'ID ${interaction.message.id} n'existe pas`);
 		if (!participantChoice) throw new Error('Choix "Indécis" non trouvé dans la base de données');
 
@@ -146,13 +149,17 @@ async function handleUserChoice(interaction) {
 				choice_id: participantChoice.choice_id,
 				added_at: new Date(),
 			});
+			isIndecis = true;
 		}
 		else if (existingChoice.choice_id !== participantChoice.choice_id) {
 			await existingChoice.update({ choice_id: participantChoice.choice_id, added_at: new Date() });
+			isIndecis = true;
 		}
 		else {
 			await existingChoice.destroy();
 		}
+
+		return isIndecis;
 	}
 	catch (error) {
 		console.error('Erreur lors du traitement du choix de l\'utilisateur :', error);
@@ -162,4 +169,31 @@ async function handleUserChoice(interaction) {
 function formatList(list) {
 	// INFO: Soit il y a des éléments et alors on ajoute un '-' avant le nom, soit on renvoie un caractère vide
 	return list.length ? list.map(item => `> ${item}\n`).join('') : '\u200B';
+}
+
+function updateButtons(isIndecis) {
+	const row = new ActionRowBuilder().addComponents(
+		new ButtonBuilder()
+			.setCustomId('participant')
+			.setLabel('✅')
+			.setStyle(ButtonStyle.Secondary),
+		new ButtonBuilder()
+			.setCustomId('indecis')
+			.setLabel(isIndecis ? '❌' : '❓')
+			.setStyle(ButtonStyle.Secondary),
+		new ButtonBuilder()
+			.setCustomId('reserviste')
+			.setLabel('🪑')
+			.setStyle(ButtonStyle.Secondary),
+		new ButtonBuilder()
+			.setCustomId('eventEdit')
+			.setLabel('Modifier')
+			.setStyle(ButtonStyle.Primary),
+		new ButtonBuilder()
+			.setCustomId('eventDelete')
+			.setLabel('Supprimer')
+			.setStyle(ButtonStyle.Danger),
+	);
+
+	return row;
 }

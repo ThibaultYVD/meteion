@@ -1,4 +1,5 @@
 const db = require('../models/Models');
+const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 
 module.exports = {
 	customId: 'participant',
@@ -53,7 +54,7 @@ module.exports = {
 			]);
 
 
-			await handleUserChoice(interaction);
+			const isParticipant = await handleUserChoice(interaction);
 
 			const userChoices = await db.sequelize.query(`
 				SELECT u.global_name, gm.user_nickname, c.choice_id, c.choice_name
@@ -80,11 +81,14 @@ module.exports = {
 			embed.fields[indecisFieldIndex].name = `❓Indécis (${indecis.length})`;
 			embed.fields[indecisFieldIndex].value = formatList(indecis);
 
-			const reservisteFieldIndex = embed.fields.findIndex(field => field.name.includes('Réserviste'));
-			embed.fields[reservisteFieldIndex].name = `🪑 Réservistes (${reservistes.length})`;
+			const reservisteFieldIndex = embed.fields.findIndex(field => field.name.includes('En réserve'));
+			embed.fields[reservisteFieldIndex].name = `🪑 En réserve (${reservistes.length})`;
 			embed.fields[reservisteFieldIndex].value = formatList(reservistes);
 
-			await interaction.message.edit({ embeds: [embed] });
+			const updatedButtons = updateButtons(isParticipant);
+
+			// Mise à jour de l'embed et des boutons
+			await interaction.message.edit({ embeds: [embed], components: [updatedButtons] });
 			await interaction.deferUpdate();
 
 		}
@@ -134,7 +138,7 @@ async function handleUserChoice(interaction) {
 			db.Choice.findOne({ where: { choice_name: 'Participant' } }),
 		]);
 
-
+		let isParticipant = false;
 		if (!event) throw new Error(`L'événement avec l'ID ${interaction.message.id} n'existe pas`);
 		if (!participantChoice) throw new Error('Choix "Participant" non trouvé dans la base de données');
 
@@ -146,17 +150,48 @@ async function handleUserChoice(interaction) {
 				choice_id: participantChoice.choice_id,
 				added_at: new Date(),
 			});
+			isParticipant = true;
 		}
 		else if (existingChoice.choice_id !== participantChoice.choice_id) {
 			await existingChoice.update({ choice_id: participantChoice.choice_id, added_at: new Date() });
+			isParticipant = true;
 		}
 		else {
 			await existingChoice.destroy();
 		}
+
+		return isParticipant;
 	}
 	catch (error) {
 		console.error('Erreur lors du traitement du choix de l\'utilisateur :', error);
 	}
+}
+
+function updateButtons(isParticipant) {
+	const row = new ActionRowBuilder().addComponents(
+		new ButtonBuilder()
+			.setCustomId('participant')
+			.setLabel(isParticipant ? '❌' : '✅')
+			.setStyle(ButtonStyle.Secondary),
+		new ButtonBuilder()
+			.setCustomId('indecis')
+			.setLabel('❓')
+			.setStyle(ButtonStyle.Secondary),
+		new ButtonBuilder()
+			.setCustomId('reserviste')
+			.setLabel('🪑')
+			.setStyle(ButtonStyle.Secondary),
+		new ButtonBuilder()
+			.setCustomId('eventEdit')
+			.setLabel('Modifier')
+			.setStyle(ButtonStyle.Primary),
+		new ButtonBuilder()
+			.setCustomId('eventDelete')
+			.setLabel('Supprimer')
+			.setStyle(ButtonStyle.Danger),
+	);
+
+	return row;
 }
 
 function formatList(list) {
