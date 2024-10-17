@@ -54,7 +54,7 @@ module.exports = {
 			]);
 
 
-			const isIndecis = await handleUserChoice(interaction);
+			await handleUserChoice(interaction);
 
 			const userChoices = await db.sequelize.query(`
 				SELECT u.global_name, gm.user_nickname, c.choice_id, c.choice_name
@@ -63,6 +63,7 @@ module.exports = {
 				LEFT JOIN guild_members gm ON gm.user_id = u.user_id
 				JOIN choices c ON c.choice_id = uec.choice_id
 				WHERE uec.event_id = :event_id
+				ORDER BY uec.added_at ASC
 			  `, {
 				replacements: { event_id: message.id },
 				type: db.sequelize.QueryTypes.SELECT,
@@ -85,9 +86,7 @@ module.exports = {
 			embed.fields[reservisteFieldIndex].name = `🪑 En réserve (${reservistes.length})`;
 			embed.fields[reservisteFieldIndex].value = formatList(reservistes);
 
-			const updatedButtons = updateButtons(isIndecis);
-
-			await interaction.message.edit({ embeds: [embed], components: [updatedButtons] });
+			await interaction.message.edit({ embeds: [embed] });
 			await interaction.deferUpdate();
 
 		}
@@ -137,7 +136,6 @@ async function handleUserChoice(interaction) {
 			db.Choice.findOne({ where: { choice_name: 'Indécis' } }),
 		]);
 
-		let isIndecis = false;
 		if (!event) throw new Error(`L'événement avec l'ID ${interaction.message.id} n'existe pas`);
 		if (!participantChoice) throw new Error('Choix "Indécis" non trouvé dans la base de données');
 
@@ -149,11 +147,9 @@ async function handleUserChoice(interaction) {
 				choice_id: participantChoice.choice_id,
 				added_at: new Date(),
 			});
-			isIndecis = true;
 		}
 		else if (existingChoice.choice_id !== participantChoice.choice_id) {
 			await existingChoice.update({ choice_id: participantChoice.choice_id, added_at: new Date() });
-			isIndecis = true;
 		}
 		else {
 			await existingChoice.destroy();
@@ -169,31 +165,4 @@ async function handleUserChoice(interaction) {
 function formatList(list) {
 	// INFO: Soit il y a des éléments et alors on ajoute un '-' avant le nom, soit on renvoie un caractère vide
 	return list.length ? list.map(item => `> ${item}\n`).join('') : '\u200B';
-}
-
-function updateButtons(isIndecis) {
-	const row = new ActionRowBuilder().addComponents(
-		new ButtonBuilder()
-			.setCustomId('participant')
-			.setLabel('✅')
-			.setStyle(ButtonStyle.Secondary),
-		new ButtonBuilder()
-			.setCustomId('indecis')
-			.setLabel(isIndecis ? '❌' : '❓')
-			.setStyle(ButtonStyle.Secondary),
-		new ButtonBuilder()
-			.setCustomId('reserviste')
-			.setLabel('🪑')
-			.setStyle(ButtonStyle.Secondary),
-		new ButtonBuilder()
-			.setCustomId('eventEdit')
-			.setLabel('Modifier')
-			.setStyle(ButtonStyle.Primary),
-		new ButtonBuilder()
-			.setCustomId('eventDelete')
-			.setLabel('Supprimer')
-			.setStyle(ButtonStyle.Danger),
-	);
-
-	return row;
 }
