@@ -44,7 +44,7 @@ module.exports = {
 			embed.setDescription(description);
 
 			// Chercher et mettre à jour les champs spécifiques dans l'embed
-			const dateFieldIndex = embed.data.fields.findIndex(field => field.name.includes('Date et heure'));
+			const dateFieldIndex = embed.data.fields.findIndex(field => field.name.includes('Temps'));
 			if (dateFieldIndex !== -1) {
 				embed.data.fields[dateFieldIndex].value = `<t:${epochTimestamp}:F>\n*<t:${epochTimestamp}:R>*`;;
 			}
