@@ -30,6 +30,7 @@ db.Guild = require('./Guild.js')(sequelize, Sequelize);
 db.Setting = require('./Setting.js')(sequelize, Sequelize);
 db.User = require('./User.js')(sequelize, Sequelize);
 db.GuildMember = require('./GuildMember.js')(sequelize, Sequelize);
+db.GuildSetting = require('./GuildSetting.js')(sequelize, Sequelize);
 db.Event = require('./Event.js')(sequelize, Sequelize);
 db.Choice = require('./Choice.js')(sequelize, Sequelize);
 db.UserEventChoice = require('./UserEventChoice.js')(sequelize, Sequelize);
@@ -55,6 +56,19 @@ db.User.belongsToMany(db.Guild, {
 db.Guild.belongsToMany(db.User, {
 	through: db.GuildMember,
 	foreignKey: 'guild_id',
+	onDelete: 'CASCADE',
+});
+
+// INFO: Relation Guild et Setting (via GuildSetting)
+db.Guild.belongsToMany(db.Setting, {
+	through: db.GuildSetting,
+	foreignKey: 'guild_id',
+	onDelete: 'CASCADE',
+});
+
+db.Setting.belongsToMany(db.Guild, {
+	through: db.GuildSetting,
+	foreignKey: 'setting_id',
 	onDelete: 'CASCADE',
 });
 
@@ -112,7 +126,24 @@ async function insertDefaultChoices() {
 	}
 }
 
+async function insertSettings() {
+	try {
+	  await db.Setting.bulkCreate([
+			{ setting_id: 1, setting_name: 'auto_close_event', activated_by_default:'TRUE' },
+			{ setting_id: 2, setting_name: 'send_event_reminder', activated_by_default:'TRUE' },
+	  ], {
+			ignoreDuplicates: true,
+	  });
+
+	  console.log('Valeurs de base insérées dans la table Setting.');
+	}
+	catch (error) {
+	  console.error('Erreur lors de l\'insertion des valeurs de base dans Setting:', error);
+	}
+}
+
 insertDefaultChoices();
+insertSettings();
 
 // Synchroniser les tables dans le bon ordre
 async function syncTables() {
