@@ -21,7 +21,17 @@ module.exports = {
 					where: { activated_by_default: 'TRUE' },
 				});
 
-				await newGuild.addSettings(defaultSettings);
+				defaultSettings.forEach(setting => {
+					db.sequelize.query('INSERT INTO guild_settings (guild_id, setting_id, activated) VALUES (:guild_id, :setting_id, :activated)',
+						{
+							replacements: {
+								guild_id: guild.id,
+								setting_id: setting.setting_id,
+								activated: 'TRUE',
+							}, type: db.sequelize.QueryTypes.INSERT,
+						},
+					);
+				});
 			}
 			else {
 				await newGuild.update({
@@ -34,6 +44,5 @@ module.exports = {
 		catch (error) {
 			console.error(error);
 		}
-
 	},
 };
