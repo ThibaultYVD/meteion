@@ -129,8 +129,8 @@ async function insertDefaultChoices() {
 async function insertSettings() {
 	try {
 	  await db.Setting.bulkCreate([
-			{ setting_id: 1, setting_name: 'auto_close_event', activated_by_default:'TRUE' },
-			{ setting_id: 2, setting_name: 'send_event_reminder', activated_by_default:'TRUE' },
+			{ setting_id: 1, setting_name: 'auto_close_event', setting_display_name: 'Suppression automatique des événements', activated_by_default:'TRUE' },
+			{ setting_id: 2, setting_name: 'event_reminder', setting_display_name: 'Envoie d\'un message de rappel', activated_by_default:'TRUE' },
 	  ], {
 			ignoreDuplicates: true,
 	  });

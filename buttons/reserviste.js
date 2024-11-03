@@ -7,6 +7,8 @@ module.exports = {
 		try {
 			const { user, member, guild, message } = interaction;
 
+			await interaction.deferReply({ ephemeral:true });
+
 			// INFO: Mise à jour des informations de l'utilisateur
 			await Promise.all([
 				(async () => {
@@ -54,7 +56,7 @@ module.exports = {
 			]);
 
 
-			await handleUserChoice(interaction);
+			const isReserviste = await handleUserChoice(interaction);
 
 			const userChoices = await db.sequelize.query(`
 				SELECT u.global_name, gm.user_nickname, c.choice_id, c.choice_name
@@ -87,7 +89,13 @@ module.exports = {
 			embed.fields[reservisteFieldIndex].value = formatList(reservistes);
 
 			await interaction.message.edit({ embeds: [embed] });
-			await interaction.deferUpdate();
+
+			if (isReserviste == true) await interaction.followUp({ content: 'Vous êtes inscrit en tant que **Réserve** !', ephemeral: true });
+			else await interaction.followUp({ content: 'Vous êtes désinscrit.', ephemeral: true });
+
+			setTimeout(async () => {
+				await interaction.deleteReply();
+			}, 4000);
 
 		}
 		catch (error) {
@@ -139,6 +147,7 @@ async function handleUserChoice(interaction) {
 		if (!event) throw new Error(`L'événement avec l'ID ${interaction.message.id} n'existe pas`);
 		if (!participantChoice) throw new Error('Choix "Réserviste" non trouvé dans la base de données');
 
+		let isReserviste = false;
 
 		if (!existingChoice) {
 			await db.UserEventChoice.create({
@@ -147,13 +156,18 @@ async function handleUserChoice(interaction) {
 				choice_id: participantChoice.choice_id,
 				added_at: new Date(),
 			});
+			isReserviste = true;
 		}
 		else if (existingChoice.choice_id !== participantChoice.choice_id) {
 			await existingChoice.update({ choice_id: participantChoice.choice_id, added_at: new Date() });
+			isReserviste = true;
 		}
 		else {
 			await existingChoice.destroy();
+			isReserviste = false;
 		}
+
+		return isReserviste;
 	}
 	catch (error) {
 		console.error('Erreur lors du traitement du choix de l\'utilisateur :', error);

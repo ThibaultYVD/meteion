@@ -34,7 +34,7 @@ async function eventManager(client) {
 async function fetchActiveEvents() {
 	return db.sequelize.query(`
 		SELECT DISTINCT e.*,
-			COALESCE(MAX(CASE WHEN s.setting_name = 'send_event_reminder' THEN gs.activated END), 'TRUE') AS send_event_reminder,
+			COALESCE(MAX(CASE WHEN s.setting_name = 'event_reminder' THEN gs.activated END), 'TRUE') AS event_reminder,
 			COALESCE(MAX(CASE WHEN s.setting_name = 'auto_close_event' THEN gs.activated END), 'TRUE') AS auto_close_event
 		FROM events e
 		LEFT JOIN guild_settings gs ON gs.guild_id = e.guild_id
@@ -64,7 +64,7 @@ async function sendReminderIfNeeded(event, channel, currentTimestamp) {
 		event.event_date_hour_timestamp - currentTimestamp <= 3600 &&
 		event.event_date_hour_timestamp > currentTimestamp &&
 		event.remember_message_id == null &&
-		event.send_event_reminder === 'TRUE'
+		event.event_reminder === 'TRUE'
 	) {
 		try {
 			const messageSent = await channel.send(
@@ -94,7 +94,7 @@ async function startEventIfNeeded(event, channel, eventTimeInMs) {
 			{ where: { event_id: event.event_id } },
 		);
 
-		if (event.remember_message_id && event.send_event_reminder === 'TRUE') {
+		if (event.remember_message_id && event.event_reminder === 'TRUE') {
 			try {
 				const message = await channel.messages.fetch(event.remember_message_id);
 				await message.edit(
@@ -117,7 +117,7 @@ async function finishEventIfNeeded(event, channel, eventTimeInMs) {
 			{ where: { event_id: event.event_id } },
 		);
 
-		if (event.remember_message_id && event.send_event_reminder === 'TRUE') {
+		if (event.remember_message_id && event.event_reminder === 'TRUE') {
 			try {
 				const message = await channel.messages.fetch(event.remember_message_id);
 				await message.edit(`## 📝 L'événement "${event.event_title}" s'est terminé <t:${event.event_date_hour_timestamp}:R> !`);
