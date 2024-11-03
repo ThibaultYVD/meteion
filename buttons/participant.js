@@ -7,6 +7,8 @@ module.exports = {
 		try {
 			const { user, member, guild, message } = interaction;
 
+			await interaction.deferReply({ ephemeral:true });
+
 			// INFO: Mise à jour des informations de l'utilisateur
 			await Promise.all([
 				(async () => {
@@ -54,7 +56,7 @@ module.exports = {
 			]);
 
 
-			await handleUserChoice(interaction);
+			const isParticipant = await handleUserChoice(interaction);
 
 			const userChoices = await db.sequelize.query(`
 				SELECT u.global_name, gm.user_nickname, c.choice_id, c.choice_name
@@ -89,8 +91,13 @@ module.exports = {
 
 			// Mise à jour de l'embed et des boutons
 			await interaction.message.edit({ embeds: [embed] });
-			await interaction.deferUpdate();
 
+			if (isParticipant == true) await interaction.followUp({ content: 'Vous êtes inscrit en tant que **Participant** !', ephemeral: true });
+			else await interaction.followUp({ content: 'Vous êtes désinscrit.', ephemeral: true });
+
+			setTimeout(async () => {
+				await interaction.deleteReply();
+			}, 4000);
 		}
 		catch (error) {
 			console.error('Erreur lors du traitement du choix.', error);
@@ -141,6 +148,7 @@ async function handleUserChoice(interaction) {
 		if (!event) throw new Error(`L'événement avec l'ID ${interaction.message.id} n'existe pas`);
 		if (!participantChoice) throw new Error('Choix "Participant" non trouvé dans la base de données');
 
+		let isParticipant = false;
 
 		if (!existingChoice) {
 			await db.UserEventChoice.create({
@@ -149,6 +157,7 @@ async function handleUserChoice(interaction) {
 				choice_id: participantChoice.choice_id,
 				added_at: new Date(),
 			});
+			isParticipant = true;
 		}
 		else if (existingChoice.choice_id !== participantChoice.choice_id) {
 			await existingChoice.update({ choice_id: participantChoice.choice_id, added_at: new Date() });
@@ -156,7 +165,9 @@ async function handleUserChoice(interaction) {
 		}
 		else {
 			await existingChoice.destroy();
+			isParticipant = false;
 		}
+		return isParticipant;
 	}
 	catch (error) {
 		console.error('Erreur lors du traitement du choix de l\'utilisateur :', error);

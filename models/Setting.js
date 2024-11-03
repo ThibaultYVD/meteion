@@ -9,6 +9,10 @@ module.exports = (sequelize, Sequelize) => {
 			type: Sequelize.STRING,
 			allowNull: false,
 		},
+		setting_display_name: {
+			type: Sequelize.STRING,
+			allowNull: false,
+		},
 		activated_by_default:{
 			type: Sequelize.STRING,
 			allowNull: false,
