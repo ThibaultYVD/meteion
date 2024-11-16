@@ -82,9 +82,10 @@ async function sendReminderIfNeeded(event, channel, currentTimestamp) {
 // Start event if within 2-minute window
 async function startEventIfNeeded(event, channel, eventTimeInMs) {
 	const twoMinutes = 2 * 60 * 1000;
+	const threeHours = 3 * 60 * 60 * 1000;
 	if (
 		event.event_status === 'planned' &&
-		eventTimeInMs >= Date.now() - twoMinutes &&
+		eventTimeInMs >= Date.now() - threeHours &&
 		eventTimeInMs <= Date.now() + twoMinutes
 	) {
 		await db.Event.update(
@@ -130,7 +131,7 @@ async function finishEventIfNeeded(event, channel, eventTimeInMs) {
 // Archive event if it has been finished for 3 days
 async function archiveEventIfNeeded(event, channel, eventTimeInMs) {
 	const threeDaysInMs = 3 * 24 * 3600 * 1000;
-	if (event.event_status === 'finished' && Date.now() >= eventTimeInMs + threeDaysInMs) {
+	if (Date.now() >= eventTimeInMs + threeDaysInMs) {
 		await db.Event.update(
 			{ event_status: 'archived' },
 			{ where: { event_id: event.event_id } },
