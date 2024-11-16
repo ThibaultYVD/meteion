@@ -20,8 +20,6 @@ async function eventManager(client) {
 
 		for (const event of events) {
 			const channel = client.channels.cache.get(event.channel_id);
-			if (!channel) continue;
-
 			await handleEvent(client, event, channel);
 		}
 	}

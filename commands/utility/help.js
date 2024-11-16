@@ -12,8 +12,9 @@ module.exports = {
 			.setColor(interaction.client.color)
 			.setTitle('Centre d\'aide - Commandes')
 			.addFields(
-				{ name: '`/help`', value: '> Aide & Ressources.' },
-				{ name: '`/event`', value: '> Création d\'un événement.' },
+				{ name: '`/help`', value: '> Aide & Ressources' },
+				{ name: '`/event`', value: '> Création d\'un événement' },
+				{ name: '`/settings`', value: '> Paramètres du bot' },
 				{ name: '\u200B', value: '\u200B' })
 			.setFooter({
 				text: 'Made with ❤️ by @sorasilver_',
