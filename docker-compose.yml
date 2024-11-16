@@ -1,0 +1,10 @@
+services:
+  app:
+    environment:
+      - APP_ENV
+    
+    container_name: meteion
+    image: thibaultyvd/meteion:production
+    restart: always
+    ports:
+      - '3000:2022'
