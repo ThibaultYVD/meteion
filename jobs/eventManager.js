@@ -128,7 +128,7 @@ async function finishEventIfNeeded(event, channel, eventTimeInMs) {
 		if (event.remember_message_id && event.event_reminder === 'TRUE') {
 			try {
 				const message = await channel.messages.fetch(event.remember_message_id);
-				await message.edit(`## 📝 L'événement "${event.event_title}" s'est terminé <t:${event.event_date_hour_timestamp}:R> !`);
+				await message.edit(`## 📝 L'événement "${event.event_title}" s'est terminé <t:${event.event_date_hour_timestamp + 10800}:R> !`);
 			}
 			catch (err) {
 				console.error(`Erreur lors de l'édition du message de fin: ${err}`);
