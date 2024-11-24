@@ -9,7 +9,7 @@ services:
       - TOKEN
     container_name: meteion_staging
     image: thibaultyvd/meteion:staging
-    # restart: always
+    restart: always
     ports:
       - '20221:3000'
     depends_on:
