@@ -95,7 +95,7 @@ module.exports = {
 
 			setTimeout(async () => {
 				await interaction.deleteReply();
-			}, 4000);
+			}, 3500);
 		}
 		catch (error) {
 			console.error('Erreur lors du traitement du choix.', error);
