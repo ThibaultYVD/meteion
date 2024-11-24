@@ -32,9 +32,9 @@ module.exports = {
 				});
 			}
 
-			if (epochTimestamp <= new Date()) {
+			if (epochTimestamp * 1000 <= new Date()) {
 				return interaction.reply({
-					content: 'Date et heure invalide. Vous ne pouvez pas renseigner une date ou une heure antérieur à la date ou l\'heure actuelle',
+					content: 'Date et heure invalide. Vous ne pouvez pas renseigner une date ou une heure antérieure à la date ou l\'heure actuelle.',
 					ephemeral: true,
 				});
 			}
