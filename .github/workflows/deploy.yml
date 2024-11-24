@@ -33,7 +33,7 @@ jobs:
     runs-on: [self-hosted]
     needs: [build]
     # only build/deploy main branch on pushes
-    if: ${{ github.ref == 'refs/heads/main' && github.event_name == 'push' || github.event_name == 'pull_request' }}
+    if: ${{ github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev' && github.event_name == 'push' }}
 
     steps:
       - name: ⬇️ Checkout repo
@@ -57,7 +57,7 @@ jobs:
       - name: 🚀 Run Docker Compose on Staging
         if: ${{ github.ref == 'refs/heads/dev' }}
         env:
-          APP_ENV: ${{ secrets.APP_ENV }}
+          APP_ENV: ${{ secrets.APP_ENV_STAGING }}
           DB_HOST: database
           DB_USER: ${{ secrets.STAGING_DB_USER }}
           DB_PASSWORD: ${{ secrets.STAGING_DB_PASSWORD }}
