@@ -66,5 +66,5 @@ jobs:
           TOKEN: ${{ secrets.STAGING_TOKEN }}
         run: |
           docker pull thibaultyvd/meteion:staging
-          docker compose -f docker-compose.yml up -d
+          docker compose -f docker-compose.staging.yml up -d
           docker system prune --all --volumes --force
