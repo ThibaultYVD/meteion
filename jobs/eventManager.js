@@ -1,6 +1,7 @@
 const { CronJob } = require('cron');
 const db = require('../models/Models');
 const { Op } = require('sequelize');
+const { ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 
 module.exports = (client) => {
 	const job = new CronJob(
@@ -111,6 +112,14 @@ async function startEventIfNeeded(event, channel, eventTimeInMs) {
 async function finishEventIfNeeded(event, channel, eventTimeInMs) {
 	const threeHours = 3 * 60 * 60 * 1000;
 	if (event.event_status === 'ongoing' && Date.now() >= eventTimeInMs + threeHours) {
+		const event_message = await channel.messages.fetch(event.event_id);
+		const row = new ActionRowBuilder().addComponents(
+			new ButtonBuilder()
+				.setCustomId('eventOver')
+				.setLabel('L\'événement est terminé.')
+				.setStyle(ButtonStyle.Secondary));
+
+		await event_message.edit({ components: [row] });
 		await db.Event.update(
 			{ event_status: 'finished' },
 			{ where: { event_id: event.event_id } },
@@ -137,15 +146,15 @@ async function archiveEventIfNeeded(event, channel, eventTimeInMs) {
 			{ where: { event_id: event.event_id } },
 		);
 
+		if (event.remember_message_id) {
+			const rememberMessage = await channel.messages.fetch(event.remember_message_id).catch(() => null);
+			if (rememberMessage) await rememberMessage.delete();
+		}
+
 		if (event.auto_close_event === 'TRUE') {
 			try {
 				if (await channel.messages.fetch(event.event_id).catch(() => null)) {
 					await channel.messages.delete(event.event_id);
-				}
-
-				if (event.remember_message_id) {
-					const rememberMessage = await channel.messages.fetch(event.remember_message_id).catch(() => null);
-					if (rememberMessage) await rememberMessage.delete();
 				}
 			}
 			catch (err) {

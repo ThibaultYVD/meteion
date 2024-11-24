@@ -24,7 +24,10 @@ module.exports = {
 				});
 			}
 
-			const epochTimestamp = Math.floor(Date.parse(`${formatEventDate(date)} ${formatEventHour(heure)}`) / 1000);
+			const epochTimestamp = Math.floor(
+				Date.parse(`${formatEventDate(date)} ${formatEventHour(heure)}:00`) / 1000,
+			);
+
 			if (isNaN(epochTimestamp)) {
 				return interaction.reply({
 					content: 'Erreur au niveau de la **date** et/ou de **l\'heure**. Merci de respecter le format.',
@@ -32,7 +35,10 @@ module.exports = {
 				});
 			}
 
-			if (epochTimestamp * 1000 <= new Date()) {
+			const now = new Date();
+			now.setSeconds(0, 0);
+
+			if (epochTimestamp * 1000 < now.getTime()) {
 				return interaction.reply({
 					content: 'Date et heure invalide. Vous ne pouvez pas renseigner une date ou une heure antérieure à la date ou l\'heure actuelle.',
 					ephemeral: true,
