@@ -108,7 +108,6 @@ module.exports = {
 	},
 };
 
-// Fonction pour trier les choix des utilisateurs
 function sortUserChoices(userChoices) {
 	const participants = [];
 	const indecis = [];

@@ -22,7 +22,6 @@ module.exports = {
 	},
 };
 
-
 function getEventEditModal(currentEvent) {
 	const modal = new ModalBuilder()
 		.setCustomId('eventEditModal')

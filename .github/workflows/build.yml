@@ -51,6 +51,13 @@ jobs:
           build-args: |
             COMMIT_SHA=${{ github.sha }} \
             APP_ENV=${{ secrets.APP_ENV }} \
+            DB_HOST=database \
+            DB_USER=${{ secrets.DB_USER }} \
+            DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
+            MYSQL_ROOT_PASSWORD=${{ secrets.DB_PASSWORD }} \
+            DB_NAME=${{ secrets.DB_NAME }} \
+            TOKEN=${{ secrets.TOKEN }} \
+            CLIENT_ID=${{ secrets.CLIENT_ID }}
 
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,mode=max,dest=/tmp/.buildx-cache-new
@@ -71,7 +78,8 @@ jobs:
             DB_PASSWORD=${{ secrets.STAGING_DB_PASSWORD }} \
             MYSQL_ROOT_PASSWORD=${{ secrets.STAGING_DB_PASSWORD }} \
             DB_NAME=${{ secrets.STAGING_DB_NAME }} \
-            TOKEN=${{ secrets.STAGING_TOKEN }}
+            TOKEN=${{ secrets.STAGING_TOKEN }} \
+            CLIENT_ID=${{ secrets.STAGING_CLIENT_ID }}
 
 
           cache-from: type=local,src=/tmp/.buildx-cache

@@ -22,7 +22,6 @@ module.exports = {
 	},
 };
 
-
 function getEventDeleteModal() {
 	const modal = new ModalBuilder()
 		.setCustomId('eventDeleteModal')

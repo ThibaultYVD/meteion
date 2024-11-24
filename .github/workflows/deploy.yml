@@ -49,6 +49,13 @@ jobs:
         if: ${{ github.ref == 'refs/heads/main' }}
         env:
           APP_ENV: ${{ secrets.APP_ENV }}
+          DB_HOST: database
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          MYSQL_ROOT_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          DB_NAME: ${{ secrets.DB_NAME }}
+          TOKEN: ${{ secrets.TOKEN }}
+          CLIENT_ID: ${{ secrets.STAGING_CLIENT_ID }}
         run: |
           docker pull thibaultyvd/meteion:production
           docker compose -f docker-compose.yml up -d

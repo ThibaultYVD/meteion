@@ -7,10 +7,8 @@ module.exports = {
 		try {
 			const client = interaction.client;
 
-			// Récupération du nom d'utilisateur ou du pseudo
 			const username = interaction.member.nickname || interaction.user.globalName;
 
-			// Récupération des valeurs du modal
 			const titre = interaction.fields.getTextInputValue('eventTitle');
 			const description = interaction.fields.getTextInputValue('eventDesc');
 			const date = interaction.fields.getTextInputValue('eventDate');
@@ -19,7 +17,6 @@ module.exports = {
 
 			if (place === '' || place === null) place = 'Non renseigné';
 
-			// Validation du format de la date et de l'heure
 			if (!isValidDateTime(date, heure)) {
 				return interaction.reply({
 					content: 'Erreur(s) au niveau de la **date** et/ou de **l\'heure**. Merci de respecter le format.',
@@ -27,7 +24,6 @@ module.exports = {
 				});
 			}
 
-			// Validation du timestamp
 			const epochTimestamp = Math.floor(Date.parse(`${formatEventDate(date)} ${formatEventHour(heure)}`) / 1000);
 			if (isNaN(epochTimestamp)) {
 				return interaction.reply({
@@ -36,8 +32,13 @@ module.exports = {
 				});
 			}
 
+			if (epochTimestamp <= new Date()) {
+				return interaction.reply({
+					content: 'Date et heure invalide. Vous ne pouvez pas renseigner une date ou une heure antérieur à la date ou l\'heure actuelle',
+					ephemeral: true,
+				});
+			}
 
-			// Création de l'embed d'événement
 			const embed = createEventEmbed(client, interaction, username, titre, description, date, heure, place);
 			const reply = await interaction.reply({
 				embeds: [embed],
@@ -79,13 +80,11 @@ function isValidDateTime(date, heure) {
 	return isValidDate && isValidHour;
 }
 
-// Conversion de "JJ/MM/AAAA" en format "AAAA-MM-JJ"
 function formatEventDate(date) {
 	const [day, month, year] = date.split('/');
 	return `${year}-${month}-${day}`;
 }
 
-// Conversion de "HHhMM" en format "HH:MM"
 function formatEventHour(hour) {
 	return hour.replace('h', ':');
 }

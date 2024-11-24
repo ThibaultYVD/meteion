@@ -88,8 +88,6 @@ module.exports = {
 			embed.fields[reservisteFieldIndex].name = `🪑 En réserve (${reservistes.length})`;
 			embed.fields[reservisteFieldIndex].value = formatList(reservistes);
 
-
-			// Mise à jour de l'embed et des boutons
 			await interaction.message.edit({ embeds: [embed] });
 
 			if (isParticipant == true) await interaction.followUp({ content: 'Vous êtes inscrit en tant que **Participant** !', ephemeral: true });
@@ -109,7 +107,6 @@ module.exports = {
 	},
 };
 
-// Fonction pour trier les choix des utilisateurs
 function sortUserChoices(userChoices) {
 	const participants = [];
 	const indecis = [];

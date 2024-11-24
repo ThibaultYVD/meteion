@@ -53,20 +53,17 @@ for (const file of eventFiles) {
 
 client.login(process.env.TOKEN);
 
-
-/*
 const http = require('http');
-const host = 'localhost'
+const host = 'localhost';
 const port = 2022;
 
-const requestListener = function (req, res) {
-    res.writeHead(200);
-    res.end("Meteion Discord Bot");
+const requestListener = function(req, res) {
+	res.writeHead(200);
+	res.end('Meteion Discord Bot');
 };
 
-const server = http.createServer(requestListener)
+const server = http.createServer(requestListener);
 
 server.listen(port, host, () => {
-  console.log(`Server is running on http://${host}:${port}`);
+	console.log(`Server is running on http://${host}:${port}`);
 });
-*/

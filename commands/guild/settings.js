@@ -35,7 +35,6 @@ module.exports = {
 					}
 				})(),
 
-				// Met à jour ou insère l'utilisateur d'abord dans la table 'users'
 				(async () => {
 					const [userRecord, created] = await db.User.findOrCreate({
 						where: { user_id: user.id },
@@ -53,7 +52,6 @@ module.exports = {
 						});
 					}
 
-					// Une fois l'utilisateur créé/mis à jour, insérer/mise à jour dans 'guild_members'
 					await db.GuildMember.upsert({
 						guild_id: guild.id,
 						user_id: user.id,
@@ -89,7 +87,6 @@ module.exports = {
 						);
 					}
 
-					// Une fois l'utilisateur créé/mis à jour, insérer/mise à jour dans 'guild_members'
 					await db.GuildMember.upsert({
 						guild_id: guild.id,
 						user_id: user.id,
