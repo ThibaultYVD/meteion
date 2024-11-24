@@ -55,7 +55,7 @@ jobs:
           MYSQL_ROOT_PASSWORD: ${{ secrets.DB_PASSWORD }}
           DB_NAME: ${{ secrets.DB_NAME }}
           TOKEN: ${{ secrets.TOKEN }}
-          CLIENT_ID: ${{ secrets.STAGING_CLIENT_ID }}
+          CLIENT_ID: ${{ secrets.CLIENT_ID }}
         run: |
           docker pull thibaultyvd/meteion:production
           docker compose -f docker-compose.yml up -d
