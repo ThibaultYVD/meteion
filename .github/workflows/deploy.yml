@@ -53,3 +53,18 @@ jobs:
           docker pull thibaultyvd/meteion:production
           docker compose -f docker-compose.yml up -d
           docker system prune --all --volumes --force
+
+      - name: 🚀 Run Docker Compose on Staging
+        if: ${{ github.ref == 'refs/heads/dev' }}
+        env:
+          APP_ENV: ${{ secrets.APP_ENV }}
+          DB_HOST: database
+          DB_USER: ${{ secrets.STAGING_DB_USER }}
+          DB_PASSWORD: ${{ secrets.STAGING_DB_PASSWORD }}
+          MYSQL_ROOT_PASSWORD: ${{ secrets.STAGING_DB_PASSWORD }}
+          DB_NAME: ${{ secrets.STAGING_DB_NAME }}
+          TOKEN: ${{ secrets.STAGING_TOKEN }}
+        run: |
+          docker pull thibaultyvd/meteion:staging
+          docker compose -f docker-compose.yml up -d
+          docker system prune --all --volumes --force
