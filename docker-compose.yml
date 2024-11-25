@@ -20,8 +20,8 @@ services:
     image: mysql:8.0
     container_name: meteion_db
     environment:
-      MYSQL_ROOT_PASSWORD: example
-      MYSQL_DATABASE: meteion_db
+      - MYSQL_ROOT_PASSWORD
+      - MYSQL_DATABASE='meteion_db'
     restart: always
     ports:
       - '33060:3306'
