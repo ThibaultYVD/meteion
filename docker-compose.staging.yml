@@ -21,7 +21,7 @@ services:
     container_name: meteion_db_staging
     environment:
       - MYSQL_ROOT_PASSWORD
-      - MYSQL_DATABASE='meteion_db_staging'
+      - MYSQL_DATABASE=meteion_db_staging
     restart: always
     ports:
       - '33061:3306'
