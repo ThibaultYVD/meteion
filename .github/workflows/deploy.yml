@@ -15,10 +15,19 @@ permissions:
 jobs:
   lint:
     name: 🧪 ESLint
-    runs-on: [self-hosted]
+    runs-on: [ubuntu-latest]
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '22'
+
       - name: Install dependencies
         run: npm install eslint
+        
       - name: Lint
         run: npm run lint
 
