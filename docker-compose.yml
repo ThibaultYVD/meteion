@@ -10,7 +10,7 @@ services:
       - CLIENT_ID
     container_name: meteion_staging
     image: thibaultyvd/meteion:production
-    restart: always
+    restart: unless-stopped
     ports:
       - '2022:3000'
     depends_on:
