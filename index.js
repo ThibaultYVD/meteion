@@ -52,7 +52,11 @@ for (const file of eventFiles) {
 }
 
 client.login(process.env.TOKEN);
+// Handles errors and avoids crashes, better to not remove them.
+process.on('unhandledRejection', console.error);
+process.on('uncaughtException', console.error);
 
+/*
 const http = require('http');
 const host = 'localhost';
 const port = 2022;
@@ -67,3 +71,4 @@ const server = http.createServer(requestListener);
 server.listen(port, host, () => {
 	console.log(`Server is running on http://${host}:${port}`);
 });
+*/
