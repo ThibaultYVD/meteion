@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
+const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -8,6 +8,7 @@ module.exports = {
 			'en-US': 'List the available commands.',
 		}),
 	async execute(interaction) {
+		// Créer l'embed
 		const embed = new EmbedBuilder()
 			.setColor(interaction.client.color)
 			.setTitle('Centre d\'aide - Commandes')
@@ -21,6 +22,16 @@ module.exports = {
 				iconURL: interaction.client.user.displayAvatarURL({ dynamic: true }),
 			});
 
-		await interaction.reply({ embeds: [embed], ephemeral: true });
+		// Créer le bouton
+		const button = new ButtonBuilder()
+			.setLabel('Discord')
+			.setStyle(ButtonStyle.Link)
+			.setURL('https://discord.gg/edY9fb7Dk8');
+
+		// Ajouter le bouton à un ActionRow
+		const row = new ActionRowBuilder().addComponents(button);
+
+		// Répondre avec l'embed et le bouton
+		await interaction.reply({ embeds: [embed], components: [row], ephemeral: true });
 	},
 };
