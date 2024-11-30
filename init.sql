@@ -1,1 +1,1 @@
-CREATE DATABASE meteion_db_staging;
+CREATE DATABASE meteion_db;

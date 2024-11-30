@@ -1,13 +1,12 @@
 import globals from 'globals';
 
 export default [
-  // Appliquer les règles à tous les fichiers JavaScript
   {
     files: ['**/*.js'],
     languageOptions: {
-      ecmaVersion: 2021, // Version d'ECMAScript (2021 dans cet exemple)
-      sourceType: 'module', // Utiliser "module" ou "commonjs" selon ton projet
-      globals: globals.browser, // Variables globales pour les navigateurs
+      ecmaVersion: 2021,
+      sourceType: 'module',
+      globals: globals.browser,
     },
     rules: {
       "arrow-spacing": [

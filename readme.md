@@ -12,11 +12,13 @@ The bot is accessible via this link : https://discord.com/api/oauth2/authorize?c
 To create a event, you need to use the following command in a Discord server's channel: "/event".
 A modal appears to enter event information then, the application sends a embed in the channel.
 
-To sign into an event, the user must click on the 3 choices (Participant, Indécis, Réserviste) under the message according to they choices. To unsign, the user must click on the "Se retirer" button.
+To sign into an event, the user must click on the 3 choices (Participant, Indécis, En réserve) under the message according to they choices. To unsign, the user must click on the current choice button.
 
-The creator of the event can manage it by accessing the Admin Panel via the "Administration" button. The creator can edit the event informations or cancel the event.
+The creator of the event can manage it by the buttons "Modifer" and "Supprimer". The creator can edit the event informations or cancel the event.
 
-When the event's time come, a reminder is sent 1 hour before the beginning of the event.
+- When a event's time come, a reminder is sent 1 hour before the beginning of the event.
+- When a event begins, the reminder message is edited to announce the start.
+- 3h after the hour of a event, the event is considered as finished. From then on, all interactions on the event are locked.
+- Finally, a event message is deleted 3 days after its start.
 
-
-The bot will send a message 1 hour before the beginning of the event automatically and delete the completed events messages every monday at 00h01 (UTC+1).
+The server's administrators can manage those behaviors via the /settings command.
