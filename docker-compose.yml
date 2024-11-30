@@ -9,7 +9,7 @@ services:
       - TOKEN
       - CLIENT_ID
       - TZ=Europe/Paris
-    container_name: meteion_staging
+    container_name: meteion
     image: thibaultyvd/meteion:production
     restart: unless-stopped
     ports:
