@@ -1,0 +1,35 @@
+services:
+  app:
+    environment:
+      - APP_ENV
+      - DB_HOST=database
+      - DB_USER
+      - DB_PASSWORD
+      - DB_NAME
+      - TOKEN
+      - CLIENT_ID
+      - TZ=Europe/Paris
+    container_name: meteion_staging
+    image: thibaultyvd/meteion:staging
+    restart: unless-stopped
+    ports:
+      - '20221:3000'
+    depends_on:
+      - database
+
+  database:
+    image: mysql:8.0
+    container_name: meteion_db_staging
+    environment:
+      - MYSQL_ROOT_PASSWORD
+      - MYSQL_DATABASE=meteion_db_staging
+      - TZ=Europe/Paris
+    restart: always
+    ports:
+      - '33061:3306'
+    volumes:
+      - db_data_staging:/var/lib/mysql
+      - ./init_staging.sql:/docker-entrypoint-initdb.d/init_staging.sql
+
+volumes:
+  db_data_staging:

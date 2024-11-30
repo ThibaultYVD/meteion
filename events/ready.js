@@ -1,37 +1,20 @@
-const loadSlashCommands = require("../config/loadSlashCommands");
-const loadDB = require("../config/db")
-const createEventReminderJob = require("../jobs/eventReminder")
-const createCloseEventJob = require("../jobs/closeEvent")
-const { createInfoLog, createWarnLog, createErrorLog } = require("../modules/logs")
+const { Events } = require('discord.js');
+const createEventManagerJob = require('../jobs/eventManager');
 
-module.exports = async (client) => {
+module.exports = {
+	name: Events.ClientReady,
+	once: true,
+	execute(client) {
+		try {
+			const eventManagerJob = createEventManagerJob(client);
+			eventManagerJob.start();
 
-    try {
-        client.db = await loadDB()
+			if (!eventManagerJob.running) return console.error('Echec du démarrage, le job eventManager ne s\'est pas lancé correctement.');
+			console.log(`\nReady! Logged in as ${client.user.tag}`);
+		}
+		catch (error) {
 
-        client.db.connect(function (error) {
-            if (error) {
-                console.log(error +
-                    '\n/!\\ ERROR : Connexion à la base de données impossible. /!\\\nMerci de vérifier les variables de connexion dans le fichier .env.' +
-                    `\nLe lancement de ${client.user.tag} a échoué.`)
+		}
 
-                process.exit(0);
-            }
-            console.log('\nConnecté à la base de données MySQL.\n');
-
-
-        }),
-            await loadSlashCommands(client)
-
-        // Lancement des jobs
-        const eventReminderJob = createEventReminderJob(client);
-        const closeEventJob = createCloseEventJob(client);
-        eventReminderJob.start()
-        closeEventJob.start()
-
-        console.log(`\n${client.user.tag} est en ligne.`);
-    } catch (error) {
-        createErrorLog(client, `Le lancement du client a échoué.`, "events/ready.js", "null")
-    }
-
-}
+	},
+};

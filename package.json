@@ -4,18 +4,19 @@
   "description": "Météion is a NodeJs app with the DiscordJs module. This application is used to create and organise events with other people in Discord.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "lint": "eslint ./ --fix",
+    "start": "npm run lint && node deploy-commands.js && node index.js"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "@discordjs/rest": "^1.6.0",
     "cron": "^3.1.7",
-    "discord.js": "^14.14.1",
+    "discord.js": "^14.16.3",
     "dotenv": "^16.4.5",
-    "mysql": "^2.18.1",
-    "n": "^9.2.3",
-    "nvm": "^0.0.4"
+    "mysql2": "^3.11.3",
+    "sequelize": "^6.37.4",
+    "sqlite3": "^5.1.7"
   },
   "repository": {
     "type": "git",
@@ -24,5 +25,10 @@
   "bugs": {
     "url": "https://github.com/ThibaultYVD/meteion/issues"
   },
-  "homepage": "https://github.com/ThibaultYVD/meteion#readme"
+  "homepage": "https://github.com/ThibaultYVD/meteion#readme",
+  "devDependencies": {
+    "@eslint/js": "^9.11.1",
+    "eslint": "^9.11.1",
+    "globals": "^15.10.0"
+  }
 }
