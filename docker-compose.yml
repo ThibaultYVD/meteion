@@ -8,6 +8,7 @@ services:
       - DB_NAME
       - TOKEN
       - CLIENT_ID
+      - TZ=Europe/Paris
     container_name: meteion_staging
     image: thibaultyvd/meteion:production
     restart: unless-stopped
@@ -22,6 +23,7 @@ services:
     environment:
       - MYSQL_ROOT_PASSWORD
       - MYSQL_DATABASE=meteion_db
+      - TZ=Europe/Paris
     restart: always
     ports:
       - '33060:3306'

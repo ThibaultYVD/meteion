@@ -49,6 +49,7 @@ jobs:
           push: true
           tags: thibaultyvd/meteion:production
           build-args: |
+            TZ=Europe/Paris \
             COMMIT_SHA=${{ github.sha }} \
             APP_ENV=${{ secrets.APP_ENV }} \
             DB_HOST=database \
