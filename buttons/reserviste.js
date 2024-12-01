@@ -7,53 +7,47 @@ module.exports = {
 		try {
 			const { user, member, guild, message } = interaction;
 
-			await interaction.deferReply({ ephemeral:true });
+			await interaction.deferReply({ ephemeral: true });
 
 			// INFO: Mise à jour des informations de l'utilisateur
-			await Promise.all([
-				(async () => {
-					const [guildRecord, created] = await db.Guild.findOrCreate({
-						where: { guild_id: guild.id },
-						defaults: {
-							guild_name: guild.name,
-							guild_total_members: guild.memberCount,
-							added_date: new Date(),
-						},
-					});
+			const [userRecord, userCreated] = await db.User.findOrCreate({
+				where: { user_id: user.id },
+				defaults: {
+					username: user.username,
+					global_name: user.globalName,
+					added_date: new Date(),
+				},
+			});
 
-					if (!created) {
-						await guildRecord.update({
-							guild_name: guild.name,
-							guild_total_members: guild.memberCount,
-						});
-					}
-				})(),
+			if (!userCreated) {
+				await userRecord.update({
+					username: user.username,
+					global_name: user.globalName,
+				});
+			}
 
-				(async () => {
-					const [userRecord, created] = await db.User.findOrCreate({
-						where: { user_id: user.id },
-						defaults: {
-							username: user.username,
-							global_name: user.globalName,
-							added_date: new Date(),
-						},
-					});
+			const [guildRecord, guildCreated] = await db.Guild.findOrCreate({
+				where: { guild_id: guild.id },
+				defaults: {
+					guild_name: guild.name,
+					guild_total_members: guild.memberCount,
+					added_date: new Date(),
+				},
+			});
 
-					if (!created) {
-						await userRecord.update({
-							username: user.username,
-							global_name: user.globalName,
-						});
-					}
-				})(),
+			if (!guildCreated) {
+				await guildRecord.update({
+					guild_name: guild.name,
+					guild_total_members: guild.memberCount,
+				});
+			}
 
-				db.GuildMember.upsert({
-					guild_id: guild.id,
-					user_id: user.id,
-					user_nickname: member.nickname,
-					last_bot_interaction: new Date(),
-				}),
-			]);
+			await db.GuildMember.upsert({
+				guild_id: guild.id,
+				user_id: user.id,
+				user_nickname: member.nickname || null,
+				last_bot_interaction: new Date(),
+			});
 
 
 			const isReserviste = await handleUserChoice(interaction);
@@ -114,7 +108,9 @@ function sortUserChoices(userChoices) {
 	const reservistes = [];
 
 	userChoices.forEach((userchoice) => {
-		const displayName = userchoice.user_nickname || userchoice.global_name;
+		let displayName;
+		if (userchoice.user_nickname == null) displayName = userchoice.global_name;
+		else displayName = userchoice.user_nickname;
 
 		console.log(displayName);
 		switch (userchoice.choice_id) {
