@@ -51,7 +51,7 @@ module.exports = {
 
 			const isParticipant = await handleUserChoice(interaction);
 
-			const userChoices = db.sequelize.query(`
+			const userChoices = await db.sequelize.query(`
 				SELECT u.global_name, gm.user_nickname, c.choice_id, c.choice_name
 				FROM user_event_choices uec
 				JOIN users u ON u.user_id = uec.user_id

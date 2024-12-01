@@ -61,7 +61,7 @@ module.exports = {
 				WHERE uec.event_id = :event_id
 				ORDER BY uec.added_at ASC
 			  `, {
-				replacements: { event_id: message.id },
+				replacements: { event_id: message.id, guild_id: guild.id },
 				type: db.sequelize.QueryTypes.SELECT,
 			});
 

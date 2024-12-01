@@ -61,7 +61,7 @@ module.exports = {
 				WHERE uec.event_id = :event_id
 				ORDER BY uec.added_at ASC
 			  `, {
-				replacements: { event_id: message.id },
+				replacements: { event_id: message.id, guild_id: guild.id },
 				type: db.sequelize.QueryTypes.SELECT,
 			});
 
@@ -112,7 +112,6 @@ function sortUserChoices(userChoices) {
 		if (userchoice.user_nickname == null) displayName = userchoice.global_name;
 		else displayName = userchoice.user_nickname;
 
-		console.log(displayName);
 		switch (userchoice.choice_id) {
 		case 1:
 			participants.push(displayName);
