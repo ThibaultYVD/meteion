@@ -51,16 +51,16 @@ module.exports = {
 
 			const isParticipant = await handleUserChoice(interaction);
 
-			const userChoices = await db.sequelize.query(`
+			const userChoices = db.sequelize.query(`
 				SELECT u.global_name, gm.user_nickname, c.choice_id, c.choice_name
 				FROM user_event_choices uec
 				JOIN users u ON u.user_id = uec.user_id
-				LEFT JOIN guild_members gm ON gm.user_id = u.user_id
+				LEFT JOIN guild_members gm ON gm.user_id = u.user_id AND gm.guild_id = :guild_id
 				JOIN choices c ON c.choice_id = uec.choice_id
 				WHERE uec.event_id = :event_id
 				ORDER BY uec.added_at ASC
 			  `, {
-				replacements: { event_id: message.id },
+				replacements: { event_id: message.id, guild_id: guild.id },
 				type: db.sequelize.QueryTypes.SELECT,
 			});
 
