@@ -15,87 +15,71 @@ module.exports = {
 		try {
 			const { guild, user, member, client } = interaction;
 
-			// INFO: Met à jour les infos du serveur et de l'utilisateur à l'utilisation de la commande
-			await Promise.all([
-				(async () => {
-					const [guildRecord, created] = await db.Guild.findOrCreate({
-						where: { guild_id: guild.id },
-						defaults: {
-							guild_name: guild.name,
-							guild_total_members: guild.memberCount,
-							added_date: new Date(),
+			// INFO: Mise à jour des informations de l'utilisateur
+			const [userRecord, userCreated] = await db.User.findOrCreate({
+				where: { user_id: user.id },
+				defaults: {
+					username: user.username,
+					global_name: user.globalName,
+					added_date: new Date(),
+				},
+			});
+
+			if (!userCreated) {
+				await userRecord.update({
+					username: user.username,
+					global_name: user.globalName,
+				});
+			}
+
+			const [guildRecord, guildCreated] = await db.Guild.findOrCreate({
+				where: { guild_id: guild.id },
+				defaults: {
+					guild_name: guild.name,
+					guild_total_members: guild.memberCount,
+					added_date: new Date(),
+				},
+			});
+
+			if (!guildCreated) {
+				await guildRecord.update({
+					guild_name: guild.name,
+					guild_total_members: guild.memberCount,
+				});
+			}
+
+			const guildSettingsFromDB = await db.sequelize.query(
+				'SELECT DISTINCT setting_id FROM guild_settings WHERE guild_id = :guild_id',
+				{
+					replacements: { guild_id: guild.id },
+					type: db.sequelize.QueryTypes.SELECT,
+				},
+			);
+
+			const allSettings = await db.Setting.findAll();
+			const existingSettingIds = guildSettingsFromDB.map(gs => gs.setting_id);
+			const missingSettings = allSettings.filter(setting => !existingSettingIds.includes(setting.setting_id));
+
+			for (const setting of missingSettings) {
+				await db.sequelize.query(
+					'INSERT INTO guild_settings (guild_id, setting_id, activated) VALUES (:guild_id, :setting_id, :activated)',
+					{
+						replacements: {
+							guild_id: guild.id,
+							setting_id: setting.setting_id,
+							activated: setting.activated_by_default,
 						},
-					});
+						type: db.sequelize.QueryTypes.INSERT,
+					},
+				);
+			}
 
-					if (!created) {
-						await guildRecord.update({
-							guild_name: guild.name,
-							guild_total_members: guild.memberCount,
-						});
-					}
-				})(),
-
-				(async () => {
-					const [userRecord, created] = await db.User.findOrCreate({
-						where: { user_id: user.id },
-						defaults: {
-							username: user.username,
-							global_name: user.globalName,
-							added_date: new Date(),
-						},
-					});
-
-					if (!created) {
-						await userRecord.update({
-							username: user.username,
-							global_name: user.globalName,
-						});
-					}
-
-					await db.GuildMember.upsert({
-						guild_id: guild.id,
-						user_id: user.id,
-						user_nickname: member.nickname,
-						last_bot_interaction: new Date(),
-					});
-				})(),
-
-				(async () => {
-					const guildSettings = await db.sequelize.query(
-						'SELECT DISTINCT setting_id FROM guild_settings WHERE guild_id = :guild_id',
-						{
-							replacements: { guild_id: guild.id },
-							type: db.sequelize.QueryTypes.SELECT,
-						},
-					);
-
-					const allSettings = await db.Setting.findAll();
-					const existingSettingIds = guildSettings.map(gs => gs.setting_id);
-					const missingSettings = allSettings.filter(setting => !existingSettingIds.includes(setting.setting_id));
-
-					for (const setting of missingSettings) {
-						await db.sequelize.query(
-							'INSERT INTO guild_settings (guild_id, setting_id, activated) VALUES (:guild_id, :setting_id, :activated)',
-							{
-								replacements: {
-									guild_id: guild.id,
-									setting_id: setting.setting_id,
-									activated: setting.activated_by_default,
-								},
-								type: db.sequelize.QueryTypes.INSERT,
-							},
-						);
-					}
-
-					await db.GuildMember.upsert({
-						guild_id: guild.id,
-						user_id: user.id,
-						user_nickname: member.nickname,
-						last_bot_interaction: new Date(),
-					});
-
-				})(),
-			]);
+			await db.GuildMember.upsert({
+				guild_id: guild.id,
+				user_id: user.id,
+				user_nickname: member.nickname,
+				last_bot_interaction: new Date(),
+			});
 
 			const guildSettings = await db.sequelize.query(
 				`SELECT DISTINCT s.setting_display_name,
@@ -112,7 +96,7 @@ module.exports = {
 				},
 			);
 
-			await interaction.reply({ embeds: [getSettingsEmbed(interaction, client, guildSettings)], components: [getSettingsRows()], ephemeral:true });
+			await interaction.reply({ embeds: [getSettingsEmbed(interaction, client, guildSettings)], components: [getSettingsRows()], ephemeral: true });
 		}
 		catch (error) {
 			console.error(error);
