@@ -2,7 +2,14 @@
 
 Météion is a NodeJs app with the DiscordJs module. This application is used to create and organise events with other people in Discord.
 
-## Installation
+## Installation for dev purposes
+
+- Clone the repo : `git clone https://github.com/ThibaultYVD/meteion.git`.
+- Fill the `.env.sample` and rename it to `.env`.
+- Invite the bot to your discord server with the OAuth2 link generetad by checking "bot" and "applications.commands" in the `scope` section on the [Discord Developer Portal](https://discord.com/developers/applications).
+- Start the bot by runnning the command `docker compose up --build -d`.
+  
+## Get the bot on your server
 
 You must have a Discord account and have the authorization to add a Discord Application in the server.
 The bot is accessible via this link : https://discord.com/api/oauth2/authorize?client_id=1029859620199616666&permissions=17620103457856&scope=bot%20applications.commands.

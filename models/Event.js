@@ -22,7 +22,7 @@ module.exports = (sequelize, Sequelize) => {
 			allowNull: false,
 		},
 		event_description:{
-			type: Sequelize.STRING,
+			type: Sequelize.TEXT,
 			allowNull: false,
 		},
 		event_date_string:{
