@@ -27,5 +27,6 @@ jobs:
           CLIENT_ID: ${{ secrets.STAGING_CLIENT_ID }}
         run: |
           docker pull thibaultyvd/meteion:staging
+          docker compose -p meteion-staging -f docker-compose.staging.yml down
           docker compose -p meteion-staging -f docker-compose.staging.yml up -d
           docker image prune -f
