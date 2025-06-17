@@ -2,7 +2,13 @@ name: 🔧 CI Pipeline
 
 on:
   push:
-    branches: [dev, main]
+    branches:
+      - main
+      - dev
+      - feature/**
+      - bugfix/**
+      - hotfix/**
+  pull_request: {}
 
 jobs:
   lint:
@@ -32,3 +38,13 @@ jobs:
     uses: ./.github/workflows/build.yml
     with:
       tag: production
+    secrets: inherit
+
+  build-feature:
+    name: 🛠️ Build (Feature)
+    if: startsWith(github.ref, 'refs/heads/feature/')
+    needs: lint
+    uses: ./.github/workflows/build.yml
+    with:
+      tag: feature-${{ github.sha }}
+    secrets: inherit
