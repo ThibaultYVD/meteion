@@ -14,11 +14,12 @@ jobs:
   lint:
     name: 🧪 Lint
     runs-on: ubuntu-latest
-    container: 
-        image: ghcr.io/antfu/eslint
+    container:
+        image: node:22-alpine
     steps:
       - uses: actions/checkout@v3
-      - run: eslint . --ext .js,.ts.jsx,.tsx
+      - run: npm install --no-save eslint
+      - run: npx eslint .
 
   build-dev:
     name: 🛠️ Build (Staging)
