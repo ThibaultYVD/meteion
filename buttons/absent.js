@@ -2,14 +2,13 @@ const db = require('../models/Models');
 const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 
 module.exports = {
-	customId: 'indecis',
+	customId: 'absent',
 	async execute(interaction) {
 		try {
 			const { user, member, guild, message } = interaction;
 
 			await interaction.deferReply({ ephemeral: true });
 
-			// INFO: Mise à jour des informations de l'utilisateur
 			const [userRecord, userCreated] = await db.User.findOrCreate({
 				where: { user_id: user.id },
 				defaults: {
@@ -49,7 +48,8 @@ module.exports = {
 				last_bot_interaction: new Date(),
 			});
 
-			const isIndecis = await handleUserChoice(interaction);
+
+			const isAbsent = await handleUserChoice(interaction);
 
 			const userChoices = await db.sequelize.query(`
 				SELECT u.global_name, gm.user_nickname, c.choice_id, c.choice_name
@@ -81,10 +81,14 @@ module.exports = {
 			embed.fields[reservisteFieldIndex].name = `🪑 En réserve (${reservistes.length})`;
 			embed.fields[reservisteFieldIndex].value = formatList(reservistes);
 
+			const absentFieldIndex = embed.fields.findIndex(field => field.name.includes('Absents'));
+			embed.fields[absentFieldIndex].name = `❌ Absents (${absents.length})`;
+			embed.fields[absentFieldIndex].value = formatList(absents);
+
 			await interaction.message.edit({ embeds: [embed] });
 
-			if (isIndecis == true) await interaction.followUp({ content: 'Vous êtes inscrit en tant qu\'**Indécis** !', ephemeral: true });
-			else await interaction.followUp({ content: 'Vous êtes désinscrit.', ephemeral: true });
+			if (isAbsent == true) await interaction.followUp({ content: 'Vous êtes noté(e) en tant qu\'**Absent** !', ephemeral: true });
+			else await interaction.followUp({ content: 'Vous n\'êtes plus noté en tant qu\'Absent.', ephemeral: true });
 
 			setTimeout(async () => {
 				await interaction.deleteReply();
@@ -100,7 +104,6 @@ module.exports = {
 	},
 };
 
-// INFO: Fonction pour trier les choix des utilisateurs
 function sortUserChoices(userChoices) {
 	const participants = [];
 	const indecis = [];
@@ -133,39 +136,37 @@ function sortUserChoices(userChoices) {
 
 async function handleUserChoice(interaction) {
 	try {
-		const [event, existingChoice, participantChoice] = await Promise.all([
+		const [event, existingChoice, absentChoice] = await Promise.all([
 			db.Event.findOne({ where: { event_id: interaction.message.id } }),
 			db.UserEventChoice.findOne({
 				where: { event_id: interaction.message.id, user_id: interaction.user.id },
 			}),
-			db.Choice.findOne({ where: { choice_name: 'Indécis' } }),
+			db.Choice.findOne({ where: { choice_name: 'Absent' } }),
 		]);
 
 		if (!event) throw new Error(`L'événement avec l'ID ${interaction.message.id} n'existe pas`);
-		if (!participantChoice) throw new Error('Choix "Indécis" non trouvé dans la base de données');
+		if (!absentChoice) throw new Error('Choix "Absent" non trouvé dans la base de données');
 
-
-		let isIndecis = false;
+		let isAbsent = false;
 
 		if (!existingChoice) {
 			await db.UserEventChoice.create({
 				user_id: interaction.user.id,
 				event_id: interaction.message.id,
-				choice_id: participantChoice.choice_id,
+				choice_id: absentChoice.choice_id,
 				added_at: new Date(),
 			});
-			isIndecis = true;
+			isAbsent = true;
 		}
-		else if (existingChoice.choice_id !== participantChoice.choice_id) {
-			await existingChoice.update({ choice_id: participantChoice.choice_id, added_at: new Date() });
-			isIndecis = true;
+		else if (existingChoice.choice_id !== absentChoice.choice_id) {
+			await existingChoice.update({ choice_id: absentChoice.choice_id, added_at: new Date() });
+			isAbsent = true;
 		}
 		else {
 			await existingChoice.destroy();
-			isIndecis = false;
+			isAbsent = false;
 		}
-
-		return isIndecis;
+		return isAbsent;
 	}
 	catch (error) {
 		console.error('Erreur lors du traitement du choix de l\'utilisateur :', error);
