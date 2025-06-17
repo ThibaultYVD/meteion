@@ -115,6 +115,7 @@ async function insertDefaultChoices() {
 			{ choice_id: 1, choice_name: 'Participant' },
 			{ choice_id: 2, choice_name: 'Indécis' },
 			{ choice_id: 3, choice_name: 'Réserviste' },
+			{ choice_id: 4, choice_name: 'Absent' },
 	  ], {
 			ignoreDuplicates: true,
 	  });

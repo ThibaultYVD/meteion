@@ -64,7 +64,7 @@ module.exports = {
 				type: db.sequelize.QueryTypes.SELECT,
 			});
 
-			const { participants, indecis, reservistes } = sortUserChoices(userChoices);
+			const { participants, indecis, reservistes, absents } = sortUserChoices(userChoices);
 
 			// INFO: Récupération de l'embed de l'interaction puis on met seulement à jour les valeurs des colonnes Participants/Indécis/Réserviste
 			const embed = message.embeds[0];
@@ -80,6 +80,10 @@ module.exports = {
 			const reservisteFieldIndex = embed.fields.findIndex(field => field.name.includes('En réserve'));
 			embed.fields[reservisteFieldIndex].name = `🪑 En réserve (${reservistes.length})`;
 			embed.fields[reservisteFieldIndex].value = formatList(reservistes);
+
+			const absentFieldIndex = embed.fields.findIndex(field => field.name.includes('Absents'));
+			embed.fields[absentFieldIndex].name = `❌ Absents (${absents.length})`;
+			embed.fields[absentFieldIndex].value = formatList(absents);
 
 			await interaction.message.edit({ embeds: [embed] });
 
@@ -104,6 +108,7 @@ function sortUserChoices(userChoices) {
 	const participants = [];
 	const indecis = [];
 	const reservistes = [];
+	const absents = [];
 
 	userChoices.forEach((userchoice) => {
 		let displayName;
@@ -120,10 +125,13 @@ function sortUserChoices(userChoices) {
 		case 3:
 			reservistes.push(displayName);
 			break;
+		case 4:
+			absents.push(displayName);
+			break;
 		}
 	});
 
-	return { participants, indecis, reservistes };
+	return { participants, indecis, reservistes, absents };
 }
 
 async function handleUserChoice(interaction) {
