@@ -28,5 +28,6 @@ jobs:
           CLIENT_ID: ${{ secrets.CLIENT_ID }}
         run: |
           docker pull thibaultyvd/meteion:production
+          docker compose -p meteion-prod -f docker-compose.yml down
           docker compose -p meteion-prod -f docker-compose.yml up -d
           docker image prune -f
