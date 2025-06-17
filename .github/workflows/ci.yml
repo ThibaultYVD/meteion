@@ -21,16 +21,8 @@ jobs:
         with:
           node-version: 22
 
-      - name: 📦 Cache node_modules
-        uses: actions/cache@v3
-        with:
-          path: node_modules
-          key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
-
-      - run: npm install --prefer-offline --no-audit --no-fund
-      - run: npm run lint
+      - run: npm install --no-save eslint
+      - run: npx eslint .
 
   build-dev:
     name: 🛠️ Build (Staging)
