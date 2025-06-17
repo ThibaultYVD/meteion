@@ -1,0 +1,34 @@
+name: 🔧 CI Pipeline
+
+on:
+  push:
+    branches: [dev, main]
+
+jobs:
+  lint:
+    name: 🧪 Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 22
+      - run: npm install
+      - run: npm run lint
+
+  build-dev:
+    name: 🛠️ Build (Staging)
+    if: github.ref == 'refs/heads/dev'
+    needs: lint
+    uses: ./.github/workflows/build.yml
+    with:
+      tag: staging
+    secrets: inherit
+
+  build-main:
+    name: 🛠️ Build (Production)
+    if: github.ref == 'refs/heads/main'
+    needs: lint
+    uses: ./.github/workflows/build.yml
+    with:
+      tag: production
