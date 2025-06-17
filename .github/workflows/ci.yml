@@ -1,0 +1,49 @@
+name: 🔧 CI Pipeline
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+      - feature/**
+      - bugfix/**
+      - hotfix/**
+  pull_request: {}
+
+jobs:
+  lint:
+    name: 🧪 Lint
+    runs-on: ubuntu-latest
+    container:
+        image: node:22-alpine
+    steps:
+      - uses: actions/checkout@v3
+      - run: npm install --no-save eslint
+      - run: npx eslint .
+
+  build-dev:
+    name: 🛠️ Build (Staging)
+    if: github.ref == 'refs/heads/dev'
+    needs: lint
+    uses: ./.github/workflows/build.yml
+    with:
+      tag: staging
+    secrets: inherit
+
+  build-main:
+    name: 🛠️ Build (Production)
+    if: github.ref == 'refs/heads/main'
+    needs: lint
+    uses: ./.github/workflows/build.yml
+    with:
+      tag: production
+    secrets: inherit
+
+  build-feature:
+    name: 🛠️ Build (Feature)
+    if: startsWith(github.ref, 'refs/heads/feature/')
+    needs: lint
+    uses: ./.github/workflows/build.yml
+    with:
+      tag: feature-${{ github.sha }}
+    secrets: inherit
