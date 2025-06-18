@@ -46,9 +46,11 @@ module.exports = {
 			}
 
 			const embed = createEventEmbed(client, interaction, username, titre, description, date, heure, place);
+			const rows = getEventEmbedRows();
+
 			const reply = await interaction.reply({
 				embeds: [embed],
-				components: [getEventEmbedRows()],
+				components: rows.map(row => row.toJSON()),
 				fetchReply: true,
 			});
 
@@ -108,6 +110,7 @@ function createEventEmbed(client, interaction, username, titre, description, dat
 			{ name: '✅ Participants (0)', value: '\u200B', inline: true },
 			{ name: '❓Indécis (0)', value: '\u200B', inline: true },
 			{ name: '🪑 En réserve (0)', value: '\u200B', inline: true },
+			{ name: '❌ Absents (0)', value: '\u200B', inline: true },
 			{ name: '\u200B', value: '\u200B' },
 		)
 		.setFooter({
@@ -118,28 +121,38 @@ function createEventEmbed(client, interaction, username, titre, description, dat
 }
 
 function getEventEmbedRows() {
-	return new ActionRowBuilder().addComponents(
-		new ButtonBuilder()
-			.setCustomId('participant')
-			.setLabel('✅')
-			.setStyle(ButtonStyle.Secondary),
-		new ButtonBuilder()
-			.setCustomId('indecis')
-			.setLabel('❓')
-			.setStyle(ButtonStyle.Secondary),
-		new ButtonBuilder()
-			.setCustomId('reserviste')
-			.setLabel('🪑')
-			.setStyle(ButtonStyle.Secondary),
-		new ButtonBuilder()
-			.setCustomId('eventEdit')
-			.setLabel('Modifier')
-			.setStyle(ButtonStyle.Primary),
-		new ButtonBuilder()
-			.setCustomId('eventDelete')
-			.setLabel('Supprimer')
-			.setStyle(ButtonStyle.Danger),
-	);
+	return [
+		new ActionRowBuilder().addComponents(
+			new ButtonBuilder()
+				.setCustomId('participant')
+				.setLabel('✅')
+				.setStyle(ButtonStyle.Secondary),
+			new ButtonBuilder()
+				.setCustomId('indecis')
+				.setLabel('❓')
+				.setStyle(ButtonStyle.Secondary),
+			new ButtonBuilder()
+				.setCustomId('reserviste')
+				.setLabel('🪑')
+				.setStyle(ButtonStyle.Secondary),
+		),
+		new ActionRowBuilder().addComponents(
+			new ButtonBuilder()
+				.setCustomId('absent')
+				.setLabel('❌')
+				.setStyle(ButtonStyle.Secondary),
+		),
+		new ActionRowBuilder().addComponents(
+			new ButtonBuilder()
+				.setCustomId('eventEdit')
+				.setLabel('Modifier')
+				.setStyle(ButtonStyle.Primary),
+			new ButtonBuilder()
+				.setCustomId('eventDelete')
+				.setLabel('Supprimer')
+				.setStyle(ButtonStyle.Danger),
+		),
+	];
 }
 
 function formatEventDateHeureValue(date, heure) {
