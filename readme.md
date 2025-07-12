@@ -12,7 +12,7 @@ Météion is a NodeJs app with the DiscordJs module. This application is used to
 ### Migrations
 If you want to edit the database infrastructure, you have to use the Sequelize migrations via CLI.
 - Create a migration : `npx sequelize-cli migration:generate --name feature-{id}` 
-- Apply migrations : `npx sequelize-cli db:migrate --config config/db.js`
+- Apply migrations : `npx sequelize-cli db:migrate --config config/config.js`
 
 ## Get the bot on your server
 
