@@ -9,6 +9,7 @@ services:
       - TOKEN
       - CLIENT_ID
       - TZ=Europe/Paris
+      - NODE_ENV=staging
     container_name: meteion_staging
     image: thibaultyvd/meteion:staging
     restart: unless-stopped
