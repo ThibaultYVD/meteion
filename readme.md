@@ -8,7 +8,12 @@ Météion is a NodeJs app with the DiscordJs module. This application is used to
 - Fill the `.env.sample` and rename it to `.env`.
 - Invite the bot to your discord server with the OAuth2 link generetad by checking "bot" and "applications.commands" in the `scope` section on the [Discord Developer Portal](https://discord.com/developers/applications).
 - Start the bot by running the command `docker compose up --build -d`.
-  
+
+### Migrations
+If you want to edit the database infrastructure, you have to use the Sequelize migrations via CLI.
+- Create a migration : `npx sequelize-cli migration:generate --name feature-{id}` 
+- Apply migrations : `npx sequelize-cli db:migrate --config config/db.js`
+
 ## Get the bot on your server
 
 You must have a Discord account and have the authorization to add a Discord Application in the server.

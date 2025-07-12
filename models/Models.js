@@ -146,29 +146,5 @@ async function insertSettings() {
 insertDefaultChoices();
 insertSettings();
 
-// Synchroniser les tables dans le bon ordre
-async function syncTables() {
-	try {
-		await db.Event.sync({ force: true });
-		await db.Choice.sync({ force: true });
-		await db.User.sync({ force: true });
-
-		// Créer la table pivot après que les tables de base sont prêtes
-		await db.UserEventChoice.sync({ force: true });
-
-		// Synchroniser Guild, GuildMember et Setting ensuite
-		await db.Guild.sync({ force: true });
-		await db.GuildMember.sync({ force: true });
-		await db.Setting.sync({ force: true });
-
-		console.log('Tables synchronisées avec succès');
-	}
-	catch (error) {
-		console.error('Erreur lors de la synchronisation des tables :', error);
-	}
-}
-
-syncTables();
-
 
 module.exports = db;
