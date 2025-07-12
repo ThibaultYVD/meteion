@@ -33,4 +33,4 @@ jobs:
 
       - name: Run Sequelize Migrations (Staging)
         run: |
-          docker exec meteion npx sequelize-cli db:migrate --env staging --config config/config.js
+          docker exec meteion_staging npx sequelize-cli db:migrate --env staging --config config/config.js
