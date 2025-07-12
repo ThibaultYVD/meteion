@@ -34,4 +34,4 @@ jobs:
 
       - name: Run Sequelize Migrations (Production)
         run: |
-          docker exec meteion npx sequelize-cli db:migrate --env production --config config/db.js
+          docker exec meteion npx sequelize-cli db:migrate --env production --config config/config.js
