@@ -33,4 +33,4 @@ jobs:
 
       - name: Run Sequelize Migrations (Staging)
         run: |
-          docker exec meteion_staging npx sequelize-cli db:migrate --env staging --config config/config.js
+          docker exec \ -e STAGING_DB_USER=${{ secrets.STAGING_DB_USER }} \ -e STAGING_DB_PASSWORD=${{ secrets.STAGING_DB_PASSWORD }} \ -e STAGING_DB_NAME=${{ secrets.STAGING_DB_NAME }} \ meteion_staging \ npx sequelize-cli db:migrate --env staging --config config/config.js
