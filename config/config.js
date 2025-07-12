@@ -1,5 +1,11 @@
 require('dotenv').config();
 
+console.log('⚙️ Sequelize Config Loaded:');
+console.log('STAGING_DB_USER:', process.env.STAGING_DB_USER);
+console.log('STAGING_DB_PASSWORD:', process.env.STAGING_DB_PASSWORD);
+console.log('STAGING_DB_NAME:', process.env.STAGING_DB_NAME);
+console.log('DB_HOST:', process.env.DB_HOST);
+
 module.exports = {
 	development: {
 		username: process.env.DB_USER,
@@ -8,12 +14,6 @@ module.exports = {
 		host: process.env.DB_HOST,
 		dialect: 'mysql',
 		logging: false,
-		pool: {
-			max: 5,
-			min: 0,
-			acquire: 30000,
-			idle: 10000,
-		},
 	},
 	staging: {
 		username: process.env.STAGING_DB_USER,
@@ -22,12 +22,6 @@ module.exports = {
 		host: process.env.DB_HOST,
 		dialect: 'mysql',
 		logging: false,
-		pool: {
-			max: 5,
-			min: 0,
-			acquire: 30000,
-			idle: 10000,
-		},
 	},
 	production: {
 		username: process.env.DB_USER,
@@ -36,11 +30,5 @@ module.exports = {
 		host: process.env.DB_HOST,
 		dialect: 'mysql',
 		logging: false,
-		pool: {
-			max: 5,
-			min: 0,
-			acquire: 30000,
-			idle: 10000,
-		},
 	},
 };
