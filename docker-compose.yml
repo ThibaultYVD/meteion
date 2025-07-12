@@ -9,6 +9,7 @@ services:
       - TOKEN
       - CLIENT_ID
       - TZ=Europe/Paris
+      - NODE_ENV=production
     container_name: meteion
     image: thibaultyvd/meteion:production
     restart: unless-stopped
