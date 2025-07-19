@@ -18,6 +18,10 @@ const db = require('./models/Models');
 
 db.sequelize.sync();
 
+console.log(i18next);
+console.log('Test traduction :', i18next.t('event.info.bot.embed_labels.time'));
+
+
 for (const folder of commandFolders) {
 	const commandsPath = path.join(foldersPath, folder);
 	const commandFiles = fs
@@ -53,6 +57,9 @@ for (const file of eventFiles) {
 		client.on(event.name, (...args) => event.execute(...args));
 	}
 }
+
+console.log('🔎 Lang data keys:', Object.keys(i18next.store.data.fr.translation.event.info.bot.embed_labels));
+
 
 client.login(process.env.TOKEN);
 // Handles errors and avoids crashes, better to not remove them.

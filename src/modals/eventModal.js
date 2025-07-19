@@ -9,6 +9,7 @@ module.exports = {
 		try {
 			const username = interaction.member.nickname || interaction.user.globalName;
 
+			console.log(client.i18next);
 			const titre = interaction.fields.getTextInputValue('eventTitle');
 			const description = interaction.fields.getTextInputValue('eventDesc');
 			const date = interaction.fields.getTextInputValue('eventDate');
