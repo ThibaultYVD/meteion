@@ -88,16 +88,16 @@ function getEventCreationModal() {
 		.setLabel('Titre.')
 		.setStyle(TextInputStyle.Short)
 		.setMaxLength(100)
-		.setRequired(true);
-		// .setValue('Exemple titre');
+		.setRequired(true)
+		.setValue('Exemple titre');
 
 	const eventDescInput = new TextInputBuilder()
 		.setCustomId('eventDesc')
 		.setLabel('Description et/ou détails.')
 		.setMaxLength(400)
 		.setRequired(false)
-		.setStyle(TextInputStyle.Paragraph);
-		// .setValue('Exemple description');
+		.setStyle(TextInputStyle.Paragraph)
+		.setValue('Exemple description');
 
 
 	const dateInput = new TextInputBuilder()
@@ -106,8 +106,8 @@ function getEventCreationModal() {
 		.setStyle(TextInputStyle.Short)
 		.setPlaceholder(getCurrentDate())
 		.setMaxLength(10)
-		.setRequired(true);
-		// .setValue(getCurrentDate());
+		.setRequired(true)
+		.setValue(getCurrentDate());
 
 	const hourInput = new TextInputBuilder()
 		.setCustomId('eventHour')
@@ -115,8 +115,8 @@ function getEventCreationModal() {
 		.setStyle(TextInputStyle.Short)
 		.setPlaceholder(getCurrentHour())
 		.setMaxLength(5)
-		.setRequired(true);
-		// .setValue(getCurrentHour());
+		.setRequired(true)
+		.setValue(getCurrentHour());
 
 
 	const eventPlaceInput = new TextInputBuilder()
@@ -124,8 +124,8 @@ function getEventCreationModal() {
 		.setLabel('Lieu de rassemblement')
 		.setMaxLength(100)
 		.setStyle(TextInputStyle.Short)
-		.setRequired(false);
-		// .setValue('Exemple Lieu de rassemblement');
+		.setRequired(false)
+		.setValue('Exemple Lieu de rassemblement');
 
 	modal.addComponents(
 		new ActionRowBuilder().addComponents(eventTitleInput),
