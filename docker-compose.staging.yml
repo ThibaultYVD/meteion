@@ -1,5 +1,15 @@
 services:
   app:
+    environment:
+      - APP_ENV
+      - DB_HOST=database
+      - DB_USER
+      - DB_PASSWORD
+      - DB_NAME
+      - TOKEN
+      - CLIENT_ID
+      - TZ=Europe/Paris
+      - NODE_ENV=staging
     container_name: meteion_staging
     image: thibaultyvd/meteion:staging
     restart: unless-stopped
@@ -7,8 +17,6 @@ services:
       - "20221:3000"
     depends_on:
       - database
-    env_file:
-      - ./config/.env.staging
 
   database:
     container_name: meteion_db_staging
