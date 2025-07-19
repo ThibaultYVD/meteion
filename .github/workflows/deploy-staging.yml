@@ -38,4 +38,4 @@ jobs:
           -e STAGING_DB_PASSWORD=${{ secrets.STAGING_DB_PASSWORD }} \
           -e STAGING_DB_NAME=${{ secrets.STAGING_DB_NAME }} \
           meteion_staging \
-          npx sequelize-cli db:migrate --env staging --config config/config.js
+          npx sequelize-cli db:migrate --env staging --config src/config/config.js
