@@ -20,6 +20,10 @@ services:
 
   database:
     container_name: meteion_db_staging
+    environment:
+      - MYSQL_ROOT_PASSWORD
+      - MYSQL_DATABASE=meteion_db_staging
+      - TZ=Europe/Paris
     image: mysql:8.0
     restart: always
     ports:
@@ -27,8 +31,6 @@ services:
     volumes:
       - db_data_staging:/var/lib/mysql
       - ./init_staging.sql:/docker-entrypoint-initdb.d/init_staging.sql
-    env_file:
-      - ./config/.env.staging
 
 volumes:
   db_data_staging:
