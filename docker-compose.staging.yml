@@ -6,6 +6,7 @@ services:
       - DB_USER
       - DB_PASSWORD
       - DB_NAME
+      - DB_PORT=3306
       - TOKEN
       - CLIENT_ID
       - TZ=Europe/Paris
@@ -23,6 +24,7 @@ services:
     environment:
       - MYSQL_ROOT_PASSWORD
       - MYSQL_DATABASE=meteion_db_staging
+      - MYSQL_USER=meteion
       - TZ=Europe/Paris
     image: mysql:8.0
     restart: always
