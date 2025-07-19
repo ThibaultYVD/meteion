@@ -15,9 +15,6 @@ module.exports = {
 		database: process.env.STAGING_DB_NAME,
 		host: process.env.DB_HOST,
 		dialect: 'mysql',
-		dialectOptions: {
-			rejectUnauthorized: false,
-		},
 		logging: false,
 	},
 	production: {
