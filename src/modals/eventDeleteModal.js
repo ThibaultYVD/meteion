@@ -16,6 +16,13 @@ module.exports = {
 
 			if (currentEvent.remember_message_id !== null) await channel.messages.delete(currentEvent.remember_message_id);
 
+			const guildScheduledEvent = await interaction.guild.scheduledEvents.fetch(currentEvent.discord_event_id).catch(() => null);
+			if (guildScheduledEvent) {
+				await guildScheduledEvent.delete().catch(() => {
+					// Ignoré intentionnellement si déjà supprimé
+				});
+			}
+
 			await db.Event.update({
 				event_status: 'cancelled',
 			}, {

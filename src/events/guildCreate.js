@@ -6,7 +6,6 @@ module.exports = {
 	name: Events.GuildCreate,
 	async execute(guild) {
 		try {
-			console.log(`Le bot a rejoint le serveur : ${guild.name}`);
 			const [newGuild, created] = await db.Guild.findOrCreate({
 				where: { guild_id: guild.id },
 				defaults: {

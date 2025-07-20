@@ -30,7 +30,8 @@
     "global": {
         "error": {
             "error_occured_title": "Une erreur est survenue.",
-            "error_occured_description": "```Veuillez réessayer ou contacter le développeur (@sorasilver_) en indiquant les actions que vous avez fait pour obtenir cette erreur pour accélérer la résolution du problème.```"
+            "error_occured_description": "```Veuillez réessayer ou contacter le développeur (@sorasilver_) en indiquant les actions que vous avez fait pour obtenir cette erreur pour accélérer la résolution du problème.```",
+            "missing_permission_error": "Météion n'a pas les permissions nécessaires pour fonctionner. Veuillez vérifier si les permissions suivantes sont actifs dans le rôle que vous utilisez, que le rôle a bien accès à votre salon :**\n- Voir les salons\n- Envoyer des messages ou et créer des posts\n- Gérer les messages\n- Créer des événements\n- Gérer les événements**\n\nPlus d'informations sur la configuration des rôles [ici](https://support.discord.com/hc/fr/articles/206029707-FAQ-sur-la-Configuration-des-Permissions)."
         }
     }
 }

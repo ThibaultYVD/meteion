@@ -53,6 +53,10 @@ module.exports = (sequelize, Sequelize) => {
 			type: Sequelize.DATE,
 			allowNull: false,
 		},
+		discord_event_id: {
+			type: Sequelize.STRING,
+			allowNull: true,
+		},
 
 	}, {
 	});
