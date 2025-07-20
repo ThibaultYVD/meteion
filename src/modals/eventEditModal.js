@@ -5,6 +5,7 @@ module.exports = {
 	customId: 'eventEditModal',
 	async execute(interaction) {
 		try {
+			const client = interaction.client;
 			const titre = interaction.fields.getTextInputValue('eventTitle');
 			const description = interaction.fields.getTextInputValue('eventDesc');
 			const date = interaction.fields.getTextInputValue('eventDate');
@@ -81,9 +82,13 @@ module.exports = {
 					const startTime = new Date(epochTimestamp * 1000);
 					const endTime = new Date(startTime.getTime() + 3 * 60 * 60 * 1000);
 
+					const nativeDiscordEventDescription = client.i18next.t('event.info.native_discord.description', {
+						description: description,
+					});
+
 					await scheduledEvent.edit({
 						name: titre,
-						description: description,
+						description: nativeDiscordEventDescription,
 						scheduledStartTime: startTime,
 						scheduledEndTime: endTime,
 						entityMetadata: { location: place },
