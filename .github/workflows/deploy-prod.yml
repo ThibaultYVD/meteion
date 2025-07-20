@@ -3,7 +3,8 @@ name: 🚀 Deploy to Production
 on:
   push:
     branches: [main]
-
+  workflow_dispatch:
+    
 jobs:
   deploy:
     runs-on: self-hosted
@@ -34,4 +35,4 @@ jobs:
 
       - name: Run Sequelize Migrations (Production)
         run: |
-          docker exec meteion npx sequelize-cli db:migrate --env production --config src/config/config.js
+          docker exec meteion npx sequelize-cli db:migrate --env production

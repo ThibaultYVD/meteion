@@ -9,7 +9,6 @@ module.exports = {
 		try {
 			const username = interaction.member.nickname || interaction.user.globalName;
 
-			console.log(client.i18next);
 			const titre = interaction.fields.getTextInputValue('eventTitle');
 			const description = interaction.fields.getTextInputValue('eventDesc');
 			const date = interaction.fields.getTextInputValue('eventDate');
@@ -58,7 +57,7 @@ module.exports = {
 			const scheduledStartTime = new Date(eventDateTime);
 			const scheduledEndTime = new Date(eventDateTime.getTime() + 3 * 60 * 60 * 1000);
 
-			await interaction.guild.scheduledEvents.create({
+			const discord_event = await interaction.guild.scheduledEvents.create({
 				name: titre,
 				scheduledStartTime: scheduledStartTime,
 				scheduledEndTime: scheduledEndTime,
@@ -87,17 +86,27 @@ module.exports = {
 				event_status: 'planned',
 				event_place: place,
 				created_at: new Date(),
+				discord_event_id: discord_event.id,
 			});
 
 
 		}
 		catch (error) {
 			console.error('Erreur lors de la gestion du modal :', error);
-			return await interaction.reply({
-				embeds: [errorEmbed(client, client.i18next.t('event.error.error_occured'))],
-				ephemeral: true,
-			});
+			if (error.code === 50013) {
+				return await interaction.reply({
+					embeds: [errorEmbed(client, client.i18next.t('global.error.missing_permission_error'))],
+					ephemeral: true,
+				});
+			}
+			else {
+				return await interaction.reply({
+					embeds: [errorEmbed(client, client.i18next.t('event.error.error_occured_description'))],
+					ephemeral: true,
+				});
+			}
 		}
+
 	},
 };
 

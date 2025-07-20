@@ -5,7 +5,12 @@ const i18next = require('./config/i18n');
 require('dotenv').config();
 
 // Create a new client instance
-const client = new Client({ intents: [GatewayIntentBits.Guilds] });
+const client = new Client({
+	intents: [
+		GatewayIntentBits.Guilds,
+		GatewayIntentBits.GuildScheduledEvents,
+	],
+});
 
 client.color = '#684AF0';
 client.commands = new Collection();
