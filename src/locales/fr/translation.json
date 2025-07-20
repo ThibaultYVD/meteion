@@ -1,0 +1,37 @@
+{
+    "event": {
+        "info": {
+            "native_discord": {
+                "description": "*Cet événement est géré par Météion. Merci de passer par le bot pour vous inscrire.*\n\n{{description}}"
+            },
+            "bot": {
+                "not_specified_location": "Non renseigné",
+                "embed_labels": {
+                    "time": "📅 Temps",
+                    "meeting_place": "📍Lieu de rassemblement",
+                    "participant": "✅ Participants ({{number}})",
+                    "undecided": "❓Indécis ({{number}})",
+                    "in_reserve": "🪑 En réserve ({{number}})",
+                    "absent": "❌ Absents ({{number}})",
+                    "created_by": "Créé par {{username}}"
+                },
+                "buttons_labels": {
+                    "edit": "Modifier",
+                    "delete": "Supprimer"
+                }
+            }
+        },
+        "error": {
+            "error_occured": "**Une erreur est survenue lors de la création de l'événement.**",
+            "date_format_error": "Erreur(s) au niveau de la **date** et/ou de **l'heure**. Merci de respecter le format.",
+            "previous_date_error": "Date et heure invalide. Vous ne pouvez pas renseigner une date ou une heure antérieure à la date ou l'heure actuelle."
+        }
+    },
+    "global": {
+        "error": {
+            "error_occured_title": "Une erreur est survenue.",
+            "error_occured_description": "```Veuillez réessayer ou contacter le développeur (@sorasilver_) en indiquant les actions que vous avez fait pour obtenir cette erreur pour accélérer la résolution du problème.```",
+            "missing_permission_error": "Météion n'a pas les permissions nécessaires pour fonctionner. Veuillez vérifier si les permissions suivantes sont actifs dans le rôle que vous utilisez, que le rôle a bien accès à votre salon :**\n- Voir les salons\n- Envoyer des messages ou et créer des posts\n- Gérer les messages\n- Créer des événements\n- Gérer les événements**\n\nPlus d'informations sur la configuration des rôles [ici](https://support.discord.com/hc/fr/articles/206029707-FAQ-sur-la-Configuration-des-Permissions)."
+        }
+    }
+}

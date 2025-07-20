@@ -1,5 +1,7 @@
 services:
   app:
+    build:
+      .
     environment:
       - APP_ENV
       - DB_HOST=database
@@ -9,6 +11,7 @@ services:
       - TOKEN
       - CLIENT_ID
       - TZ=Europe/Paris
+      - NODE_ENV=production
     container_name: meteion
     image: thibaultyvd/meteion:production
     restart: unless-stopped
@@ -29,7 +32,7 @@ services:
       - '33060:3306'
     volumes:
       - db_data_production:/var/lib/mysql
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ../scripts/init.sql:/docker-entrypoint-initdb.d/init.sql
 
 volumes:
   db_data_production:

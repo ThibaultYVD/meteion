@@ -30,3 +30,7 @@ jobs:
           docker compose -p meteion-staging -f docker-compose.staging.yml down
           docker compose -p meteion-staging -f docker-compose.staging.yml up -d
           docker image prune -f
+
+      - name: Run Sequelize Migrations (Staging)
+        run: |
+          docker exec meteion_staging npx sequelize-cli db:migrate --env staging

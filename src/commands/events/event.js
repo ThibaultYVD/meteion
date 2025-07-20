@@ -82,7 +82,6 @@ function getEventCreationModal() {
 		.setCustomId('eventCreationModal')
 		.setTitle('Création d\'un événement.');
 
-
 	const eventTitleInput = new TextInputBuilder()
 		.setCustomId('eventTitle')
 		.setLabel('Titre.')
@@ -98,7 +97,6 @@ function getEventCreationModal() {
 		.setRequired(false)
 		.setStyle(TextInputStyle.Paragraph);
 		// .setValue('Exemple description');
-
 
 	const dateInput = new TextInputBuilder()
 		.setCustomId('eventDate')
@@ -117,7 +115,6 @@ function getEventCreationModal() {
 		.setMaxLength(5)
 		.setRequired(true);
 		// .setValue(getCurrentHour());
-
 
 	const eventPlaceInput = new TextInputBuilder()
 		.setCustomId('eventPlace')

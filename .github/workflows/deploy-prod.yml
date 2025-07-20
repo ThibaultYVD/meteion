@@ -3,7 +3,8 @@ name: 🚀 Deploy to Production
 on:
   push:
     branches: [main]
-
+  workflow_dispatch:
+    
 jobs:
   deploy:
     runs-on: self-hosted
@@ -31,3 +32,7 @@ jobs:
           docker compose -p meteion-prod -f docker-compose.yml down
           docker compose -p meteion-prod -f docker-compose.yml up -d
           docker image prune -f
+
+      - name: Run Sequelize Migrations (Production)
+        run: |
+          docker exec meteion npx sequelize-cli db:migrate --env production
