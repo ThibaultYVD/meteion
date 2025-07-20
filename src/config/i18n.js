@@ -8,6 +8,9 @@ i18next.use(Backend).init({
 	backend: {
 		loadPath: path.join(__dirname, '..', 'locales', '{{lng}}', 'translation.json'),
 	},
+	interpolation: {
+		escapeValue: false,
+	},
 });
 
 module.exports = i18next;
