@@ -7,6 +7,20 @@
     "lint": "eslint ./ --fix",
     "start": "npm run lint && node scripts/deploy-commands.js && node src/index.js"
   },
+  "_moduleAliases": {
+    "@root": "src",
+    "@services": "src/Application/services",
+    "@repositories": "src/Application/repositories",
+    "@models": "src/Infrastructure/models",
+    "@migrations": "src/Infrastructure/migrations",
+    "@buttons": "src/Client/buttons",
+    "@commands": "src/Client/commands",
+    "@events": "src/Client/events",
+    "@jobs": "src/Client/jobs",
+    "@modals": "src/Client/modals",
+    "@utils": "src/Client/utils",
+    "@config": "src/config"
+  },
   "author": "",
   "license": "ISC",
   "dependencies": {
@@ -16,6 +30,7 @@
     "dotenv": "^16.4.5",
     "i18next": "^25.3.2",
     "i18next-fs-backend": "^2.6.0",
+    "module-alias": "^2.2.3",
     "mysql2": "^3.11.3",
     "sequelize": "^6.37.4",
     "sequelize-cli": "^6.6.3"
