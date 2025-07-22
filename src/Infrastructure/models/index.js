@@ -1,6 +1,6 @@
 const config = require('../config/db.js');
-
 const Sequelize = require('sequelize');
+
 const sequelize = new Sequelize(
 	config.DB,
 	config.USER,
@@ -25,7 +25,6 @@ const db = {};
 db.Sequelize = Sequelize;
 db.sequelize = sequelize;
 
-
 db.Guild = require('./Guild.js')(sequelize, Sequelize);
 db.Setting = require('./Setting.js')(sequelize, Sequelize);
 db.User = require('./User.js')(sequelize, Sequelize);
@@ -35,116 +34,106 @@ db.Event = require('./Event.js')(sequelize, Sequelize);
 db.Choice = require('./Choice.js')(sequelize, Sequelize);
 db.UserEventChoice = require('./UserEventChoice.js')(sequelize, Sequelize);
 
-// INFO: Relations Guild et Settings
-db.Guild.belongsToMany(db.Setting, {
-	through: 'guild_settings', foreignKey: 'guild_id',
-	onDelete: 'CASCADE',
-});
+// ===================== RELATIONS ===================== //
 
-db.Setting.belongsToMany(db.Guild, {
-	through: 'guild_settings', foreignKey: 'setting_id',
-	onDelete: 'CASCADE',
-});
-
-// INFO: Relations User et Guild (via GuildMember)
+// User <-> Guild (via GuildMember)
 db.User.belongsToMany(db.Guild, {
 	through: db.GuildMember,
 	foreignKey: 'user_id',
 	onDelete: 'CASCADE',
 });
-
 db.Guild.belongsToMany(db.User, {
 	through: db.GuildMember,
 	foreignKey: 'guild_id',
 	onDelete: 'CASCADE',
 });
 
-// INFO: Relation Guild et Setting (via GuildSetting)
-db.Guild.belongsToMany(db.Setting, {
-	through: db.GuildSetting,
-	foreignKey: 'guild_id',
+// GuildSetting -> Setting
+db.GuildSetting.belongsTo(db.Setting, {
+	as: 'Setting',
+	foreignKey: 'setting_id',
 	onDelete: 'CASCADE',
 });
-
-db.Setting.belongsToMany(db.Guild, {
-	through: db.GuildSetting,
+db.Setting.hasMany(db.GuildSetting, {
 	foreignKey: 'setting_id',
 	onDelete: 'CASCADE',
 });
 
-
-// INFO: Relations User et Event (via UserEventChoice)
+// User <-> Event (via UserEventChoice)
 db.User.belongsToMany(db.Event, {
 	through: db.UserEventChoice,
 	foreignKey: 'user_id',
 	onDelete: 'CASCADE',
 });
-
 db.Event.belongsToMany(db.User, {
 	through: db.UserEventChoice,
 	foreignKey: 'event_id',
 	onDelete: 'CASCADE',
 });
 
-
-// INFO: Relations UserEventChoice et Choice
+// UserEventChoice -> Choice
 db.UserEventChoice.belongsTo(db.Choice, {
 	foreignKey: 'choice_id',
 	onDelete: 'CASCADE',
 });
-
 db.Choice.hasMany(db.UserEventChoice, {
 	foreignKey: 'choice_id',
 	onDelete: 'CASCADE',
 });
 
-// INFO: Relations UserEventChoice et User
+// UserEventChoice -> User, Event
 db.UserEventChoice.belongsTo(db.User, {
 	foreignKey: 'user_id',
 	onDelete: 'CASCADE',
 });
-
 db.UserEventChoice.belongsTo(db.Event, {
 	foreignKey: 'event_id',
 	onDelete: 'CASCADE',
 });
 
+// ===================== INSERTIONS INITIALES ===================== //
+
 async function insertDefaultChoices() {
 	try {
-	  await db.Choice.bulkCreate([
+		await db.Choice.bulkCreate([
 			{ choice_id: 1, choice_name: 'Participant' },
 			{ choice_id: 2, choice_name: 'Indécis' },
 			{ choice_id: 3, choice_name: 'Réserviste' },
 			{ choice_id: 4, choice_name: 'Absent' },
-	  ], {
-			ignoreDuplicates: true,
-	  });
+		], { ignoreDuplicates: true });
 
-	  console.log('Valeurs de base insérées dans la table Choice.');
+		console.log('Valeurs de base insérées dans la table Choice.');
 	}
 	catch (error) {
-	  console.error('Erreur lors de l\'insertion des valeurs de base dans Choice:', error);
+		console.error('Erreur lors de l\'insertion des valeurs de base dans Choice:', error);
 	}
 }
 
 async function insertSettings() {
 	try {
-	  await db.Setting.bulkCreate([
-			{ setting_id: 1, setting_name: 'auto_close_event', setting_display_name: 'Suppression automatique des événements', activated_by_default:'TRUE' },
-			{ setting_id: 2, setting_name: 'event_reminder', setting_display_name: 'Envoie d\'un message de rappel', activated_by_default:'TRUE' },
-	  ], {
-			ignoreDuplicates: true,
-	  });
+		await db.Setting.bulkCreate([
+			{
+				setting_id: 1,
+				setting_name: 'auto_close_event',
+				setting_display_name: 'Suppression automatique des événements',
+				activated_by_default: 'TRUE',
+			},
+			{
+				setting_id: 2,
+				setting_name: 'event_reminder',
+				setting_display_name: 'Envoie d\'un message de rappel',
+				activated_by_default: 'TRUE',
+			},
+		], { ignoreDuplicates: true });
 
-	  console.log('Valeurs de base insérées dans la table Setting.');
+		console.log('Valeurs de base insérées dans la table Setting.');
 	}
 	catch (error) {
-	  console.error('Erreur lors de l\'insertion des valeurs de base dans Setting:', error);
+		console.error('Erreur lors de l\'insertion des valeurs de base dans Setting:', error);
 	}
 }
 
 insertDefaultChoices();
 insertSettings();
-
 
 module.exports = db;

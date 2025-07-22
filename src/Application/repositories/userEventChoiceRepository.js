@@ -1,10 +1,9 @@
 const BaseRepository = require('./baseRepository');
-const db = require('@models');
 
 class UserEventChoice extends BaseRepository {
-	constructor() {
-		super(db.UserEventChoice);
+	constructor(model) {
+		super(model);
 	}
 }
 
-module.exports = new UserEventChoice();
+module.exports = UserEventChoice;

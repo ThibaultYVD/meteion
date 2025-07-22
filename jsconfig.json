@@ -1,0 +1,57 @@
+{
+    "compilerOptions": {
+        "target": "ES2020", // ou ESNext si tu veux
+        "module": "commonjs",
+        "baseUrl": ".", // <- très important
+        "paths": {
+            "@root/*": [
+                "src/*"
+            ],
+            "@services/*": [
+                "src/Application/services/*"
+            ],
+            "@repositories/*": [
+                "src/Application/repositories/*"
+            ],
+            "@models/*": [
+                "src/Infrastructure/models/*"
+            ],
+            "@migrations/*": [
+                "src/Infrastructure/migrations/*"
+            ],
+            "@buttons/*": [
+                "src/Client/buttons/*"
+            ],
+            "@commands/*": [
+                "src/Client/commands/*"
+            ],
+            "@events/*": [
+                "src/Client/events/*"
+            ],
+            "@jobs/*": [
+                "src/Client/jobs/*"
+            ],
+            "@modals/*": [
+                "src/Client/modals/*"
+            ],
+            "@utils/*": [
+                "src/Client/utils/*"
+            ],
+            "@config/*": [
+                "src/config/*"
+            ],
+            "@locales/*": [
+                "src/locales/*"
+            ]
+        },
+        "moduleResolution": "node",
+        "allowSyntheticDefaultImports": true
+    },
+    "include": [
+        "src"
+    ],
+    "exclude": [
+        "node_modules",
+        "scripts"
+    ]
+}

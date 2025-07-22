@@ -1,7 +1,6 @@
 const { SlashCommandBuilder } = require('discord.js');
 const { ActionRowBuilder, ModalBuilder, TextInputBuilder, TextInputStyle } = require('discord.js');
-const _interactionService = require('@services/interactionService');
-const _dateTimeService = require('@services/dateTimeService');
+const { _interactionService, _dateTimeService } = require('@services');
 
 module.exports = {
 	data: new SlashCommandBuilder()

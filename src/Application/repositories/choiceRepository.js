@@ -1,10 +1,8 @@
 const BaseRepository = require('./baseRepository');
-const db = require('@models');
-
 class ChoiceRepository extends BaseRepository {
-	constructor() {
-		super(db.Choice);
+	constructor(model) {
+		super(model);
 	}
 }
 
-module.exports = new ChoiceRepository();
+module.exports = ChoiceRepository;

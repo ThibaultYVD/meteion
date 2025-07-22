@@ -1,10 +1,9 @@
 const BaseRepository = require('./baseRepository');
-const db = require('@models');
 
 class UserRepository extends BaseRepository {
-	constructor() {
-		super(db.User);
+	constructor(model) {
+		super(model);
 	}
 }
 
-module.exports = new UserRepository();
+module.exports = UserRepository;

@@ -1,5 +1,5 @@
 const { SlashCommandBuilder, EmbedBuilder, ButtonBuilder, ActionRowBuilder, ButtonStyle, PermissionFlagsBits } = require('discord.js');
-const db = require('@models');
+const { _guildSettingsService, _interactionService } = require('@services');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -15,93 +15,23 @@ module.exports = {
 		try {
 			const { guild, user, member, client } = interaction;
 
-			// INFO: Mise à jour des informations de l'utilisateur
-			const [userRecord, userCreated] = await db.User.findOrCreate({
-				where: { user_id: user.id },
-				defaults: {
-					username: user.username,
-					global_name: user.globalName,
-					added_date: new Date(),
-				},
+			await _interactionService.handleUserAndGuildData({ guild, user, member });
+
+			await _guildSettingsService.initializeGuildSettings(guild);
+
+			const guildSettings = await _guildSettingsService.getGuildSettings(guild);
+
+			await _guildSettingsService.upsertGuildMember(guild, user, member);
+
+			await interaction.reply({
+				embeds: [getSettingsEmbed(interaction, client, guildSettings)],
+				components: [getSettingsRows()],
+				ephemeral: true,
 			});
-
-			if (!userCreated) {
-				await userRecord.update({
-					username: user.username,
-					global_name: user.globalName,
-				});
-			}
-
-			const [guildRecord, guildCreated] = await db.Guild.findOrCreate({
-				where: { guild_id: guild.id },
-				defaults: {
-					guild_name: guild.name,
-					guild_total_members: guild.memberCount,
-					added_date: new Date(),
-				},
-			});
-
-			if (!guildCreated) {
-				await guildRecord.update({
-					guild_name: guild.name,
-					guild_total_members: guild.memberCount,
-				});
-			}
-
-			const guildSettingsFromDB = await db.sequelize.query(
-				'SELECT DISTINCT setting_id FROM guild_settings WHERE guild_id = :guild_id',
-				{
-					replacements: { guild_id: guild.id },
-					type: db.sequelize.QueryTypes.SELECT,
-				},
-			);
-
-			const allSettings = await db.Setting.findAll();
-			const existingSettingIds = guildSettingsFromDB.map(gs => gs.setting_id);
-			const missingSettings = allSettings.filter(setting => !existingSettingIds.includes(setting.setting_id));
-
-			for (const setting of missingSettings) {
-				await db.sequelize.query(
-					'INSERT INTO guild_settings (guild_id, setting_id, activated) VALUES (:guild_id, :setting_id, :activated)',
-					{
-						replacements: {
-							guild_id: guild.id,
-							setting_id: setting.setting_id,
-							activated: setting.activated_by_default,
-						},
-						type: db.sequelize.QueryTypes.INSERT,
-					},
-				);
-			}
-
-			await db.GuildMember.upsert({
-				guild_id: guild.id,
-				user_id: user.id,
-				user_nickname: member.nickname,
-				last_bot_interaction: new Date(),
-			});
-
-			const guildSettings = await db.sequelize.query(
-				`SELECT DISTINCT s.setting_display_name,
-                CASE 
-                    WHEN gs.activated = 'TRUE' THEN '✅ Activé'
-                    ELSE '❌ Désactivé'
-                END AS activation_status
-                FROM guild_settings gs
-                INNER JOIN settings s ON gs.setting_id = s.setting_id
-                WHERE guild_id = :guild_id;`,
-				{
-					replacements: { guild_id: guild.id },
-					type: db.sequelize.QueryTypes.SELECT,
-				},
-			);
-
-			await interaction.reply({ embeds: [getSettingsEmbed(interaction, client, guildSettings)], components: [getSettingsRows()], ephemeral: true });
 		}
 		catch (error) {
-			console.error(error);
+			console.error('Erreur dans la commande /settings:', error);
 		}
-
 	},
 };
 

@@ -1,4 +1,8 @@
 class DateTimeService {
+	/**
+	  * Récupère la date actuelle au format JJ/MM/AAAA.
+	  * @returns {Promise<string>} La date formatée.
+	  */
 	async getCurrentDate() {
 		const currentDate = new Date();
 		const day = String(currentDate.getDate()).padStart(2, '0');
@@ -7,6 +11,10 @@ class DateTimeService {
 		return `${day}/${month}/${year}`;
 	}
 
+	/**
+	  * Récupère l'heure actuelle au format 00h00.
+	  * @returns {Promise<string>} L'heure formatée.
+	  */
 	async getCurrentHour() {
 		const currentTime = new Date();
 		const hours = currentTime.getHours() + 1;
@@ -14,4 +22,4 @@ class DateTimeService {
 	}
 }
 
-module.exports = new DateTimeService();
+module.exports = DateTimeService;
