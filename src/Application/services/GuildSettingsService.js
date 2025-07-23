@@ -1,5 +1,3 @@
-const db = require('@models');
-
 class GuildSettingsService {
 	constructor(guildSettingsRepository, settingRepository, guildMemberRepository) {
 		this.guildSettingsRepository = guildSettingsRepository;
@@ -51,7 +49,7 @@ class GuildSettingsService {
    * @param {import('discord.js').User} user
    * @param {import('discord.js').GuildMember} member
    */
-	async upsertGuildMember(guild, user, member) {
+	async updateOrCreateGuildMember(guild, user, member) {
 		await this.guildMemberRepository.updateOrCreate({
 			guild_id: guild.id,
 			user_id: user.id,

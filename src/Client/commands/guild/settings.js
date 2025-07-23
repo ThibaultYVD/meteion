@@ -21,7 +21,7 @@ module.exports = {
 
 			const guildSettings = await _guildSettingsService.getGuildSettings(guild);
 
-			await _guildSettingsService.upsertGuildMember(guild, user, member);
+			await _guildSettingsService.updateOrCreateGuildMember(guild, user, member);
 
 			await interaction.reply({
 				embeds: [getSettingsEmbed(interaction, client, guildSettings)],

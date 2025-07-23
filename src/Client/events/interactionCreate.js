@@ -4,7 +4,7 @@ const path = require('path');
 
 // INFO: Charger dynamiquement les fichiers de modals
 const modals = {};
-const modalsPath = path.join(__dirname, '../modals');
+const modalsPath = path.join(__dirname, '../components/modals');
 const modalFiles = fs.readdirSync(modalsPath).filter(file => file.endsWith('.js'));
 
 for (const file of modalFiles) {
@@ -14,7 +14,7 @@ for (const file of modalFiles) {
 
 // INFO: Charger dynamiquement les fichiers de boutons
 const buttons = {};
-const buttonsPath = path.join(__dirname, '../buttons');
+const buttonsPath = path.join(__dirname, '../components/buttons');
 const buttonFiles = fs.readdirSync(buttonsPath).filter(file => file.endsWith('.js'));
 
 for (const file of buttonFiles) {

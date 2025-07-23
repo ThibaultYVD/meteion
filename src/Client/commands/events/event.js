@@ -14,9 +14,9 @@ module.exports = {
 		try {
 			const { guild, user, member } = interaction;
 
-			await _interactionService.handleUserAndGuildData({ guild, user, member });
-
 			await interaction.showModal(await getEventCreationModal());
+
+			await _interactionService.handleUserAndGuildData({ guild, user, member });
 		}
 		catch (error) {
 			console.error(error);

@@ -1,8 +1,8 @@
 {
     "compilerOptions": {
-        "target": "ES2020", // ou ESNext si tu veux
+        "target": "ES2020",
         "module": "commonjs",
-        "baseUrl": ".", // <- très important
+        "baseUrl": ".",
         "paths": {
             "@root/*": [
                 "src/*"
@@ -19,8 +19,11 @@
             "@migrations/*": [
                 "src/Infrastructure/migrations/*"
             ],
+            "@embeds/*": [
+                "src/Client/components/embeds/*"
+            ],
             "@buttons/*": [
-                "src/Client/buttons/*"
+                "src/Client/components/buttons/*"
             ],
             "@commands/*": [
                 "src/Client/commands/*"
@@ -32,7 +35,7 @@
                 "src/Client/jobs/*"
             ],
             "@modals/*": [
-                "src/Client/modals/*"
+                "src/Client/components/modals/*"
             ],
             "@utils/*": [
                 "src/Client/utils/*"
