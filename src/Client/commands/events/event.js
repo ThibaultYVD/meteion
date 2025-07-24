@@ -1,6 +1,6 @@
 const { SlashCommandBuilder } = require('discord.js');
-const { ActionRowBuilder, ModalBuilder, TextInputBuilder, TextInputStyle } = require('discord.js');
-const { _interactionService, _dateTimeService } = require('@services');
+const { _interactionService } = require('@services');
+const { getEventCreationModal } = require('@modals/builders/eventCreateModalBuilder');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -14,9 +14,10 @@ module.exports = {
 		try {
 			const { guild, user, member } = interaction;
 
-			await interaction.showModal(await getEventCreationModal());
-
 			await _interactionService.handleUserAndGuildData({ guild, user, member });
+
+			const modal = getEventCreationModal();
+			await interaction.showModal(modal);
 		}
 		catch (error) {
 			console.error(error);
@@ -25,62 +26,3 @@ module.exports = {
 	},
 };
 
-async function getEventCreationModal() {
-	const modal = new ModalBuilder()
-		.setCustomId('eventCreationModal')
-		.setTitle('Création d\'un événement.');
-
-	const currentDate = await _dateTimeService.getCurrentDate();
-	const currentHour = await _dateTimeService.getCurrentHour();
-
-	const eventTitleInput = new TextInputBuilder()
-		.setCustomId('eventTitle')
-		.setLabel('Titre.')
-		.setStyle(TextInputStyle.Short)
-		.setMaxLength(100)
-		.setRequired(true)
-		.setValue('Exemple titre');
-
-	const eventDescInput = new TextInputBuilder()
-		.setCustomId('eventDesc')
-		.setLabel('Description et/ou détails.')
-		.setMaxLength(400)
-		.setRequired(false)
-		.setStyle(TextInputStyle.Paragraph)
-		.setValue('Exemple description');
-
-	const dateInput = new TextInputBuilder()
-		.setCustomId('eventDate')
-		.setLabel('Date de l\'événement.')
-		.setStyle(TextInputStyle.Short)
-		.setPlaceholder(currentDate)
-		.setMaxLength(10)
-		.setRequired(true)
-		.setValue(currentDate);
-
-	const hourInput = new TextInputBuilder()
-		.setCustomId('eventHour')
-		.setLabel('Heure de l\'événement.')
-		.setStyle(TextInputStyle.Short)
-		.setPlaceholder(currentHour)
-		.setMaxLength(5)
-		.setRequired(true)
-		.setValue(currentHour);
-
-	const eventPlaceInput = new TextInputBuilder()
-		.setCustomId('eventPlace')
-		.setLabel('Lieu de rassemblement')
-		.setMaxLength(100)
-		.setStyle(TextInputStyle.Short)
-		.setRequired(false)
-		.setValue('Exemple Lieu de rassemblement');
-
-	modal.addComponents(
-		new ActionRowBuilder().addComponents(eventTitleInput),
-		new ActionRowBuilder().addComponents(eventDescInput),
-		new ActionRowBuilder().addComponents(dateInput),
-		new ActionRowBuilder().addComponents(hourInput),
-		new ActionRowBuilder().addComponents(eventPlaceInput),
-	);
-	return modal;
-}
