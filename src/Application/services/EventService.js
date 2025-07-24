@@ -123,17 +123,27 @@ class EventService {
 		if (eventRecord?.discord_event_id) {
 			const scheduledEvent = await guild.scheduledEvents.fetch(eventRecord.discord_event_id).catch(() => null);
 			if (scheduledEvent) {
-				await scheduledEvent.edit({
+				const updates = {
 					name: title,
 					description: client.i18next.t('event.info.native_discord.description', { description }),
-					scheduledStartTime: new Date(epochTimestamp * 1000),
-					scheduledEndTime: new Date(startTime.getTime() + 3 * 60 * 60 * 1000),
 					entityMetadata: { location: place },
-				}).catch(err => console.error('Erreur update event discord:', err));
+				};
+
+				// Ne pas modifier start/end time si event déjà lancé ou terminé
+				if (scheduledEvent.status === 1) {
+					updates.scheduledStartTime = new Date(epochTimestamp * 1000);
+					updates.scheduledEndTime = new Date(startTime.getTime() + 3 * 60 * 60 * 1000);
+				}
+				else {
+					console.warn(`Impossible de modifier l'heure : statut actuel de l'event = ${scheduledEvent.status}`);
+				}
+
+				await scheduledEvent.edit(updates).catch(err =>
+					console.error('Erreur update event discord:', err),
+				);
 			}
 		}
 	}
-
 
 	async cancelEvent(eventId, guild) {
 		const currentEvent = await this.eventRepository.findById(eventId);

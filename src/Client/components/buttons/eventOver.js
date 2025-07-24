@@ -1,5 +1,3 @@
-const db = require('@models');
-
 module.exports = {
 	customId: 'eventOver',
 	async execute(interaction) {

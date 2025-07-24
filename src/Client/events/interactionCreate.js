@@ -4,7 +4,7 @@ const path = require('path');
 
 // INFO: Charger dynamiquement les fichiers de modals
 const modals = {};
-const modalsPath = path.join(__dirname, '../components/modals');
+const modalsPath = path.join(__dirname, '../components/modals/handlers');
 const modalFiles = fs.readdirSync(modalsPath).filter(file => file.endsWith('.js'));
 
 for (const file of modalFiles) {
