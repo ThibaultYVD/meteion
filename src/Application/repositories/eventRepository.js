@@ -1,9 +1,5 @@
 const BaseRepository = require('./baseRepository');
 
-class EventRepository extends BaseRepository {
-	constructor(model) {
-		super(model);
-	}
-}
+class EventRepository extends BaseRepository { }
 
 module.exports = EventRepository;

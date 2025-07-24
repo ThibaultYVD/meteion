@@ -1,9 +1,5 @@
 const BaseRepository = require('./baseRepository');
 
-class GuildMemberRepository extends BaseRepository {
-	constructor(model) {
-		super(model);
-	}
-}
+class GuildMemberRepository extends BaseRepository { }
 
 module.exports = GuildMemberRepository;

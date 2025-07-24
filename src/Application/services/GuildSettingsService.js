@@ -31,15 +31,19 @@ class GuildSettingsService {
  * @returns {Promise<Array<{ setting_display_name: string, activation_status: string }>>}
  */
 	async getGuildSettings(guild) {
-		if (!guild || !guild.id) {
-			throw new Error('Guild invalide ou manquante.');
+		if (!guild?.id) {
+			throw new Error('Paramètre "guild" invalide ou manquant.');
 		}
 
 		const settings = await this.guildSettingsRepository.getSettingsByGuild(guild);
 
-		return settings.map(entry => ({
-			setting_display_name: entry.setting_display_name,
-			activation_status: entry.activation_status === 'TRUE' ? '✅ Activé' : '❌ Désactivé',
+		if (!Array.isArray(settings)) {
+			return [];
+		}
+
+		return settings.map(({ setting_display_name, activation_status }) => ({
+			setting_display_name,
+			activation_status: activation_status === 'TRUE' ? '✅ Activé' : '❌ Désactivé',
 		}));
 	}
 
