@@ -1,5 +1,4 @@
 const BaseRepository = require('./baseRepository');
-const db = require('@models');
 
 class GuildSettingsRepository extends BaseRepository {
 	constructor(GuildSettingModel, SettingModel) {
