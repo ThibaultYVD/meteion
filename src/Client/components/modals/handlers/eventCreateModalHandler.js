@@ -1,6 +1,6 @@
 const { _eventService } = require('@services');
 const { createEventEmbed, getEventEmbedRows } = require('@embeds/eventEmbedBuilder');
-const errorEmbed = require('@utils/errorEmbed');
+const { errorService } = require('@services/ErrorService');
 
 module.exports = {
 	customId: 'eventCreationModal',
@@ -14,8 +14,6 @@ module.exports = {
 			const hour = interaction.fields.getTextInputValue('eventHour');
 			const place = interaction.fields.getTextInputValue('eventPlace') || client.i18next.t('event.info.bot.not_specified_location');
 			const username = interaction.member.nickname || interaction.user.globalName;
-
-			await interaction.deferReply();
 
 			const {
 				epochTimestamp,
@@ -33,9 +31,10 @@ module.exports = {
 			const embed = createEventEmbed(client, interaction, username, title, description, place, epochTimestamp);
 			const rows = getEventEmbedRows(client);
 
-			const reply = await interaction.editReply({
+			const reply = await interaction.reply({
 				embeds: [embed],
 				components: rows.map(r => r.toJSON()),
+				fetchReply: true,
 			});
 
 			await _eventService.persistEvent({
@@ -47,20 +46,7 @@ module.exports = {
 			});
 		}
 		catch (error) {
-			console.error('Erreur eventCreationModal :', error);
-
-			if (interaction.deferred || interaction.replied) {
-				await interaction.followUp({
-					embeds: [errorEmbed(client, 'Une erreur est survenue lors de la création de l\'événement.')],
-					ephemeral: true,
-				});
-			}
-			else {
-				await interaction.reply({
-					embeds: [errorEmbed(client, 'Une erreur est survenue lors de la création de l\'événement.')],
-					ephemeral: true,
-				});
-			}
+			await errorService.reply(interaction, client, error);
 		}
 	},
 };
