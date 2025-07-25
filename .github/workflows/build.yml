@@ -43,6 +43,7 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
+          no-cache: true
           tags: thibaultyvd/meteion:${{ inputs.tag }}
           build-args: |
             TZ=Europe/Paris \
@@ -63,3 +64,6 @@ jobs:
         run: |
           rm -rf /tmp/.buildx-cache
           mv /tmp/.buildx-cache-new /tmp/.buildx-cache
+      - name: Debug Docker Image
+        run: |
+          docker run --rm thibaultyvd/meteion:${{ inputs.tag }} ls -R /app/src/Application/services
