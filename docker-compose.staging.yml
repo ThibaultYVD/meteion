@@ -32,7 +32,7 @@ services:
       - "33061:3306"
     volumes:
       - db_data_staging:/var/lib/mysql
-      - ./init_staging.sql:/docker-entrypoint-initdb.d/init_staging.sql
+      - ./scripts/init_staging.sql:/docker-entrypoint-initdb.d/init_staging.sql
 
 volumes:
   db_data_staging:

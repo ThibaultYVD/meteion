@@ -1,8 +1,9 @@
+require('module-alias/register');
+require('dotenv').config();
 const fs = require('node:fs');
 const path = require('node:path');
 const { Client, Collection, Events, GatewayIntentBits } = require('discord.js');
-const i18next = require('./config/i18n');
-require('dotenv').config();
+const i18next = require('./locales/config/i18n');
 
 // Create a new client instance
 const client = new Client({
@@ -16,10 +17,10 @@ client.color = '#684AF0';
 client.commands = new Collection();
 client.i18next = i18next;
 
-const foldersPath = path.join(__dirname, 'commands');
+const foldersPath = path.join(__dirname, 'Client', 'commands');
 const commandFolders = fs.readdirSync(foldersPath);
 
-const db = require('./models/Models');
+const db = require('@models');
 
 db.sequelize.sync();
 
@@ -43,7 +44,7 @@ for (const folder of commandFolders) {
 	}
 }
 
-const eventsPath = path.join(__dirname, 'events');
+const eventsPath = path.join(__dirname, 'Client', 'events');
 const eventFiles = fs
 	.readdirSync(eventsPath)
 	.filter((file) => file.endsWith('.js'));
