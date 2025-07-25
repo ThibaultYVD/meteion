@@ -14,7 +14,7 @@ describe('EventService', () => {
 		mockEventRepository = {
 			create: jest.fn(),
 			update: jest.fn(),
-			findById: jest.fn()
+			findById: jest.fn(),
 		};
 
 		dateTimeService = new DateTimeService();
@@ -45,9 +45,9 @@ describe('EventService', () => {
 				data: {
 					fields: [
 						{ name: 'Temps', value: 'old-time' },
-						{ name: 'Lieu de rassemblement', value: 'old-place' }
-					]
-				}
+						{ name: 'Lieu de rassemblement', value: 'old-place' },
+					],
+				},
 			}],
 			edit: jest.fn(),
 		};
@@ -110,7 +110,7 @@ describe('EventService', () => {
 	it('should throw error for invalid date format', async () => {
 		const invalidData = {
 			...validEventData,
-			date: '2024-01-15', // Invalid format
+			date: '2024-01-15',
 			hour: '15h00',
 		};
 
@@ -215,7 +215,7 @@ describe('EventService', () => {
 				client: mockClient,
 				title: 'Updated Event',
 				description: 'Updated Description',
-				date: '2024-01-15', // mauvais format
+				date: '2024-01-15',
 				hour: '15h00',
 				place: 'Updated Place',
 			};

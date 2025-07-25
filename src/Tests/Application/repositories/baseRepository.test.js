@@ -3,12 +3,24 @@ const { Model } = require('sequelize');
 
 // Mock de Sequelize Model
 class MockModel extends Model {
-	static create() { }
-	static findByPk() { }
-	static findAll() { }
-	static findOrCreate() { }
-	static bulkCreate() { }
-	static findOne() { }
+	static create() {
+		//
+	}
+	static findByPk() {
+		//
+	}
+	static findAll() {
+		//
+	}
+	static findOrCreate() {
+		//
+	}
+	static bulkCreate() {
+		//
+	}
+	static findOne() {
+		//
+	}
 }
 
 describe('BaseRepository', () => {
