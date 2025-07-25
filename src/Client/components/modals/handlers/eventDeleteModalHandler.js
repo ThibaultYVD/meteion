@@ -1,4 +1,3 @@
-const db = require('@models');
 const { _eventService } = require('@services');
 
 module.exports = {
