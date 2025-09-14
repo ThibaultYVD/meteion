@@ -158,6 +158,72 @@ class EventService {
 
 		return currentEvent;
 	}
+
+	async getEventsStartingInOneHour() {
+		const now = Math.floor(Date.now() / 1000);
+		const inOneHour = now + 3600;
+
+		// event_date_hour_timestamp est un STRING dans ton modèle :
+		// on le caste en BIGINT pour comparer des timestamps proprement.
+		const tsCol = cast(col('events.event_date_hour_timestamp'), 'BIGINT');
+
+		return this.Event.findAll({
+			attributes: {
+				include: [
+					// event_reminder = COALESCE(MAX(ReminderSetting.activated), 'TRUE')
+					[fn('COALESCE', fn('MAX', col('ReminderSetting.activated')), 'TRUE'), 'event_reminder'],
+					// auto_close_event = COALESCE(MAX(AutoCloseSetting.activated), 'TRUE')
+					[fn('COALESCE', fn('MAX', col('AutoCloseSetting.activated')), 'TRUE'), 'auto_close_event'],
+				],
+			},
+			include: [
+				{
+					association: 'ReminderSetting',
+					required: false,
+					attributes: [],
+					include: [
+						{
+							model: this.Event.sequelize.models.Setting,
+							as: 'Setting',
+							required: true,
+							attributes: [],
+							where: { setting_name: 'event_reminder' },
+						},
+					],
+				},
+				{
+					association: 'AutoCloseSetting',
+					required: false,
+					attributes: [],
+					include: [
+						{
+							model: this.Event.sequelize.models.Setting,
+							as: 'Setting',
+							required: true,
+							attributes: [],
+							where: { setting_name: 'auto_close_event' },
+						},
+					],
+				},
+			],
+			where: {
+				event_status: 'planned',
+				remember_message_id: { [Op.is]: null },
+				// ts in (now, now+3600]
+				[Op.and]: [
+					where(tsCol, { [Op.gt]: now }),
+					where(tsCol, { [Op.lte]: inOneHour }),
+				],
+			},
+			// Agrégations -> group by clé de l'event
+			group: ['events.event_id'],
+			// Filtre sur l’agrégé via HAVING
+			having: where(
+				fn('COALESCE', fn('MAX', col('ReminderSetting.activated')), 'TRUE'),
+				'TRUE',
+			),
+		});
+	}
 }
 
 module.exports = EventService;
