@@ -22,6 +22,8 @@ class EventService {
 			throw new Error('DATE_IN_PAST');
 		}
 
+		description = description ? description.trim() : '';
+
 		const epochTimestamp = Math.floor(startTime.getTime() / 1000);
 
 		const nativeDiscordEventDescription = client.i18next.t('event.info.native_discord.description', { description });
@@ -88,13 +90,16 @@ class EventService {
 			throw new Error('DATE_IN_PAST');
 		}
 
+		description = description ? description.trim() : '';
+
 		const epochTimestamp = Math.floor(startTime.getTime() / 1000);
 
 		// Update embed
 		const originalEmbed = message.embeds[0];
 		const embed = new (require('discord.js').EmbedBuilder)(originalEmbed.data)
-			.setTitle(title)
-			.setDescription(description);
+			.setTitle(title);
+
+		if (description?.trim()) embed.setDescription(description);
 
 		const dateFieldIndex = embed.data.fields.findIndex(f => f.name.includes('Temps'));
 		if (dateFieldIndex !== -1) {
