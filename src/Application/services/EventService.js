@@ -105,18 +105,15 @@ class EventService {
 			throw new Error('DATE_IN_PAST');
 		}
 
+		description = description ? description.trim() : '';
+
 		const epochTimestamp = Math.floor(startTime.getTime() / 1000);
 
 		const originalEmbed = message.embeds[0];
 		const embed = new (require('discord.js').EmbedBuilder)(originalEmbed.data)
-			.setTitle(finalTitle);
+			.setTitle(title);
 
-		if (finalDescription) {
-			embed.setDescription(finalDescription);
-		}
-		else {
-			embed.setDescription(null);
-		}
+		if (description?.trim()) embed.setDescription(description);
 
 		const dateFieldIndex = embed.data.fields.findIndex(f => f.name.includes('Temps'));
 		if (dateFieldIndex !== -1) {
