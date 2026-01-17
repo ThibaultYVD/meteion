@@ -113,7 +113,12 @@ class EventService {
 		const embed = new (require('discord.js').EmbedBuilder)(originalEmbed.data)
 			.setTitle(title);
 
-		if (description?.trim()) embed.setDescription(description);
+		if (finalDescription) {
+			embed.setDescription(finalDescription);
+		}
+		else {
+			embed.setDescription(null);
+		}
 
 		const dateFieldIndex = embed.data.fields.findIndex(f => f.name.includes('Temps'));
 		if (dateFieldIndex !== -1) {
