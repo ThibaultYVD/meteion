@@ -89,7 +89,7 @@ const createError = (code, devMessage, meta) => new AppError(code, devMessage, m
 module.exports = {
 	AppError,
 	ErrorCodes,
-	errorService: {
+	_errorService: {
 		reply,
 		normalize,
 		toUserMessage,
