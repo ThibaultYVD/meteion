@@ -76,11 +76,26 @@ class EventService {
 
 
 	async updateEvent({ message, guild, client, title, description, date, hour, place }) {
-		if (!this.dateTimeService.isValidDateTime(date, hour)) {
+		const currentEvent = await this.eventRepository.findById(message.id);
+		if (!currentEvent) {
+			throw new Error('EVENT_NOT_FOUND_IN_DB');
+		}
+
+		const finalTitle = title ?? currentEvent.event_title;
+		const finalDate = date ?? currentEvent.event_date_string;
+		const finalHour = hour ?? currentEvent.event_hour_string;
+		const finalPlace = place ?? currentEvent.event_place;
+
+		let finalDescription = currentEvent.event_description;
+		if (description !== undefined) {
+			finalDescription = description ? description.trim() : '';
+		}
+
+		if (!this.dateTimeService.isValidDateTime(finalDate, finalHour)) {
 			throw new Error('INVALID_DATE_FORMAT');
 		}
 
-		const startTime = new Date(`${this.dateTimeService.formatEventDate(date)} ${this.dateTimeService.formatEventHour(hour)}:00`);
+		const startTime = new Date(`${this.dateTimeService.formatEventDate(finalDate)} ${this.dateTimeService.formatEventHour(finalHour)}:00`);
 		if (isNaN(startTime.getTime())) {
 			throw new Error('INVALID_DATE_PARSE');
 		}
@@ -94,7 +109,6 @@ class EventService {
 
 		const epochTimestamp = Math.floor(startTime.getTime() / 1000);
 
-		// Update embed
 		const originalEmbed = message.embeds[0];
 		const embed = new (require('discord.js').EmbedBuilder)(originalEmbed.data)
 			.setTitle(title);
@@ -108,39 +122,33 @@ class EventService {
 
 		const placeFieldIndex = embed.data.fields.findIndex(f => f.name.includes('Lieu de rassemblement'));
 		if (placeFieldIndex !== -1) {
-			embed.data.fields[placeFieldIndex].value = `*${place}*`;
+			embed.data.fields[placeFieldIndex].value = `*${finalPlace}*`;
 		}
 
 		await message.edit({ embeds: [embed] });
 
-		// Update DB
 		await this.eventRepository.update(message.id, {
-			event_title: title,
-			event_description: description,
-			event_date_string: date,
-			event_hour_string: hour,
+			event_title: finalTitle,
+			event_description: finalDescription,
+			event_date_string: finalDate,
+			event_hour_string: finalHour,
 			event_date_hour_timestamp: epochTimestamp.toString(),
-			event_place: place,
+			event_place: finalPlace,
 		});
 
-		// Update Discord scheduled event
-		const eventRecord = await this.eventRepository.findById(message.id);
-		if (eventRecord?.discord_event_id) {
-			const scheduledEvent = await guild.scheduledEvents.fetch(eventRecord.discord_event_id).catch(() => null);
+		if (currentEvent.discord_event_id) {
+			const scheduledEvent = await guild.scheduledEvents.fetch(currentEvent.discord_event_id).catch(() => null);
+
 			if (scheduledEvent) {
 				const updates = {
-					name: title,
-					description: client.i18next.t('event.info.native_discord.description', { description }),
-					entityMetadata: { location: place },
+					name: finalTitle,
+					description: client.i18next.t('event.info.native_discord.description', { description: finalDescription }),
+					entityMetadata: { location: finalPlace },
 				};
 
-				// Ne pas modifier start/end time si event déjà lancé ou terminé
 				if (scheduledEvent.status === 1) {
 					updates.scheduledStartTime = new Date(epochTimestamp * 1000);
 					updates.scheduledEndTime = new Date(startTime.getTime() + 3 * 60 * 60 * 1000);
-				}
-				else {
-					console.warn(`Impossible de modifier l'heure : statut actuel de l'event = ${scheduledEvent.status}`);
 				}
 
 				await scheduledEvent.edit(updates).catch(err =>
