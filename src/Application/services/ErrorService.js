@@ -27,10 +27,14 @@ const ErrorCodes = {
 
 // catalogue des messages **utilisateur**
 const errorCatalog = {
-	[ErrorCodes.INVALID_DATE_FORMAT]: 'Format de date/heure invalide. Merci de respecter le format.',
-	[ErrorCodes.INVALID_DATE_PARSE]: 'Impossible d’analyser la date/heure. Vérifie le format.',
-	[ErrorCodes.DATE_IN_PAST]: 'La date/heure doit être dans le futur.',
-	[ErrorCodes.UNKNOWN]: 'Une erreur est survenue. Merci de réessayer plus tard.',
+	[ErrorCodes.INVALID_DATE_FORMAT]:
+    'Format de date/heure invalide. Merci de respecter le format.',
+	[ErrorCodes.INVALID_DATE_PARSE]:
+    'Impossible d’analyser la date/heure. Vérifie le format.',
+	[ErrorCodes.DATE_IN_PAST]:
+    'La date/heure doit être supérieur à la date/heure actuelle.',
+	[ErrorCodes.UNKNOWN]:
+    'Une erreur est survenue. Merci de réessayer plus tard.',
 };
 
 /**
@@ -56,7 +60,9 @@ function toUserMessage(error, client, interaction) {
 	const t = client?.i18next?.t?.bind(client?.i18next);
 	if (t) {
 		const key = `errors.${code}`;
-		const translated = t(key, { defaultValue: errorCatalog[code] || errorCatalog.UNKNOWN });
+		const translated = t(key, {
+			defaultValue: errorCatalog[code] || errorCatalog.UNKNOWN,
+		});
 		if (translated) return translated;
 	}
 
@@ -71,7 +77,11 @@ async function reply(interaction, client, rawError, { ephemeral = true } = {}) {
 	const userMessage = toUserMessage(error, client, interaction);
 
 	// Log côté serveur/dev
-	console.error(`[${error.code}]`, error.meta ?? {}, error.stack ?? error.message);
+	console.error(
+		`[${error.code}]`,
+		error.meta ?? {},
+		error.stack ?? error.message,
+	);
 
 	const embed = getErrorEmbed(client, `**${userMessage}**`);
 
@@ -84,7 +94,8 @@ async function reply(interaction, client, rawError, { ephemeral = true } = {}) {
 /**
  * Petit helper pour créer rapidement des erreurs
  */
-const createError = (code, devMessage, meta) => new AppError(code, devMessage, meta);
+const createError = (code, devMessage, meta) =>
+	new AppError(code, devMessage, meta);
 
 module.exports = {
 	AppError,
