@@ -11,7 +11,7 @@ module.exports = {
 			if (!currentEvent) {
 				if (!interaction.replied && !interaction.deferred) {
 					await interaction.reply({
-						content: 'Événement introuvable.',
+						content: 'Événement intr²uvable.',
 						ephemeral: true,
 					});
 				}

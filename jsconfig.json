@@ -45,6 +45,9 @@
             ],
             "@locales/*": [
                 "src/locales/*"
+            ],
+            "@api/*": [
+                "src/Api/*"
             ]
         },
         "moduleResolution": "node",
