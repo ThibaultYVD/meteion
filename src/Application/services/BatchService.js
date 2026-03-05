@@ -16,7 +16,7 @@ class BatchService {
 					event.event_status !== 'planned' ||
 					event.event_date_hour_timestamp - currentTimestamp > 3600 ||
 					event.event_date_hour_timestamp <= currentTimestamp ||
-					event.remember_message_id != null ||
+					event.remember_message_id !== null ||
 					event.event_reminder !== 'TRUE'
 				) continue;
 

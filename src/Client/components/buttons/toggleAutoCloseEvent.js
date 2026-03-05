@@ -6,6 +6,7 @@ module.exports = {
 		try {
 			const closeEventValue = interaction.message.embeds[0].fields[1].value;
 			let newValue;
+			let newDisplayValue;
 			if (closeEventValue === '✅ Activé') {
 				newValue = 'FALSE';
 				newDisplayValue = '❌ Désactivé';
