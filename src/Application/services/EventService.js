@@ -1,3 +1,5 @@
+const { Op, fn, col, cast, where } = require('sequelize');
+
 class EventService {
 	constructor(eventRepository, dateTimeService) {
 		this.eventRepository = eventRepository;
@@ -107,7 +109,7 @@ class EventService {
 		}
 
 		const now = new Date();
-		if (startTime <= now && process.env.APP_ENV == 'production') {
+		if (startTime <= now && process.env.APP_ENV === 'production') {
 			throw new Error('DATE_IN_PAST');
 		}
 
@@ -119,8 +121,8 @@ class EventService {
 		const embed = new (require('discord.js').EmbedBuilder)(originalEmbed.data)
 			.setTitle(title);
 
-		if (finalDescription) {
-			embed.setDescription(finalDescription);
+		if (description) {
+			embed.setDescription(description);
 		}
 		else {
 			embed.setDescription(null);
@@ -138,18 +140,18 @@ class EventService {
 			f.name.includes('Lieu de rassemblement'),
 		);
 		if (placeFieldIndex !== -1) {
-			embed.data.fields[placeFieldIndex].value = `*${finalPlace}*`;
+			embed.data.fields[placeFieldIndex].value = `*${place}*`;
 		}
 
 		await message.edit({ embeds: [embed] });
 
 		await this.eventRepository.update(message.id, {
-			event_title: finalTitle,
-			event_description: finalDescription,
-			event_date_string: finalDate,
-			event_hour_string: finalHour,
+			event_title: title,
+			event_description: description,
+			event_date_string: date,
+			event_hour_string: hour,
 			event_date_hour_timestamp: epochTimestamp.toString(),
-			event_place: finalPlace,
+			event_place: place,
 		});
 
 		// Update Discord scheduled event

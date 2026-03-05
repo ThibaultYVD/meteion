@@ -1,5 +1,4 @@
 const db = require('@models');
-const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 
 module.exports = {
 	customId: 'absent',
@@ -87,7 +86,7 @@ module.exports = {
 
 			await interaction.message.edit({ embeds: [embed] });
 
-			if (isAbsent == true) await interaction.followUp({ content: 'Vous êtes noté(e) en tant qu\'**Absent** !', ephemeral: true });
+			if (isAbsent === true) await interaction.followUp({ content: 'Vous êtes noté(e) en tant qu\'**Absent** !', ephemeral: true });
 			else await interaction.followUp({ content: 'Vous n\'êtes plus noté en tant qu\'Absent.', ephemeral: true });
 
 			setTimeout(async () => {
@@ -112,7 +111,7 @@ function sortUserChoices(userChoices) {
 
 	userChoices.forEach((userchoice) => {
 		let displayName;
-		if (userchoice.user_nickname == null) displayName = userchoice.global_name;
+		if (userchoice.user_nickname === null) displayName = userchoice.global_name;
 		else displayName = userchoice.user_nickname;
 
 		switch (userchoice.choice_id) {

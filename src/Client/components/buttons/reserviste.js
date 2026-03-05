@@ -87,7 +87,7 @@ module.exports = {
 
 			await interaction.message.edit({ embeds: [embed] });
 
-			if (isReserviste == true) await interaction.followUp({ content: 'Vous êtes inscrit en tant que **Réserve** !', ephemeral: true });
+			if (isReserviste === true) await interaction.followUp({ content: 'Vous êtes inscrit en tant que **Réserve** !', ephemeral: true });
 			else await interaction.followUp({ content: 'Vous êtes désinscrit.', ephemeral: true });
 
 			setTimeout(async () => {
@@ -113,7 +113,7 @@ function sortUserChoices(userChoices) {
 
 	userChoices.forEach((userchoice) => {
 		let displayName;
-		if (userchoice.user_nickname == null) displayName = userchoice.global_name;
+		if (userchoice.user_nickname === null) displayName = userchoice.global_name;
 		else displayName = userchoice.user_nickname;
 
 		switch (userchoice.choice_id) {

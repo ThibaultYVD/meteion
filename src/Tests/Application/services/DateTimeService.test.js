@@ -9,7 +9,8 @@ describe('DateTimeService', () => {
 
 	describe('getCurrentDate', () => {
 		it('should return date in correct format DD/MM/YYYY', () => {
-			// Mock the Date objectconst mockDate = new Date('2024-01-15T12:00:00Z');
+			// Mock the Date object
+			const mockDate = new Date('2024-01-15T12:00:00Z');
 			const realDate = global.Date;
 			global.Date = class extends Date {
 				constructor() {
@@ -75,18 +76,18 @@ describe('DateTimeService', () => {
 			expect(dateTimeService.isValidDateTime(date, hour)).toBe(false);
 		});
 	});
-});
 
-describe('formatEventDate', () => {
-	it('should convert date from DD/MM/YYYY to YYYY-MM-DD', () => {
-		expect(dateTimeService.formatEventDate('15/01/2024')).toBe('2024-01-15');
-		expect(dateTimeService.formatEventDate('31/12/2023')).toBe('2023-12-31');
+	describe('formatEventDate', () => {
+		it('should convert date from DD/MM/YYYY to YYYY-MM-DD', () => {
+			expect(dateTimeService.formatEventDate('15/01/2024')).toBe('2024-01-15');
+			expect(dateTimeService.formatEventDate('31/12/2023')).toBe('2023-12-31');
+		});
 	});
-});
 
-describe('formatEventHour', () => {
-	it('should convert hour from XXhXX to XX:XX', () => {
-		expect(dateTimeService.formatEventHour('15h00')).toBe('15:00');
-		expect(dateTimeService.formatEventHour('09h30')).toBe('09:30');
+	describe('formatEventHour', () => {
+		it('should convert hour from XXhXX to XX:XX', () => {
+			expect(dateTimeService.formatEventHour('15h00')).toBe('15:00');
+			expect(dateTimeService.formatEventHour('09h30')).toBe('09:30');
+		});
 	});
 });
