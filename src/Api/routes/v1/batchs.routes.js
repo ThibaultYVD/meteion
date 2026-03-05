@@ -1,4 +1,4 @@
-const { _eventService } = require('@services/EventService');
+const { _batchService } = require('@services');
 
 module.exports = async function batchRoutes(app, opts) {
 	const { context } = opts;
@@ -9,21 +9,18 @@ module.exports = async function batchRoutes(app, opts) {
 	});
 
 	app.post('/sendReminderMessage', async () => {
-		const events = _eventService.getEventsStartingInOneHour();
-		// Fetch tout les events qui respecte toutes les conditions
-		// Envoyer tout les messages
-		return { events };
+		return await _batchService.sendReminderMessages(client);
 	});
 
 	app.patch('/manageEventStarts', async () => {
-		// Fetch tout les events qui respecte toutes les conditions
-		// Modifier tout les messages
+		return await _batchService.manageEventStarts(client);
 	});
+
 	app.patch('/manageEventEnds', async () => {
-		// Fetch tout les events qui respecte toutes les conditions
-		// Modifier tout les messages
+		return await _batchService.manageEventEnds(client);
 	});
+
 	app.delete('/archiveEvents', async () => {
-		//
+		return await _batchService.archiveEvents(client);
 	});
 };

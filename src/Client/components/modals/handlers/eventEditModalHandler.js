@@ -1,5 +1,5 @@
 const { _eventService } = require('@services');
-const { _errorService } = require('@services/ErrorService');
+const { errorService } = require('@services/ErrorService');
 
 module.exports = {
 	customId: 'eventEditModal',
@@ -27,7 +27,7 @@ module.exports = {
 			await interaction.deferUpdate();
 		}
 		catch (error) {
-			await _errorService.reply(interaction, client, error);
+			await errorService.reply(interaction, client, error);
 		}
 	},
 };

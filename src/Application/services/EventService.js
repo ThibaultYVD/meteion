@@ -12,7 +12,9 @@ class EventService {
 			throw new Error('INVALID_DATE_FORMAT');
 		}
 
-		const startTime = new Date(`${this.dateTimeService.formatEventDate(date)} ${this.dateTimeService.formatEventHour(hour)}:00`);
+		const startTime = new Date(
+			`${this.dateTimeService.formatEventDate(date)} ${this.dateTimeService.formatEventHour(hour)}:00`,
+		);
 		if (isNaN(startTime.getTime())) {
 			throw new Error('INVALID_DATE_PARSE');
 		}
@@ -24,7 +26,10 @@ class EventService {
 
 		const epochTimestamp = Math.floor(startTime.getTime() / 1000);
 
-		const nativeDiscordEventDescription = client.i18next.t('event.info.native_discord.description', { description });
+		const nativeDiscordEventDescription = client.i18next.t(
+			'event.info.native_discord.description',
+			{ description },
+		);
 		const scheduledStartTime = new Date(startTime);
 		const scheduledEndTime = new Date(startTime.getTime() + 3 * 60 * 60 * 1000);
 
@@ -52,7 +57,13 @@ class EventService {
 		};
 	}
 
-	async persistEvent({ reply, interaction, metadata, epochTimestamp, discordEventId }) {
+	async persistEvent({
+		reply,
+		interaction,
+		metadata,
+		epochTimestamp,
+		discordEventId,
+	}) {
 		const { title, description, date, hour, place } = metadata;
 
 		await this.eventRepository.create({
@@ -72,19 +83,29 @@ class EventService {
 		});
 	}
 
-
-	async updateEvent({ message, guild, client, title, description, date, hour, place }) {
+	async updateEvent({
+		message,
+		guild,
+		client,
+		title,
+		description,
+		date,
+		hour,
+		place,
+	}) {
 		if (!this.dateTimeService.isValidDateTime(date, hour)) {
 			throw new Error('INVALID_DATE_FORMAT');
 		}
 
-		const startTime = new Date(`${this.dateTimeService.formatEventDate(date)} ${this.dateTimeService.formatEventHour(hour)}:00`);
+		const startTime = new Date(
+			`${this.dateTimeService.formatEventDate(date)} ${this.dateTimeService.formatEventHour(hour)}:00`,
+		);
 		if (isNaN(startTime.getTime())) {
 			throw new Error('INVALID_DATE_PARSE');
 		}
 
 		const now = new Date();
-		if (startTime <= now) {
+		if (startTime <= now && process.env.APP_ENV == 'production') {
 			throw new Error('DATE_IN_PAST');
 		}
 
@@ -96,12 +117,17 @@ class EventService {
 			.setTitle(title)
 			.setDescription(description);
 
-		const dateFieldIndex = embed.data.fields.findIndex(f => f.name.includes('Temps'));
+		const dateFieldIndex = embed.data.fields.findIndex((f) =>
+			f.name.includes('Temps'),
+		);
 		if (dateFieldIndex !== -1) {
-			embed.data.fields[dateFieldIndex].value = `<t:${epochTimestamp}:F>\n*<t:${epochTimestamp}:R>*`;
+			embed.data.fields[dateFieldIndex].value =
+        `<t:${epochTimestamp}:F>\n*<t:${epochTimestamp}:R>*`;
 		}
 
-		const placeFieldIndex = embed.data.fields.findIndex(f => f.name.includes('Lieu de rassemblement'));
+		const placeFieldIndex = embed.data.fields.findIndex((f) =>
+			f.name.includes('Lieu de rassemblement'),
+		);
 		if (placeFieldIndex !== -1) {
 			embed.data.fields[placeFieldIndex].value = `*${place}*`;
 		}
@@ -121,26 +147,35 @@ class EventService {
 		// Update Discord scheduled event
 		const eventRecord = await this.eventRepository.findById(message.id);
 		if (eventRecord?.discord_event_id) {
-			const scheduledEvent = await guild.scheduledEvents.fetch(eventRecord.discord_event_id).catch(() => null);
+			const scheduledEvent = await guild.scheduledEvents
+				.fetch(eventRecord.discord_event_id)
+				.catch(() => null);
 			if (scheduledEvent) {
 				const updates = {
 					name: title,
-					description: client.i18next.t('event.info.native_discord.description', { description }),
+					description: client.i18next.t(
+						'event.info.native_discord.description',
+						{ description },
+					),
 					entityMetadata: { location: place },
 				};
 
 				// Ne pas modifier start/end time si event déjà lancé ou terminé
 				if (scheduledEvent.status === 1) {
 					updates.scheduledStartTime = new Date(epochTimestamp * 1000);
-					updates.scheduledEndTime = new Date(startTime.getTime() + 3 * 60 * 60 * 1000);
+					updates.scheduledEndTime = new Date(
+						startTime.getTime() + 3 * 60 * 60 * 1000,
+					);
 				}
 				else {
-					console.warn(`Impossible de modifier l'heure : statut actuel de l'event = ${scheduledEvent.status}`);
+					console.warn(
+						`Impossible de modifier l'heure : statut actuel de l'event = ${scheduledEvent.status}`,
+					);
 				}
 
-				await scheduledEvent.edit(updates).catch(err =>
-					console.error('Erreur update event discord:', err),
-				);
+				await scheduledEvent
+					.edit(updates)
+					.catch((err) => console.error('Erreur update event discord:', err));
 			}
 		}
 	}
@@ -149,7 +184,9 @@ class EventService {
 		const currentEvent = await this.eventRepository.findById(eventId);
 		if (!currentEvent) throw new Error('Event not found');
 
-		const discordEvent = await guild.scheduledEvents.fetch(currentEvent.discord_event_id).catch(() => null);
+		const discordEvent = await guild.scheduledEvents
+			.fetch(currentEvent.discord_event_id)
+			.catch(() => null);
 		if (discordEvent) {
 			await discordEvent.delete().catch(() => null);
 		}
@@ -171,9 +208,19 @@ class EventService {
 			attributes: {
 				include: [
 					// event_reminder = COALESCE(MAX(ReminderSetting.activated), 'TRUE')
-					[fn('COALESCE', fn('MAX', col('ReminderSetting.activated')), 'TRUE'), 'event_reminder'],
+					[
+						fn('COALESCE', fn('MAX', col('ReminderSetting.activated')), 'TRUE'),
+						'event_reminder',
+					],
 					// auto_close_event = COALESCE(MAX(AutoCloseSetting.activated), 'TRUE')
-					[fn('COALESCE', fn('MAX', col('AutoCloseSetting.activated')), 'TRUE'), 'auto_close_event'],
+					[
+						fn(
+							'COALESCE',
+							fn('MAX', col('AutoCloseSetting.activated')),
+							'TRUE',
+						),
+						'auto_close_event',
+					],
 				],
 			},
 			include: [
