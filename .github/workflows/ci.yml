@@ -4,10 +4,11 @@ on:
   push:
     branches:
       - main
-      - dev
       - feature/**
       - bugfix/**
       - hotfix/**
+    tags:
+      - 'v*'
   pull_request: {}
 
 jobs:
@@ -21,18 +22,18 @@ jobs:
       - run: npm install --no-save eslint
       - run: npx eslint .
 
-  build-dev:
+  build-staging:
     name: 🛠️ Build (Staging)
-    if: github.ref == 'refs/heads/dev'
+    if: startsWith(github.ref, 'refs/tags/v')
     needs: lint
     uses: ./.github/workflows/build.yml
     with:
       tag: staging
     secrets: inherit
 
-  build-main:
+  build-production:
     name: 🛠️ Build (Production)
-    if: github.ref == 'refs/heads/main'
+    if: startsWith(github.ref, 'refs/tags/v')
     needs: lint
     uses: ./.github/workflows/build.yml
     with:
