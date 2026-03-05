@@ -1,10 +1,9 @@
 const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 
 function createEventEmbed(client, interaction, username, titre, description, place, epochTimestamp) {
-	return new EmbedBuilder()
+	const embed = new EmbedBuilder()
 		.setColor(client.color)
 		.setTitle(titre)
-		.setDescription(description)
 		.addFields(
 			{ name: '\u200B', value: '\u200B' },
 			{
@@ -44,6 +43,9 @@ function createEventEmbed(client, interaction, username, titre, description, pla
 			text: client.i18next.t('event.info.bot.embed_labels.created_by', { username }),
 			iconURL: interaction.member.displayAvatarURL({ dynamic: true }),
 		});
+
+	if (description?.trim()) embed.setDescription(description);
+	return embed;
 }
 
 function getEventEmbedRows(client) {

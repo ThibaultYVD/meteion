@@ -24,6 +24,8 @@ class EventService {
 			throw new Error('DATE_IN_PAST');
 		}
 
+		description = description ? description.trim() : '';
+
 		const epochTimestamp = Math.floor(startTime.getTime() / 1000);
 
 		const nativeDiscordEventDescription = client.i18next.t(
@@ -109,13 +111,20 @@ class EventService {
 			throw new Error('DATE_IN_PAST');
 		}
 
+		description = description ? description.trim() : '';
+
 		const epochTimestamp = Math.floor(startTime.getTime() / 1000);
 
-		// Update embed
 		const originalEmbed = message.embeds[0];
 		const embed = new (require('discord.js').EmbedBuilder)(originalEmbed.data)
-			.setTitle(title)
-			.setDescription(description);
+			.setTitle(title);
+
+		if (finalDescription) {
+			embed.setDescription(finalDescription);
+		}
+		else {
+			embed.setDescription(null);
+		}
 
 		const dateFieldIndex = embed.data.fields.findIndex((f) =>
 			f.name.includes('Temps'),
@@ -129,19 +138,18 @@ class EventService {
 			f.name.includes('Lieu de rassemblement'),
 		);
 		if (placeFieldIndex !== -1) {
-			embed.data.fields[placeFieldIndex].value = `*${place}*`;
+			embed.data.fields[placeFieldIndex].value = `*${finalPlace}*`;
 		}
 
 		await message.edit({ embeds: [embed] });
 
-		// Update DB
 		await this.eventRepository.update(message.id, {
-			event_title: title,
-			event_description: description,
-			event_date_string: date,
-			event_hour_string: hour,
+			event_title: finalTitle,
+			event_description: finalDescription,
+			event_date_string: finalDate,
+			event_hour_string: finalHour,
 			event_date_hour_timestamp: epochTimestamp.toString(),
-			event_place: place,
+			event_place: finalPlace,
 		});
 
 		// Update Discord scheduled event
@@ -160,7 +168,6 @@ class EventService {
 					entityMetadata: { location: place },
 				};
 
-				// Ne pas modifier start/end time si event déjà lancé ou terminé
 				if (scheduledEvent.status === 1) {
 					updates.scheduledStartTime = new Date(epochTimestamp * 1000);
 					updates.scheduledEndTime = new Date(

@@ -100,7 +100,7 @@ const createError = (code, devMessage, meta) =>
 module.exports = {
 	AppError,
 	ErrorCodes,
-	errorService: {
+	_errorService: {
 		reply,
 		normalize,
 		toUserMessage,
