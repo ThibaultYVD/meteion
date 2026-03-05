@@ -29,6 +29,15 @@ class BaseRepository {
 	}
 
 	/**
+	 * Recherche la première entrée correspondant à un critère.
+	 * @param {Object} [where={}] - Le filtre de recherche.
+	 * @returns {Promise<Object|null>} L'entrée trouvée ou null.
+	 */
+	async findOne(where = {}) {
+		return this.model.findOne({ where });
+	}
+
+	/**
 	 * Recherche toutes les entrées correspondant à un critère.
 	 * @param {Object} [where={}] - Le filtre de recherche.
 	 * @returns {Promise<Array<Object>>} La liste des entrées correspondantes.
