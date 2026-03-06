@@ -73,7 +73,7 @@ function toUserMessage(error, client) {
  */
 async function reply(interaction, client, rawError, { ephemeral = true } = {}) {
   const error = normalize(rawError);
-  const userMessage = toUserMessage(error, client, interaction);
+  const userMessage = toUserMessage(error, client);
 
   // Log côté serveur/dev
   console.error(
