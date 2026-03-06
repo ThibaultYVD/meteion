@@ -71,7 +71,7 @@ function toUserMessage(error, client) {
 /**
  * Répond à l’utilisateur proprement (reply ou followUp selon l’état)
  */
-async function reply(client, rawError, { ephemeral = true } = {}) {
+async function reply(interaction, client, rawError, { ephemeral = true } = {}) {
   const error = normalize(rawError);
   const userMessage = toUserMessage(error, client);
 
