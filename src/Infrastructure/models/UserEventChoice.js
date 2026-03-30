@@ -3,7 +3,6 @@ module.exports = (sequelize, Sequelize) => {
 		user_id: {
 			type: Sequelize.STRING,
 			primaryKey: true,
-
 		},
 		event_id: {
 			type: Sequelize.STRING,

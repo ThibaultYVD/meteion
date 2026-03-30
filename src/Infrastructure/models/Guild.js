@@ -12,9 +12,13 @@ module.exports = (sequelize, Sequelize) => {
 			type: Sequelize.INTEGER,
 			allowNull: false,
 		},
-		added_date: {
+		added_at: {
 			type: Sequelize.DATE,
 			allowNull: false,
+		},
+		last_interaction: {
+			type: Sequelize.DATE,
+			allowNull: true,
 		},
 	}, {
 	});

@@ -4,6 +4,7 @@ const DateTimeService = require("../../../Application/services/DateTimeService")
 describe("EventService", () => {
   let eventService;
   let mockEventRepository;
+  let mockGuildRepository;
   let dateTimeService;
   let mockInteraction;
   let mockGuild;
@@ -15,6 +16,10 @@ describe("EventService", () => {
       create: jest.fn(),
       update: jest.fn(),
       findById: jest.fn(),
+    };
+
+    mockGuildRepository = {
+      update: jest.fn(),
     };
 
     dateTimeService = new DateTimeService();
@@ -41,6 +46,7 @@ describe("EventService", () => {
 
     mockMessage = {
       id: "message-123",
+      guildId: "guild-123",
       embeds: [
         {
           data: {
@@ -54,7 +60,7 @@ describe("EventService", () => {
       edit: jest.fn(),
     };
 
-    eventService = new EventService(mockEventRepository, dateTimeService);
+    eventService = new EventService(mockEventRepository, dateTimeService, mockGuildRepository);
   });
 
   describe("createEvent", () => {
@@ -62,56 +68,42 @@ describe("EventService", () => {
     tomorrow.setDate(tomorrow.getDate() + 1);
     const futureDate = `${String(tomorrow.getDate()).padStart(2, "0")}/${String(tomorrow.getMonth() + 1).padStart(2, "0")}/${tomorrow.getFullYear()}`;
 
-    const validEventData = {
-      interaction: {
-        client: {
-          i18next: { t: jest.fn((key) => `Translated: ${key}`) },
-        },
-        guild: {
-          scheduledEvents: {
-            create: jest.fn().mockResolvedValue({ id: "discord-event-123" }),
-          },
-        },
-        member: { nickname: "testNickname" },
-        user: { globalName: "testGlobalName" },
-      },
-      title: "Test Event",
-      description: "Test Description",
-      date: futureDate,
-      hour: "15h00",
-      place: "Test Place",
-    };
-
     it("should create an event with valid data", async () => {
       mockGuild.scheduledEvents.create.mockResolvedValue({
         id: "discord-event-123",
       });
 
-      const result = await eventService.createEvent(validEventData);
+      const result = await eventService.createEvent({
+        interaction: mockInteraction,
+        title: "Test Event",
+        description: "Test Description",
+        date: futureDate,
+        hour: "15h00",
+        place: "Test Place",
+      });
 
       expect(result).toHaveProperty("epochTimestamp");
       expect(result).toHaveProperty("discordEventId", "discord-event-123");
       expect(result).toHaveProperty("metadata");
       expect(result.metadata).toEqual({
-        title: validEventData.title,
-        description: validEventData.description,
-        date: validEventData.date,
-        hour: validEventData.hour,
-        place: validEventData.place,
+        title: "Test Event",
+        description: "Test Description",
+        date: futureDate,
+        hour: "15h00",
+        place: "Test Place",
         username: "testNickname",
       });
     });
 
     it("should throw error for invalid date format", async () => {
-      const invalidData = {
-        ...validEventData,
+      await expect(eventService.createEvent({
+        interaction: mockInteraction,
+        title: "Test Event",
+        description: "Test Description",
         date: "2024-01-15",
         hour: "15h00",
-      };
-
-      await expect(eventService.createEvent(invalidData)).rejects.toThrow(
-        "INVALID_DATE_FORMAT",
-      );
+        place: "Test Place",
+      })).rejects.toThrow("INVALID_DATE_FORMAT");
     });
   });
 
@@ -155,7 +147,12 @@ describe("EventService", () => {
         event_status: "planned",
         event_place: mockMetadata.place,
         created_at: expect.any(Date),
+        edited_at: expect.any(Date),
         discord_event_id: mockDiscordEventId,
+      });
+
+      expect(mockGuildRepository.update).toHaveBeenCalledWith("guild-123", {
+        last_interaction: expect.any(Date),
       });
     });
   });
@@ -183,13 +180,19 @@ describe("EventService", () => {
 
       mockGuild.scheduledEvents.fetch.mockResolvedValue({
         status: 1,
-        edit: jest.fn(),
+        edit: jest.fn().mockResolvedValue({}),
       });
 
       await eventService.updateEvent(updateData);
 
       expect(mockMessage.edit).toHaveBeenCalled();
-      expect(mockEventRepository.update).toHaveBeenCalled();
+      expect(mockEventRepository.update).toHaveBeenCalledWith(
+        "message-123",
+        expect.objectContaining({ edited_at: expect.any(Date) }),
+      );
+      expect(mockGuildRepository.update).toHaveBeenCalledWith("guild-123", {
+        last_interaction: expect.any(Date),
+      });
     });
 
     it("should throw error for invalid date format in update", async () => {

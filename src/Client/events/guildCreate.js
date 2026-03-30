@@ -12,7 +12,7 @@ module.exports = {
 				{
 					guild_name: guild.name,
 					guild_total_members: guild.memberCount,
-					added_date: new Date(),
+					added_at: new Date(),
 				});
 
 			if (created) {
@@ -22,7 +22,7 @@ module.exports = {
 				await newGuild.update({
 					guild_name: guild.name,
 					guild_total_members: guild.memberCount,
-					added_date: new Date(),
+					added_at: new Date(),
 				});
 			}
 		}
