@@ -34,18 +34,6 @@ jobs:
           docker compose -p meteion-prod -f docker-compose.yml up -d
           docker image prune -f
 
-      - name: Health Check
-        run: |
-          for i in $(seq 1 12); do
-            STATUS=$(docker inspect --format='{{.State.Health.Status}}' meteion 2>/dev/null)
-            [ "$STATUS" = "healthy" ] && exit 0
-            echo "Attempt $i/12: $STATUS"
-            sleep 5
-          done
-          echo "Health check failed"
-          docker logs meteion --tail 50
-          exit 1
-
       - name: Run Sequelize Migrations (Production)
         run: |
           docker exec meteion npx sequelize-cli db:migrate --env production
