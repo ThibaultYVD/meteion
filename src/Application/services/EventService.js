@@ -1,9 +1,10 @@
 const { Op, fn, col, cast, where } = require("sequelize");
 
 class EventService {
-  constructor(eventRepository, dateTimeService) {
+  constructor(eventRepository, dateTimeService, guildRepository) {
     this.eventRepository = eventRepository;
     this.dateTimeService = dateTimeService;
+    this.guildRepository = guildRepository;
   }
 
   async createEvent({ interaction, title, description, date, hour, place }) {
@@ -83,8 +84,11 @@ class EventService {
       event_status: "planned",
       event_place: place,
       created_at: new Date(),
+      edited_at: new Date(),
       discord_event_id: discordEventId,
     });
+
+    await this.guildRepository.update(reply.guildId, { last_interaction: new Date() });
   }
 
   async updateEvent({
@@ -152,7 +156,10 @@ class EventService {
       event_hour_string: hour,
       event_date_hour_timestamp: epochTimestamp.toString(),
       event_place: place,
+      edited_at: new Date(),
     });
+
+    await this.guildRepository.update(message.guildId, { last_interaction: new Date() });
 
     // Update Discord scheduled event
     const eventRecord = await this.eventRepository.findById(message.id);

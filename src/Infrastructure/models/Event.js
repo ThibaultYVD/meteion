@@ -49,17 +49,21 @@ module.exports = (sequelize, Sequelize) => {
 			type: Sequelize.STRING,
 			allowNull: true,
 		},
-		created_at: {
-			type: Sequelize.DATE,
-			allowNull: false,
-		},
 		discord_event_id: {
 			type: Sequelize.STRING,
 			allowNull: true,
 		},
-
-	}, {
-	});
+		created_at: {
+			type: Sequelize.DATE,
+			allowNull: false,
+		},
+		edited_at: {
+			type: Sequelize.DATE,
+			allowNull: true,
+		},
+	},
+		{
+		});
 
 	return Event;
 };

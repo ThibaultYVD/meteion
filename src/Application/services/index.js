@@ -29,7 +29,7 @@ const _interactionService = new InteractionService(
 	_guildMemberRepository,
 );
 const _dateTimeService = new DateTimeService();
-const _eventService = new EventService(_eventRepository, _dateTimeService);
+const _eventService = new EventService(_eventRepository, _dateTimeService, _guildRepository);
 const _batchService = new BatchService(_eventRepository);
 const _eventChoiceService = new EventChoiceService(
 	_eventRepository,

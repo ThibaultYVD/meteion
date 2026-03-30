@@ -64,7 +64,7 @@ describe('InteractionService', () => {
 				{
 					username: 'TestUser',
 					global_name: 'Global TestUser',
-					added_date: expect.any(Date),
+					added_at: expect.any(Date),
 				},
 			);
 
@@ -74,7 +74,7 @@ describe('InteractionService', () => {
 				{
 					guild_name: 'Test Guild',
 					guild_total_members: 100,
-					added_date: expect.any(Date),
+					added_at: expect.any(Date),
 				},
 			);
 

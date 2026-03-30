@@ -20,7 +20,7 @@ class InteractionService {
 			{
 				username: user.username,
 				global_name: user.globalName,
-				added_date: new Date(),
+				added_at: new Date(),
 			},
 		);
 
@@ -37,7 +37,7 @@ class InteractionService {
 			{
 				guild_name: guild.name,
 				guild_total_members: guild.memberCount,
-				added_date: new Date(),
+				added_at: new Date(),
 			},
 		);
 
