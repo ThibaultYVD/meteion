@@ -28,8 +28,8 @@ class DateTimeService {
 	 * @returns true si la date est formaté tel dd/mm/yyy et l'heure tel 00h00
 	*/
 	isValidDateTime(date, hour) {
-		const isValidDate = /^\d{2}\/\d{2}\/\d{4}$/.test(date);
-		const isValidHour = /^\d{2}h\d{2}$/.test(hour);
+		const isValidDate = /^\d{2}\/(0[1-9]|1[0-2])\/\d{4}$/.test(date);
+		const isValidHour = /^(0\d|1\d|2[0-3])h\d{2}$/.test(hour);
 		return isValidDate && isValidHour;
 	}
 
