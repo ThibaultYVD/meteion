@@ -9,7 +9,7 @@ on:
       - hotfix/**
       - fix/**
     tags:
-      - "v*"
+      - 'v*'
   pull_request: {}
 
 concurrency:
@@ -23,7 +23,7 @@ jobs:
     container:
       image: node:22-alpine
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
       - name: Install dependencies
         run: npm ci
       - name: Run ESLint
@@ -35,7 +35,7 @@ jobs:
     container:
       image: node:22-alpine
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
       - name: Install dependencies
         run: npm ci
       - name: Run Jest
