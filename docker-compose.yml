@@ -19,6 +19,12 @@ services:
       - '2022:3000'
     depends_on:
       - database
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 
   database:
     image: mysql:8.0

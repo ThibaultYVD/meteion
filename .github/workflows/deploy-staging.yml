@@ -1,19 +1,17 @@
 name: 🚀 Deploy to Staging
 
 on:
-  push:
-    tags:
-      - 'v*'
-  workflow_dispatch:
+  workflow_call: {}
+  workflow_dispatch: {}
 
 jobs:
   deploy:
     runs-on: self-hosted
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
 
       - name: Login to Docker Hub
-        uses: docker/login-action@v3
+        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3.7.0
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
@@ -28,11 +26,24 @@ jobs:
           DB_NAME: ${{ secrets.STAGING_DB_NAME }}
           TOKEN: ${{ secrets.STAGING_TOKEN }}
           CLIENT_ID: ${{ secrets.STAGING_CLIENT_ID }}
+          SUPERADMIN1: ${{ secrets.SUPERADMIN1 }}
         run: |
           docker pull thibaultyvd/meteion:staging
           docker compose -p meteion-staging -f docker-compose.staging.yml down
           docker compose -p meteion-staging -f docker-compose.staging.yml up -d
           docker image prune -f
+
+      - name: Health Check
+        run: |
+          for i in $(seq 1 12); do
+            STATUS=$(docker inspect --format='{{.State.Health.Status}}' meteion_staging 2>/dev/null)
+            [ "$STATUS" = "healthy" ] && exit 0
+            echo "Attempt $i/12: $STATUS"
+            sleep 5
+          done
+          echo "Health check failed"
+          docker logs meteion_staging --tail 50
+          exit 1
 
       - name: Run Sequelize Migrations (Staging)
         run: |

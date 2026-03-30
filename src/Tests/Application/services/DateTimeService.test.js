@@ -65,16 +65,6 @@ describe('DateTimeService', () => {
 				expect(dateTimeService.isValidDateTime(date, hour)).toBe(false);
 			});
 		});
-		const invalidCases = [
-			{ date: '2024-01-15', hour: '15h00' },
-			{ date: '15/01/2024', hour: '15:00' },
-			{ date: '15-01-2024', hour: '15h00' },
-			{ date: '15/13/2024', hour: '24h00' },
-		];
-
-		invalidCases.forEach(({ date, hour }) => {
-			expect(dateTimeService.isValidDateTime(date, hour)).toBe(false);
-		});
 	});
 
 	describe('formatEventDate', () => {
