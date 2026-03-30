@@ -7,8 +7,9 @@ on:
       - feature/**
       - bugfix/**
       - hotfix/**
+      - fix/**
     tags:
-      - 'v*'
+      - "v*"
   pull_request: {}
 
 concurrency:
