@@ -40,6 +40,8 @@ jobs:
         run: npm ci
       - name: Run Jest
         run: npm test
+        env:
+          TZ: Europe/Paris
 
   build-staging:
     name: 🛠️ Build (Staging)
