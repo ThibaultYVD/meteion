@@ -8,10 +8,10 @@ ENV TZ=Europe/Paris
 
 COPY package*.json ./
 
-RUN npm install
+RUN npm ci --omit=dev
 
 COPY . .
 
 EXPOSE 3000
 
-CMD ["npm", "run", "start"]
+CMD ["sh", "-c", "node scripts/deploy-commands.js && node src/index.js"]

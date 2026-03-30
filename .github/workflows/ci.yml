@@ -11,21 +11,39 @@ on:
       - 'v*'
   pull_request: {}
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   lint:
-    name: 🧪 Lint
+    name: 🧹 Lint
     runs-on: ubuntu-latest
     container:
-        image: node:22-alpine
+      image: node:22-alpine
     steps:
-      - uses: actions/checkout@v3
-      - run: npm install --no-save eslint
-      - run: npx eslint .
+      - uses: actions/checkout@v4
+      - name: Install dependencies
+        run: npm ci
+      - name: Run ESLint
+        run: npx eslint .
+
+  test:
+    name: 🧪 Tests
+    runs-on: ubuntu-latest
+    container:
+      image: node:22-alpine
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install dependencies
+        run: npm ci
+      - name: Run Jest
+        run: npm test
 
   build-staging:
     name: 🛠️ Build (Staging)
     if: startsWith(github.ref, 'refs/tags/v')
-    needs: lint
+    needs: [lint, test]
     uses: ./.github/workflows/build.yml
     with:
       tag: staging
@@ -34,17 +52,34 @@ jobs:
   build-production:
     name: 🛠️ Build (Production)
     if: startsWith(github.ref, 'refs/tags/v')
-    needs: lint
+    needs: [lint, test]
     uses: ./.github/workflows/build.yml
     with:
       tag: production
     secrets: inherit
 
-  build-feature:
-    name: 🛠️ Build (Feature)
-    if: startsWith(github.ref, 'refs/heads/feature/')
-    needs: lint
+  build-branch:
+    name: 🛠️ Build (Branch)
+    if: |
+      startsWith(github.ref, 'refs/heads/feature/') ||
+      startsWith(github.ref, 'refs/heads/bugfix/') ||
+      startsWith(github.ref, 'refs/heads/hotfix/')
+    needs: [lint, test]
     uses: ./.github/workflows/build.yml
     with:
-      tag: feature-${{ github.sha }}
+      tag: branch-${{ github.sha }}
+    secrets: inherit
+
+  deploy-staging:
+    name: 🚀 Deploy Staging
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [build-staging]
+    uses: ./.github/workflows/deploy-staging.yml
+    secrets: inherit
+
+  deploy-production:
+    name: 🚀 Deploy Production
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [deploy-staging]
+    uses: ./.github/workflows/deploy-prod.yml
     secrets: inherit

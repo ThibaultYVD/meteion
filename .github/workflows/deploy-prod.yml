@@ -1,10 +1,8 @@
 name: 🚀 Deploy to Production
 
 on:
-  push:
-    tags:
-      - 'v*'
-  workflow_dispatch:
+  workflow_call: {}
+  workflow_dispatch: {}
 
 jobs:
   deploy:
@@ -29,11 +27,24 @@ jobs:
           DB_NAME: ${{ secrets.DB_NAME }}
           TOKEN: ${{ secrets.TOKEN }}
           CLIENT_ID: ${{ secrets.CLIENT_ID }}
+          SUPERADMIN1: ${{ secrets.SUPERADMIN1 }}
         run: |
           docker pull thibaultyvd/meteion:production
           docker compose -p meteion-prod -f docker-compose.yml down
           docker compose -p meteion-prod -f docker-compose.yml up -d
           docker image prune -f
+
+      - name: Health Check
+        run: |
+          for i in $(seq 1 12); do
+            STATUS=$(docker inspect --format='{{.State.Health.Status}}' meteion 2>/dev/null)
+            [ "$STATUS" = "healthy" ] && exit 0
+            echo "Attempt $i/12: $STATUS"
+            sleep 5
+          done
+          echo "Health check failed"
+          docker logs meteion --tail 50
+          exit 1
 
       - name: Run Sequelize Migrations (Production)
         run: |
