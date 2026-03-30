@@ -1,6 +1,6 @@
 const { _eventService } = require('@services');
 const { createEventEmbed, getEventEmbedRows } = require('@embeds/eventEmbedBuilder');
-const { errorService } = require('@services/ErrorService');
+const { _errorService } = require('@services/ErrorService');
 
 module.exports = {
 	customId: 'eventCreationModal',
@@ -46,7 +46,7 @@ module.exports = {
 			});
 		}
 		catch (error) {
-			await errorService.reply(interaction, client, error);
+			await _errorService.reply(interaction, client, error);
 		}
 	},
 };
