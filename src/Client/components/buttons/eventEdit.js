@@ -22,7 +22,7 @@ module.exports = {
       }
 
       if (
-        !isCurrentUserIsAdmin(interaction.user.id, currentEvent) &&
+        !isCurrentUserIsAdmin(interaction.user.id, currentEvent.user_id) &&
         !interaction.replied &&
         !interaction.deferred
       ) {

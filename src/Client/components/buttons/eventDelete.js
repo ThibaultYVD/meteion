@@ -1,5 +1,6 @@
 const { getEventDeleteModal } = require('@modals/builders/eventDeleteModalBuilder');
 const { _eventRepository } = require('@repositories');
+const { isCurrentUserIsAdmin } = require("@utils/helpers");
 
 module.exports = {
 	customId: 'eventDelete',
@@ -7,9 +8,17 @@ module.exports = {
 		try {
 			const currentEvent = await _eventRepository.findById(interaction.message.id);
 
-			const isAdmin = currentEvent.user_id === interaction.user.id || interaction.user.id === process.env.SUPERADMIN1;
-			if (!isAdmin) return interaction.reply({ content: 'Vous n\'avez pas les droits sur cet événement.', ephemeral: true });
-
+			if (
+				!isCurrentUserIsAdmin(interaction.user.id, currentEvent.user_id) &&
+				!interaction.replied &&
+				!interaction.deferred
+			) {
+				await interaction.reply({
+					content: "Vous n'avez pas les droits sur cet événement.",
+					ephemeral: true,
+				});
+				return;
+			}
 			const modal = getEventDeleteModal();
 			await interaction.showModal(modal);
 		}
