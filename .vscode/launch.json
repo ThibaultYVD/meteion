@@ -1,0 +1,30 @@
+{
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"name": "Debug Bot",
+			"type": "node",
+			"request": "launch",
+			"program": "${workspaceFolder}/src/index.js",
+			"runtimeArgs": ["-r", "module-alias/register"],
+			"envFile": "${workspaceFolder}/.env",
+			"console": "integratedTerminal",
+			"skipFiles": ["<node_internals>/**"]
+		},
+		{
+			"name": "Debug Bot (watch)",
+			"type": "node",
+			"request": "launch",
+			"runtimeExecutable": "nodemon",
+			"runtimeArgs": [
+				"--watch", "src",
+				"--ext", "js,json",
+				"--exec", "node -r module-alias/register src/index.js"
+			],
+			"program": "${workspaceFolder}/src/index.js",
+			"envFile": "${workspaceFolder}/.env",
+			"console": "integratedTerminal",
+			"skipFiles": ["<node_internals>/**"]
+		}
+	]
+}
