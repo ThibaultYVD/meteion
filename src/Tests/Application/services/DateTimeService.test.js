@@ -80,4 +80,20 @@ describe('DateTimeService', () => {
 			expect(dateTimeService.formatEventHour('09h30')).toBe('09:30');
 		});
 	});
+
+	describe('parseNaturalDate', () => {
+		it('should return null for unparseable input', () => {
+			expect(dateTimeService.parseNaturalDate('zzz not a date')).toBeNull();
+		});
+
+		it('should parse a French natural language date and return formatted object', () => {
+			const result = dateTimeService.parseNaturalDate('15 janvier 2025 à 14h30');
+			expect(result).toEqual({ date: '15/01/2025', hour: '14h30' });
+		});
+
+		it('should return hours and minutes in HHhMM format', () => {
+			const result = dateTimeService.parseNaturalDate('3 mars 2025 à 09h05');
+			expect(result).toEqual({ date: '03/03/2025', hour: '09h05' });
+		});
+	});
 });

@@ -55,20 +55,28 @@ class EventChoiceService {
 		const findField = (keyword) => embed.fields.findIndex(f => f.name.includes(keyword));
 
 		const pi = findField('Participants');
-		embed.fields[pi].name = `✅ Participants (${participants.length})`;
-		embed.fields[pi].value = this._formatList(participants);
+		if (pi !== -1) {
+			embed.fields[pi].name = `✅ Participants (${participants.length})`;
+			embed.fields[pi].value = this._formatList(participants);
+		}
 
 		const ii = findField('Indécis');
-		embed.fields[ii].name = `❓Indécis (${indecis.length})`;
-		embed.fields[ii].value = this._formatList(indecis);
+		if (ii !== -1) {
+			embed.fields[ii].name = `❓Indécis (${indecis.length})`;
+			embed.fields[ii].value = this._formatList(indecis);
+		}
 
 		const ri = findField('En réserve');
-		embed.fields[ri].name = `🪑 En réserve (${reservistes.length})`;
-		embed.fields[ri].value = this._formatList(reservistes);
+		if (ri !== -1) {
+			embed.fields[ri].name = `🪑 En réserve (${reservistes.length})`;
+			embed.fields[ri].value = this._formatList(reservistes);
+		}
 
 		const ai = findField('Absents');
-		embed.fields[ai].name = `❌ Absents (${absents.length})`;
-		embed.fields[ai].value = this._formatList(absents);
+		if (ai !== -1) {
+			embed.fields[ai].name = `❌ Absents (${absents.length})`;
+			embed.fields[ai].value = this._formatList(absents);
+		}
 	}
 
 	_sortChoices(userChoices) {
