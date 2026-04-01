@@ -21,6 +21,7 @@ class AppError extends Error {
 const ErrorCodes = {
   INVALID_DATE_FORMAT: "INVALID_DATE_FORMAT",
   INVALID_DATE_PARSE: "INVALID_DATE_PARSE",
+  INVALID_NATURAL_DATE_PARSE: "INVALID_NATURAL_DATE_PARSE",
   DATE_IN_PAST: "DATE_IN_PAST",
   UNKNOWN: "UNKNOWN",
 };
@@ -31,6 +32,8 @@ const errorCatalog = {
     "Format de date/heure invalide. Merci de respecter le format.",
   [ErrorCodes.INVALID_DATE_PARSE]:
     "Impossible d’analyser la date/heure. Vérifie le format.",
+  [ErrorCodes.INVALID_NATURAL_DATE_PARSE]:
+    "Le langage naturel pour la date est invalide.\nExemples :\n- \"demain à 21h\"\n- \"dans 2h\"\n- \"Lundi prochain à 15h\".",
   [ErrorCodes.DATE_IN_PAST]:
     "La date/heure doit être supérieur à la date/heure actuelle.",
   [ErrorCodes.UNKNOWN]:

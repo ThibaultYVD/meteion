@@ -13,7 +13,6 @@ module.exports = {
 	async execute(interaction) {
 		try {
 			const { guild, user, member } = interaction;
-
 			await _interactionService.handleUserAndGuildData({ guild, user, member });
 
 			const modal = getEventCreationModal();

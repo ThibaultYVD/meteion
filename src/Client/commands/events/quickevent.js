@@ -16,8 +16,8 @@ module.exports = {
 			.setRequired(true)
 		)
 		.addStringOption(option => option
-			.setName('date')
-			.setDescription('Date de l\'événement (DD/MM/YYYY ou langage naturel)')
+			.setName('datetime')
+			.setDescription('Date de l\'événement (DD/MM/YYYY hh:mm ou langage naturel)')
 			.setRequired(true)
 		),
 
@@ -27,15 +27,14 @@ module.exports = {
 		try {
 			const { guild, user, member, options } = interaction;
 
+			const parsedDate = _dateTimeService.parseNaturalDate(options.getString('datetime'));
+			if (!parsedDate) {
+				throw new Error("INVALID_NATURAL_DATE_PARSE");
+			}
+
 			await interaction.deferReply();
 
 			await _interactionService.handleUserAndGuildData({ guild, user, member });
-
-			const parsedDate = _dateTimeService.parseNaturalDate(options.getString('date'));
-			if (!parsedDate) {
-				await interaction.editReply({ content: 'Date invalide. Essaie "demain à 14h" ou "dans 2h".' });
-				return;
-			}
 
 			const title = options.getString('titre');
 			const username = member.nickname || user.globalName;
