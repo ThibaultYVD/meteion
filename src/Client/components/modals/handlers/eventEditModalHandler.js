@@ -27,7 +27,7 @@ module.exports = {
 			await interaction.deferUpdate();
 		}
 		catch (error) {
-			await _errorService.reply(interaction, client, error);
+			await _errorService.reply(interaction, error);
 		}
 	},
 };

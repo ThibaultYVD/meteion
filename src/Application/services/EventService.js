@@ -1,4 +1,5 @@
 const { Op, fn, col, cast, where } = require("sequelize");
+const { _errorService, ErrorCodes } = require('@services/ErrorService');
 
 class EventService {
   constructor(eventRepository, dateTimeService, guildRepository) {
@@ -12,19 +13,19 @@ class EventService {
     const username = member.nickname || user.globalName;
 
     if (!this.dateTimeService.isValidDateTime(date, hour)) {
-      throw new Error("INVALID_DATE_FORMAT");
+      throw _errorService.createError(ErrorCodes.INVALID_DATE_FORMAT);
     }
 
     const startTime = new Date(
       `${this.dateTimeService.formatEventDate(date)} ${this.dateTimeService.formatEventHour(hour)}:00`,
     );
     if (Number.isNaN(startTime.getTime())) {
-      throw new Error("INVALID_DATE_PARSE");
+      throw _errorService.createError(ErrorCodes.INVALID_DATE_PARSE);
     }
 
     const now = new Date();
     if (startTime <= now) {
-      throw new Error("DATE_IN_PAST");
+      throw _errorService.createError(ErrorCodes.DATE_IN_PAST);
     }
 
     description = description ? description.trim() : "";
@@ -102,19 +103,19 @@ class EventService {
     place,
   }) {
     if (!this.dateTimeService.isValidDateTime(date, hour)) {
-      throw new Error("INVALID_DATE_FORMAT");
+      throw _errorService.createError(ErrorCodes.INVALID_DATE_FORMAT);
     }
 
     const startTime = new Date(
       `${this.dateTimeService.formatEventDate(date)} ${this.dateTimeService.formatEventHour(hour)}:00`,
     );
     if (Number.isNaN(startTime.getTime())) {
-      throw new Error("INVALID_DATE_PARSE");
+      throw _errorService.createError(ErrorCodes.INVALID_DATE_PARSE);
     }
 
     const now = new Date();
     if (startTime <= now && process.env.APP_ENV === "production") {
-      throw new Error("DATE_IN_PAST");
+      throw _errorService.createError(ErrorCodes.DATE_IN_PAST);
     }
 
     description = description ? description.trim() : "";

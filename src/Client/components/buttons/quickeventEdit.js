@@ -1,5 +1,6 @@
 const { _eventRepository } = require('@repositories');
 const { _dateTimeService } = require('@services');
+const { _errorService, ErrorCodes } = require('@services/ErrorService');
 const { getQuickeventEditModal } = require('@modals/builders/quickeventEditModalBuilder');
 const { isCurrentUserIsAdmin } = require('@utils/helpers');
 
@@ -9,15 +10,8 @@ module.exports = {
 		try {
 			const currentEvent = await _eventRepository.findById(interaction.message.id);
 
-			if (!currentEvent) {
-				await interaction.reply({ content: 'Événement introuvable.', ephemeral: true });
-				return;
-			}
-
-			if (!isCurrentUserIsAdmin(interaction.user.id, currentEvent.user_id)) {
-				await interaction.reply({ content: 'Vous n\'avez pas les droits sur cet événement.', ephemeral: true });
-				return;
-			}
+			if (!currentEvent) throw _errorService.createError(ErrorCodes.EVENT_NOT_FOUND);
+			if (!isCurrentUserIsAdmin(interaction.user.id, currentEvent.user_id)) throw _errorService.createError(ErrorCodes.UNAUTHORIZED);
 
 			const modal = getQuickeventEditModal(
 				currentEvent,
@@ -27,11 +21,7 @@ module.exports = {
 			await interaction.showModal(modal);
 		}
 		catch (error) {
-			console.error('Erreur lors de l\'affichage du modal :', error);
-
-			if (!interaction.replied && !interaction.deferred) {
-				await interaction.reply({ content: 'Impossible d\'afficher le formulaire de modification.', ephemeral: true });
-			}
+			_errorService.reply(interaction, error)
 		}
 	},
 };

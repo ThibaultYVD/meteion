@@ -6,7 +6,7 @@ const { AppError, ErrorCodes, _errorService } = require('../../../Application/se
 
 describe('ErrorService', () => {
 	beforeEach(() => {
-		jest.spyOn(console, 'error').mockImplementation(() => {});
+		jest.spyOn(console, 'error').mockImplementation(() => { });
 	});
 
 	describe('AppError', () => {
@@ -30,13 +30,6 @@ describe('ErrorService', () => {
 		it('should return AppError instances unchanged', () => {
 			const original = new AppError('DATE_IN_PAST');
 			expect(_errorService.normalize(original)).toBe(original);
-		});
-
-		it('should wrap a known error message in an AppError', () => {
-			const raw = new Error('DATE_IN_PAST');
-			const result = _errorService.normalize(raw);
-			expect(result).toBeInstanceOf(AppError);
-			expect(result.code).toBe('DATE_IN_PAST');
 		});
 
 		it('should wrap an unknown error as UNKNOWN AppError', () => {
@@ -85,9 +78,8 @@ describe('ErrorService', () => {
 				replied: false,
 				reply: jest.fn().mockResolvedValue({}),
 			};
-			const mockClient = { i18next: { t: jest.fn().mockReturnValue('Erreur') } };
 
-			await _errorService.reply(mockInteraction, mockClient, new Error('DATE_IN_PAST'));
+			await _errorService.reply(mockInteraction, new Error('DATE_IN_PAST'));
 
 			expect(mockInteraction.reply).toHaveBeenCalledWith(
 				expect.objectContaining({ ephemeral: true }),
@@ -100,9 +92,8 @@ describe('ErrorService', () => {
 				replied: false,
 				followUp: jest.fn().mockResolvedValue({}),
 			};
-			const mockClient = { i18next: { t: jest.fn().mockReturnValue('Erreur') } };
 
-			await _errorService.reply(mockInteraction, mockClient, new Error('UNKNOWN'));
+			await _errorService.reply(mockInteraction, new Error('UNKNOWN'));
 
 			expect(mockInteraction.followUp).toHaveBeenCalled();
 		});

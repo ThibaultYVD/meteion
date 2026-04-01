@@ -1,7 +1,7 @@
 const { SlashCommandBuilder } = require('discord.js');
 const { _interactionService, _dateTimeService, _eventService } = require('@services');
+const { _errorService, ErrorCodes } = require('@services/ErrorService');
 const { createEventEmbed, getEventEmbedRows } = require('@embeds/quickeventEmbedBuilder');
-const { _errorService } = require('@services/ErrorService');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -29,7 +29,7 @@ module.exports = {
 
 			const parsedDate = _dateTimeService.parseNaturalDate(options.getString('datetime'));
 			if (!parsedDate) {
-				throw new Error("INVALID_NATURAL_DATE_PARSE");
+				throw _errorService.createError(ErrorCodes.INVALID_NATURAL_DATE_PARSE);
 			}
 
 			await interaction.deferReply();
@@ -59,7 +59,7 @@ module.exports = {
 			await _eventService.persistEvent({ reply, interaction, metadata, epochTimestamp, discordEventId });
 		}
 		catch (error) {
-			await _errorService.reply(interaction, client, error);
+			await _errorService.reply(interaction, error);
 		}
 	},
 };
