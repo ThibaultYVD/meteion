@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
+const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -22,16 +22,6 @@ module.exports = {
 				iconURL: interaction.client.user.displayAvatarURL({ dynamic: true }),
 			});
 
-		// Créer le bouton
-		const button = new ButtonBuilder()
-			.setLabel('Discord')
-			.setStyle(ButtonStyle.Link)
-			.setURL('https://discord.gg/edY9fb7Dk8');
-
-		// Ajouter le bouton à un ActionRow
-		const row = new ActionRowBuilder().addComponents(button);
-
-		// Répondre avec l'embed et le bouton
-		await interaction.reply({ embeds: [embed], components: [row], ephemeral: true });
+		await interaction.reply({ embeds: [embed], ephemeral: true });
 	},
 };

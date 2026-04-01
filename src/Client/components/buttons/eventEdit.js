@@ -1,5 +1,6 @@
 const { _eventRepository } = require("@repositories");
 const { _dateTimeService } = require("@services");
+const { _errorService, ErrorCodes } = require('@services/ErrorService');
 const { getEventEditModal } = require("@modals/builders/eventEditModalBuilder");
 const { isCurrentUserIsAdmin } = require("@utils/helpers");
 
@@ -7,31 +8,10 @@ module.exports = {
   customId: "eventEdit",
   async execute(interaction) {
     try {
-      const currentEvent = await _eventRepository.findById(
-        interaction.message.id,
-      );
+      const currentEvent = await _eventRepository.findById(interaction.message.id);
 
-      if (!currentEvent) {
-        if (!interaction.replied && !interaction.deferred) {
-          await interaction.reply({
-            content: "Événement introuvable.",
-            ephemeral: true,
-          });
-        }
-        return;
-      }
-
-      if (
-        !isCurrentUserIsAdmin(interaction.user.id, currentEvent.user_id) &&
-        !interaction.replied &&
-        !interaction.deferred
-      ) {
-        await interaction.reply({
-          content: "Vous n'avez pas les droits sur cet événement.",
-          ephemeral: true,
-        });
-        return;
-      }
+      if (!currentEvent) throw _errorService.createError(ErrorCodes.EVENT_NOT_FOUND);
+      if (!isCurrentUserIsAdmin(interaction.user.id, currentEvent.user_id)) throw _errorService.createError(ErrorCodes.UNAUTHORIZED);
 
       const currentDate = _dateTimeService.getCurrentDate();
       const currentHour = _dateTimeService.getCurrentHour();
@@ -39,14 +19,7 @@ module.exports = {
       const modal = getEventEditModal(currentEvent, currentDate, currentHour);
       await interaction.showModal(modal);
     } catch (error) {
-      console.error("Erreur lors de l'affichage du modal :", error);
-
-      if (!interaction.replied && !interaction.deferred) {
-        return await interaction.reply({
-          content: "Impossible d'afficher le formulaire de modification.",
-          ephemeral: true,
-        });
-      }
+      _errorService.reply(interaction, error)
     }
   },
 };

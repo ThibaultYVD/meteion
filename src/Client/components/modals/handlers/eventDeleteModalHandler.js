@@ -14,15 +14,12 @@ module.exports = {
 			}
 
 			const eventId = interaction.message.id;
-
 			const event = await _eventService.cancelEvent(eventId, interaction.guild);
 
-			// Supprime le message de rappel (s'il existe)
 			if (event.remember_message_id) {
 				await interaction.channel.messages.delete(event.remember_message_id);
 			}
 
-			// Supprime le message de l'événement
 			await interaction.channel.messages.delete(eventId);
 			await interaction.deferUpdate();
 		}

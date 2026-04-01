@@ -46,7 +46,7 @@ module.exports = {
 			});
 		}
 		catch (error) {
-			await _errorService.reply(interaction, client, error);
+			await _errorService.reply(interaction, error);
 		}
 	},
 };

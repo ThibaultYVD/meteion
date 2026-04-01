@@ -21,7 +21,10 @@ class AppError extends Error {
 const ErrorCodes = {
   INVALID_DATE_FORMAT: "INVALID_DATE_FORMAT",
   INVALID_DATE_PARSE: "INVALID_DATE_PARSE",
+  INVALID_NATURAL_DATE_PARSE: "INVALID_NATURAL_DATE_PARSE",
   DATE_IN_PAST: "DATE_IN_PAST",
+  EVENT_NOT_FOUND: "EVENT_NOT_FOUND",
+  UNAUTHORIZED: "UNAUTHORIZED",
   UNKNOWN: "UNKNOWN",
 };
 
@@ -30,11 +33,17 @@ const errorCatalog = {
   [ErrorCodes.INVALID_DATE_FORMAT]:
     "Format de date/heure invalide. Merci de respecter le format.",
   [ErrorCodes.INVALID_DATE_PARSE]:
-    "Impossible d’analyser la date/heure. Vérifie le format.",
+    "Impossible d’analyser la date/heure. Vérifiez le format.",
+  [ErrorCodes.INVALID_NATURAL_DATE_PARSE]:
+    "Le langage naturel pour la date est invalide.\nExemples fonctionnels :\n- \"demain à 21h\"\n- \"dans 2h\"\n- \"Lundi prochain à 15h\".",
   [ErrorCodes.DATE_IN_PAST]:
     "La date/heure doit être supérieur à la date/heure actuelle.",
+  [ErrorCodes.EVENT_NOT_FOUND]:
+    "Evénement introuvable. Merci de réessayer plus tard ou de contacter le développeur (@sorasilver_) si l'erreur persiste.",
+  [ErrorCodes.UNAUTHORIZED]:
+    "Vous ne pouvez pas modifier cet événement.",
   [ErrorCodes.UNKNOWN]:
-    "Une erreur est survenue. Merci de réessayer plus tard.",
+    "Une erreur est survenue. Merci de réessayer plus tard ou de contacter le développeur (@sorasilver_) si l'erreur persiste.",
 };
 
 /**
@@ -42,10 +51,6 @@ const errorCatalog = {
  */
 function normalize(error) {
   if (error instanceof AppError) return error;
-
-  if (error?.message && errorCatalog[error.message]) {
-    return new AppError(error.message, error.stack || error.message);
-  }
 
   return new AppError(ErrorCodes.UNKNOWN, error?.stack || String(error));
 }
@@ -71,16 +76,19 @@ function toUserMessage(error, client) {
 /**
  * Répond à l’utilisateur proprement (reply ou followUp selon l’état)
  */
-async function reply(interaction, client, rawError, { ephemeral = true } = {}) {
+async function reply(interaction, rawError, { ephemeral = true } = {}) {
+  const client = interaction.client
   const error = normalize(rawError);
   const userMessage = toUserMessage(error, client);
 
   // Log côté serveur/dev
-  console.error(
-    `[${error.code}]`,
-    error.meta ?? {},
-    error.stack ?? error.message,
-  );
+  if (error.code == "EVENT_NOT_FOUND" || error.code == "UNKNOWN") {
+    console.error(
+      `[${error.code}]`,
+      error.meta ?? {},
+      error.stack ?? error.message,
+    );
+  }
 
   const embed = getErrorEmbed(client, `**${userMessage}**`);
 
