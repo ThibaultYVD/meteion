@@ -43,5 +43,6 @@ const rest = new REST().setToken(process.env.TOKEN);
 	catch (error) {
 		console.error(error);
 		process.exit(1)
+
 	}
 })();
