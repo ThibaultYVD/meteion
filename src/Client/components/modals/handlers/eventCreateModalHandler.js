@@ -1,4 +1,4 @@
-const crypto = require('crypto');
+const crypto = require('node:crypto');
 const { _eventService } = require('@services');
 const { _eventImageRepository } = require('@repositories');
 const { createEventEmbed, getEventEmbedRows } = require('@embeds/eventEmbedBuilder');
