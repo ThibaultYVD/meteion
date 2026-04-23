@@ -28,6 +28,7 @@ jobs:
           TOKEN: ${{ secrets.TOKEN }}
           CLIENT_ID: ${{ secrets.CLIENT_ID }}
           SUPERADMIN1: ${{ secrets.SUPERADMIN1 }}
+          IMAGE_BASE_URL: ${{ secrets.IMAGE_BASE_URL }}
         run: |
           docker pull thibaultyvd/meteion:production
           docker compose -p meteion-prod -f docker-compose.yml down

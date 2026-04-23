@@ -10,6 +10,7 @@ services:
       - DB_NAME
       - TOKEN
       - CLIENT_ID
+      - IMAGE_BASE_URL
       - TZ=Europe/Paris
       - NODE_ENV=production
     container_name: meteion
@@ -25,6 +26,8 @@ services:
       timeout: 5s
       retries: 5
       start_period: 30s
+    networks:
+      - npm-network
 
   database:
     image: mysql:8.0
@@ -39,6 +42,10 @@ services:
     volumes:
       - db_data_production:/var/lib/mysql
       - ./scripts/init.sql:/docker-entrypoint-initdb.d/init.sql
+
+networks:
+  npm-network:
+    external: true
 
 volumes:
   db_data_production:

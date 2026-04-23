@@ -22,7 +22,7 @@ const commandFolders = fs.readdirSync(foldersPath);
 
 const db = require('@models');
 
-db.sequelize.sync();
+db.sequelize.sync({ alter: process.env.APP_ENV === 'local' });
 
 for (const folder of commandFolders) {
 	const commandsPath = path.join(foldersPath, folder);

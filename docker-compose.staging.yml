@@ -9,6 +9,7 @@ services:
       - DB_PORT=3306
       - TOKEN
       - CLIENT_ID
+      - IMAGE_BASE_URL
       - TZ=Europe/Paris
       - NODE_ENV=staging
     container_name: meteion_staging
@@ -24,6 +25,8 @@ services:
       timeout: 5s
       retries: 5
       start_period: 30s
+    networks:
+      - npm-network
 
   database:
     container_name: meteion_db_staging
@@ -39,6 +42,10 @@ services:
     volumes:
       - db_data_staging:/var/lib/mysql
       - ./scripts/init_staging.sql:/docker-entrypoint-initdb.d/init_staging.sql
+
+networks:
+  npm-network:
+    external: true
 
 volumes:
   db_data_staging:

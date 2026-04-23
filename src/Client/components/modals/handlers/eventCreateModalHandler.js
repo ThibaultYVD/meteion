@@ -1,6 +1,9 @@
+const crypto = require('node:crypto');
 const { _eventService } = require('@services');
+const { _eventImageRepository } = require('@repositories');
 const { createEventEmbed, getEventEmbedRows } = require('@embeds/eventEmbedBuilder');
 const { _errorService } = require('@services/ErrorService');
+const pendingImages = require('@utils/pendingImages');
 
 module.exports = {
 	customId: 'eventCreationModal',
@@ -15,6 +18,27 @@ module.exports = {
 			const place = interaction.fields.getTextInputValue('eventPlace') || client.i18next.t('event.info.bot.not_specified_location');
 			const username = interaction.member.nickname || interaction.user.globalName;
 
+			const pendingImage = pendingImages.get(interaction.user.id);
+			pendingImages.delete(interaction.user.id);
+
+			let imageId = null;
+			let imageUrl = null;
+			let imageBuffer = null;
+
+			if (pendingImage) {
+				const response = await fetch(pendingImage.url);
+				imageBuffer = Buffer.from(await response.arrayBuffer());
+				imageId = crypto.randomUUID();
+				await _eventImageRepository.create({
+					image_id: imageId,
+					image_data: imageBuffer,
+					image_name: pendingImage.name,
+					image_type: pendingImage.contentType,
+					created_at: new Date(),
+				});
+				imageUrl = `${process.env.IMAGE_BASE_URL}/v1/images/${imageId}`;
+			}
+
 			const {
 				epochTimestamp,
 				discordEventId,
@@ -26,9 +50,10 @@ module.exports = {
 				date,
 				hour,
 				place,
+				imageBuffer,
 			});
 
-			const embed = createEventEmbed(client, interaction, username, title, description, place, epochTimestamp);
+			const embed = createEventEmbed(client, interaction, username, title, description, place, epochTimestamp, imageUrl);
 			const rows = getEventEmbedRows(client);
 
 			const reply = await interaction.reply({
@@ -43,6 +68,7 @@ module.exports = {
 				metadata,
 				epochTimestamp,
 				discordEventId,
+				imageId,
 			});
 		}
 		catch (error) {

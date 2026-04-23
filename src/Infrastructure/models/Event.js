@@ -53,6 +53,10 @@ module.exports = (sequelize, Sequelize) => {
 			type: Sequelize.STRING,
 			allowNull: true,
 		},
+		event_image_id: {
+			type: Sequelize.STRING,
+			allowNull: true,
+		},
 		created_at: {
 			type: Sequelize.DATE,
 			allowNull: false,
