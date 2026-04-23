@@ -149,6 +149,7 @@ describe("EventService", () => {
         created_at: expect.any(Date),
         edited_at: expect.any(Date),
         discord_event_id: mockDiscordEventId,
+        event_image_id: null,
       });
 
       expect(mockGuildRepository.update).toHaveBeenCalledWith("guild-123", {

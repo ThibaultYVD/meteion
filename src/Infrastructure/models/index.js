@@ -31,6 +31,7 @@ db.User = require('./User.js')(sequelize, Sequelize);
 db.GuildMember = require('./GuildMember.js')(sequelize, Sequelize);
 db.GuildSetting = require('./GuildSetting.js')(sequelize, Sequelize);
 db.Event = require('./Event.js')(sequelize, Sequelize);
+db.EventImage = require('./EventImage.js')(sequelize, Sequelize);
 db.Choice = require('./Choice.js')(sequelize, Sequelize);
 db.UserEventChoice = require('./UserEventChoice.js')(sequelize, Sequelize);
 

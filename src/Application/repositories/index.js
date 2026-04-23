@@ -7,6 +7,7 @@ const GuildRepository = require('@repositories/guildRepository');
 const UserRepository = require('@repositories/userRepository');
 const GuildMemberRepository = require('@repositories/guildMemberRepository');
 const EventRepository = require('@repositories/eventRepository');
+const EventImageRepository = require('@repositories/eventImageRepository');
 const ChoiceRepository = require('@repositories/choiceRepository');
 const UserEventChoiceRepository = require('@repositories/userEventChoiceRepository');
 
@@ -17,6 +18,7 @@ const _guildRepository = new GuildRepository(db.Guild);
 const _userRepository = new UserRepository(db.User);
 const _guildMemberRepository = new GuildMemberRepository(db.GuildMember);
 const _eventRepository = new EventRepository(db.Event);
+const _eventImageRepository = new EventImageRepository(db.EventImage);
 const _choiceRepository = new ChoiceRepository(db.Choice);
 const _userEventChoiceRepository = new UserEventChoiceRepository(db.UserEventChoice);
 
@@ -27,6 +29,7 @@ module.exports = {
 	_userRepository,
 	_guildMemberRepository,
 	_eventRepository,
+	_eventImageRepository,
 	_choiceRepository,
 	_userEventChoiceRepository,
 };

@@ -1,6 +1,6 @@
 const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 
-function createEventEmbed(client, interaction, username, titre, description, place, epochTimestamp) {
+function createEventEmbed(client, interaction, username, titre, description, place, epochTimestamp, imageUrl = null) {
 	const embed = new EmbedBuilder()
 		.setColor(client.color)
 		.setTitle(titre)
@@ -45,6 +45,7 @@ function createEventEmbed(client, interaction, username, titre, description, pla
 		});
 
 	if (description?.trim()) embed.setDescription(description);
+	if (imageUrl) embed.setImage(imageUrl);
 	return embed;
 }
 

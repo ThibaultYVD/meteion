@@ -8,7 +8,7 @@ class EventService {
     this.guildRepository = guildRepository;
   }
 
-  async createEvent({ interaction, title, description, date, hour, place }) {
+  async createEvent({ interaction, title, description, date, hour, place, imageBuffer = null }) {
     const { client, guild, member, user } = interaction;
     const username = member.nickname || user.globalName;
 
@@ -47,6 +47,7 @@ class EventService {
       entityType: 3,
       description: nativeDiscordEventDescription,
       entityMetadata: { location: place },
+      image: imageBuffer ?? undefined,
     });
 
     return {
@@ -69,6 +70,7 @@ class EventService {
     metadata,
     epochTimestamp,
     discordEventId,
+    imageId = null,
   }) {
     const { title, description, date, hour, place } = metadata;
 
@@ -87,6 +89,7 @@ class EventService {
       created_at: new Date(),
       edited_at: new Date(),
       discord_event_id: discordEventId,
+      event_image_id: imageId,
     });
 
     await this.guildRepository.update(reply.guildId, { last_interaction: new Date() });
