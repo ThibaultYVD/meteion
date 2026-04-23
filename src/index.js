@@ -4,6 +4,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { Client, Collection, GatewayIntentBits } = require('discord.js');
 const i18next = require('./locales/config/i18n');
+const { startServer } = require('@api/index');
 
 // Create a new client instance
 const client = new Client({
@@ -60,7 +61,16 @@ for (const file of eventFiles) {
 	}
 }
 
-client.login(process.env.TOKEN);
+(async () => {
+	const app = await startServer({ client });
+	const port = Number(process.env.HTTP_PORT || 3000);
+	await app.listen({ port, host: '0.0.0.0' });
+	client.http = app;
+	console.log(`🌐 API écoute sur http://localhost:${port}`);
+
+	await client.login(process.env.TOKEN);
+})().catch(console.error);
+
 // Handles errors and avoids crashes, better to not remove them.
 process.on('unhandledRejection', console.error);
 process.on('uncaughtException', console.error);
