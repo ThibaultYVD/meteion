@@ -23,6 +23,7 @@ jobs:
           DB_USER: ${{ secrets.STAGING_DB_USER }}
           DB_PASSWORD: ${{ secrets.STAGING_DB_PASSWORD }}
           MYSQL_ROOT_PASSWORD: ${{ secrets.STAGING_DB_PASSWORD }}
+          MYSQL_PASSWORD: ${{ secrets.STAGING_DB_PASSWORD }}
           DB_NAME: ${{ secrets.STAGING_DB_NAME }}
           TOKEN: ${{ secrets.STAGING_TOKEN }}
           CLIENT_ID: ${{ secrets.STAGING_CLIENT_ID }}

@@ -36,6 +36,7 @@ services:
       - MYSQL_ROOT_PASSWORD
       - MYSQL_DATABASE=meteion_db_staging
       - MYSQL_USER=meteion
+      - MYSQL_PASSWORD
       - TZ=Europe/Paris
     image: mysql:8.0
     restart: always
