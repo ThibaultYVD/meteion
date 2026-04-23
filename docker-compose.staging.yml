@@ -18,7 +18,8 @@ services:
     ports:
       - "20221:3000"
     depends_on:
-      - database
+      database: 
+        condition: service_healthy
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://localhost:3000/health"]
       interval: 10s
@@ -27,6 +28,7 @@ services:
       start_period: 30s
     networks:
       - npm-network
+      - meteion-staging-net
 
   database:
     container_name: meteion_db_staging
@@ -42,10 +44,20 @@ services:
     volumes:
       - db_data_staging:/var/lib/mysql
       - ./scripts/init_staging.sql:/docker-entrypoint-initdb.d/init_staging.sql
+    healthcheck:                                                                                                       
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "--silent"]                                               
+      interval: 10s                                                                                                    
+      timeout: 5s                                                                                                      
+      retries: 6                                                                                                       
+      start_period: 30s                                                                                                
+    networks:                                                                                                          
+      - meteion-staging-net
 
 networks:
   npm-network:
     external: true
+  meteion-staging-net:                                                                                                    
+    driver: bridge
 
 volumes:
   db_data_staging:

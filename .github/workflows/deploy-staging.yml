@@ -31,7 +31,7 @@ jobs:
         run: |
           docker pull thibaultyvd/meteion:staging
           docker compose -p meteion-staging -f docker-compose.staging.yml down
-          docker compose -p meteion-staging -f docker-compose.staging.yml up -d
+          docker compose -p meteion-staging -f docker-compose.staging.yml up -d --wait
           docker image prune -f
 
       - name: Run Sequelize Migrations (Staging)

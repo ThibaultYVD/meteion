@@ -32,7 +32,7 @@ jobs:
         run: |
           docker pull thibaultyvd/meteion:production
           docker compose -p meteion-prod -f docker-compose.yml down
-          docker compose -p meteion-prod -f docker-compose.yml up -d
+          docker compose -p meteion-prod -f docker-compose.yml up -d --wait
           docker image prune -f
 
       - name: Run Sequelize Migrations (Production)
