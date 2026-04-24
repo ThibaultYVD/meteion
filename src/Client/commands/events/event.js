@@ -2,6 +2,7 @@ const { SlashCommandBuilder } = require('discord.js');
 const { _interactionService } = require('@services');
 const { getEventCreationModal } = require('@modals/builders/eventCreateModalBuilder');
 const pendingImages = require('@utils/pendingImages');
+const pendingEventData = require('@utils/pendingEventData');
 
 const MAX_IMAGE_SIZE = 8 * 1024 * 1024;
 
@@ -45,7 +46,8 @@ module.exports = {
 				});
 			}
 
-			const modal = getEventCreationModal();
+			const prefillData = pendingEventData.get(user.id) ?? null;
+			const modal = getEventCreationModal(prefillData);
 			await interaction.showModal(modal);
 		}
 		catch (error) {

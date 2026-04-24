@@ -4,6 +4,7 @@ const { _eventImageRepository } = require('@repositories');
 const { createEventEmbed, getEventEmbedRows } = require('@embeds/eventEmbedBuilder');
 const { _errorService } = require('@services/ErrorService');
 const pendingImages = require('@utils/pendingImages');
+const pendingEventData = require('@utils/pendingEventData');
 
 module.exports = {
 	customId: 'eventCreationModal',
@@ -16,6 +17,8 @@ module.exports = {
 			const date = interaction.fields.getTextInputValue('eventDate');
 			const hour = interaction.fields.getTextInputValue('eventHour');
 			const place = interaction.fields.getTextInputValue('eventPlace') || client.i18next.t('event.info.bot.not_specified_location');
+
+			pendingEventData.delete(interaction.user.id);
 			const username = interaction.member.nickname || interaction.user.globalName;
 
 			const pendingImage = pendingImages.get(interaction.user.id);
@@ -72,6 +75,13 @@ module.exports = {
 			});
 		}
 		catch (error) {
+			pendingEventData.set(interaction.user.id, {
+				title: interaction.fields.getTextInputValue('eventTitle'),
+				description: interaction.fields.getTextInputValue('eventDesc'),
+				date: interaction.fields.getTextInputValue('eventDate'),
+				hour: interaction.fields.getTextInputValue('eventHour'),
+				place: interaction.fields.getTextInputValue('eventPlace'),
+			});
 			await _errorService.reply(interaction, error);
 		}
 	},
