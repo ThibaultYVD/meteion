@@ -15,7 +15,7 @@ module.exports = {
 			await interaction.showModal(modal);
 		}
 		catch (error) {
-			_errorService.reply(interaction, error)
+			await _errorService.reply(interaction, error);
 		}
 	},
 };

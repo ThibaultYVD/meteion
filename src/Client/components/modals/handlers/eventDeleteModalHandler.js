@@ -1,4 +1,5 @@
 const { _eventService } = require('@services');
+const { _errorService } = require('@services/ErrorService');
 
 module.exports = {
 	customId: 'eventDeleteModal',
@@ -9,9 +10,11 @@ module.exports = {
 			if (value.toLowerCase() !== 'annuler') {
 				return interaction.reply({
 					content: 'La validation a échouée. Merci d\'entrer "annuler" pour supprimer cet événement.',
-					ephemeral: true,
+					flags: 64,
 				});
 			}
+
+			await interaction.deferUpdate();
 
 			const eventId = interaction.message.id;
 			const event = await _eventService.cancelEvent(eventId, interaction.guild);
@@ -21,10 +24,9 @@ module.exports = {
 			}
 
 			await interaction.channel.messages.delete(eventId);
-			await interaction.deferUpdate();
 		}
 		catch (error) {
-			console.error(error);
+			await _errorService.reply(interaction, error);
 		}
 	},
 };
