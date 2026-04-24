@@ -13,6 +13,8 @@ module.exports = {
 		const place = fields.getTextInputValue('eventPlace') || 'Non renseigné';
 
 		try {
+			await interaction.deferUpdate();
+
 			await _eventService.updateEvent({
 				message,
 				guild,
@@ -23,8 +25,6 @@ module.exports = {
 				hour,
 				place,
 			});
-
-			await interaction.deferUpdate();
 		}
 		catch (error) {
 			await _errorService.reply(interaction, error);
