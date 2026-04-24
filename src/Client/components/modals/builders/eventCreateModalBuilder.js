@@ -1,7 +1,7 @@
 const { ActionRowBuilder, ModalBuilder, TextInputBuilder, TextInputStyle } = require('discord.js');
 const { _dateTimeService } = require('@services');
 
-function getEventCreationModal() {
+function getEventCreationModal(prefillData = null) {
 	const isDev = process.env.APP_ENV === 'local';
 
 	const modal = new ModalBuilder()
@@ -18,7 +18,8 @@ function getEventCreationModal() {
 		.setMaxLength(100)
 		.setRequired(true);
 
-	if (isDev) eventTitleInput.setValue('Exemple titre');
+	if (prefillData?.title) eventTitleInput.setValue(prefillData.title);
+	else if (isDev) eventTitleInput.setValue('Exemple titre');
 
 	const eventDescInput = new TextInputBuilder()
 		.setCustomId('eventDesc')
@@ -27,7 +28,8 @@ function getEventCreationModal() {
 		.setRequired(false)
 		.setStyle(TextInputStyle.Paragraph);
 
-	if (isDev) eventDescInput.setValue('Exemple description');
+	if (prefillData?.description) eventDescInput.setValue(prefillData.description);
+	else if (isDev) eventDescInput.setValue('Exemple description');
 
 	const dateInput = new TextInputBuilder()
 		.setCustomId('eventDate')
@@ -37,7 +39,8 @@ function getEventCreationModal() {
 		.setMaxLength(10)
 		.setRequired(true);
 
-	if (isDev) dateInput.setValue(currentDate);
+	if (prefillData?.date) dateInput.setValue(prefillData.date);
+	else if (isDev) dateInput.setValue(currentDate);
 
 	const hourInput = new TextInputBuilder()
 		.setCustomId('eventHour')
@@ -47,7 +50,8 @@ function getEventCreationModal() {
 		.setMaxLength(5)
 		.setRequired(true);
 
-	if (isDev) hourInput.setValue(currentHour);
+	if (prefillData?.hour) hourInput.setValue(prefillData.hour);
+	else if (isDev) hourInput.setValue(currentHour);
 
 	const eventPlaceInput = new TextInputBuilder()
 		.setCustomId('eventPlace')
@@ -56,7 +60,8 @@ function getEventCreationModal() {
 		.setStyle(TextInputStyle.Short)
 		.setRequired(false);
 
-	if (isDev) eventPlaceInput.setValue('Exemple Lieu de rassemblement');
+	if (prefillData?.place) eventPlaceInput.setValue(prefillData.place);
+	else if (isDev) eventPlaceInput.setValue('Exemple Lieu de rassemblement');
 
 	modal.addComponents(
 		new ActionRowBuilder().addComponents(eventTitleInput),
