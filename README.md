@@ -7,7 +7,7 @@ Météion is a NodeJs app with the DiscordJs module. This application is used to
 ### Prérequis
 
 - Node.js ≥ 18
-- Une instance MySQL accessible
+- Docker
 - Un bot Discord créé sur le [Discord Developer Portal](https://discord.com/developers/applications)
 
 ### 1. Configurer l'environnement
@@ -23,26 +23,23 @@ Remplir les variables dans `.env` :
 | `TOKEN` | Token du bot Discord |
 | `CLIENT_ID` | ID de l'application Discord |
 | `GUILD_ID` | ID du serveur Discord de développement |
-| `DB_HOST` | Hôte MySQL (ex: `localhost`) |
-| `DB_USER` | Utilisateur MySQL |
-| `DB_PASSWORD` | Mot de passe MySQL |
-| `DB_NAME` | Nom de la base de données |
 | `APP_ENV` | Mettre `local` pour désactiver les gardes de production |
 | `SUPERADMIN1` | (Optionnel) ID Discord d'un super-admin |
-| `IMAGE_BASE_URL` | URL publique du serveur Fastify — requis pour afficher les images dans les embeds (voir ci-dessous) |
+| `IMAGE_BASE_URL` | (Optionnel) URL publique du serveur Fastify — requis pour afficher les images dans les embeds (voir ci-dessous) |
+
+> Les variables `DB_*` ne sont **pas** nécessaires en local : le script de démarrage configure automatiquement une base MySQL via Docker (`root` / `localdev` / `meteion_local`).
 
 ### 2. Inviter le bot sur le serveur
 
 Sur le Discord Developer Portal, générer un lien OAuth2 en cochant les scopes **`bot`** et **`applications.commands`**, avec les permissions nécessaires.
 
-### 3. Installer les dépendances et migrer la base
+### 3. Installer les dépendances
 
 ```bash
 npm install
-npx sequelize-cli db:migrate
 ```
 
-### 4. Exposer le serveur Fastify (requis pour les images)
+### 4. Exposer le serveur Fastify (optionnel — requis pour les images)
 
 Le bot embarque un serveur Fastify qui sert les images uploadées. Discord doit pouvoir y accéder — en local, il faut un tunnel public. [localtunnel](https://theboroer.github.io/localtunnel-www/) est recommandé (pas d'interstitiel, gratuit) :
 
@@ -56,15 +53,21 @@ Copier l'URL générée (ex: `https://xxxx.loca.lt`) dans `.env` :
 IMAGE_BASE_URL=https://xxxx.loca.lt
 ```
 
-> L'URL change à chaque démarrage de localtunnel. En production, `IMAGE_BASE_URL` est l'URL fixe du serveur.
+> L'URL change à chaque démarrage de localtunnel. En production, `IMAGE_BASE_URL` est l'URL fixe du serveur. Sans cette variable, les événements fonctionnent normalement mais sans image d'illustration.
 
 ### 5. Démarrer
 
+> **Windows** : les commandes `make` doivent être exécutées depuis un terminal **WSL** (ex: `wsl` dans le répertoire du projet).
+
 ```bash
-npm run dev
+make dev
 ```
 
-Le bot se relance automatiquement à chaque modification dans `src/`. Le lint est exécuté avant chaque redémarrage.
+Cette commande :
+1. Démarre un conteneur MySQL via Docker Compose
+2. Attend que la base soit prête
+3. Synchronise le schéma Sequelize
+4. Lance le bot en mode watch (`nodemon`) — il se relance automatiquement à chaque modification dans `src/`, après exécution du lint
 
 ---
 
