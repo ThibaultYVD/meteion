@@ -16,25 +16,43 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      - name: Copy docker-compose to server
+        uses: appleboy/scp-action@ff85246acaad7bdce478db94a363cd2bf7c90345 # v1.0.0
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          source: "docker-compose.staging.yml"
+          target: "~/deployments/meteion-staging"
+
       - name: Deploy Staging
+        uses: appleboy/ssh-action@0ff4204d59e8e51228ff73bce53f80d53301dee2 # v1.2.5
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          envs: APP_ENV,DB_USER,DB_PASSWORD,DB_NAME,TOKEN,CLIENT_ID,SUPERADMIN1,IMAGE_BASE_URL
+          script: |
+            cd ~/deployments/meteion-staging
+            docker pull thibaultyvd/meteion:staging
+            docker compose -p meteion-staging -f docker-compose.staging.yml down
+            docker compose -p meteion-staging -f docker-compose.staging.yml up -d
+            docker image prune -f
         env:
           APP_ENV: ${{ secrets.APP_ENV_STAGING }}
-          DB_HOST: database
           DB_USER: ${{ secrets.STAGING_DB_USER }}
           DB_PASSWORD: ${{ secrets.STAGING_DB_PASSWORD }}
-          MYSQL_ROOT_PASSWORD: ${{ secrets.STAGING_DB_PASSWORD }}
-          MYSQL_PASSWORD: ${{ secrets.STAGING_DB_PASSWORD }}
           DB_NAME: ${{ secrets.STAGING_DB_NAME }}
           TOKEN: ${{ secrets.STAGING_TOKEN }}
           CLIENT_ID: ${{ secrets.STAGING_CLIENT_ID }}
           SUPERADMIN1: ${{ secrets.SUPERADMIN1 }}
           IMAGE_BASE_URL: ${{ secrets.STAGING_IMAGE_BASE_URL }}
-        run: |
-          docker pull thibaultyvd/meteion:staging
-          docker compose -p meteion-staging -f docker-compose.staging.yml down
-          docker compose -p meteion-staging -f docker-compose.staging.yml up -d
-          docker image prune -f
 
       - name: Run Sequelize Migrations (Staging)
-        run: |
-          docker exec meteion_staging npx sequelize-cli db:migrate --env staging
+        uses: appleboy/ssh-action@0ff4204d59e8e51228ff73bce53f80d53301dee2 # v1.2.5
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          script: |
+            docker exec meteion_staging npx sequelize-cli db:migrate --env staging
