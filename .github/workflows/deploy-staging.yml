@@ -16,38 +16,43 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      - name: Copy docker-compose to server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          source: "docker-compose.staging.yml"
+          target: "~/deployments/meteion-staging"
+
       - name: Deploy Staging
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.DEPLOY_SSH_KEY }}" > ~/.ssh/deploy_key
-          chmod 600 ~/.ssh/deploy_key
-          
-          # Copier le docker-compose sur ubuntu-docker
-          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} \
-            "mkdir -p ~/deployments/meteion-staging"
-          scp -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no \
-            docker-compose.staging.yml \
-            ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}:~/deployments/meteion-staging/
-          
-          # Déployer via SSH
-          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} "
-            cd ~/deployments/meteion-staging &&
-            docker pull thibaultyvd/meteion:staging &&
-            APP_ENV='${{ secrets.APP_ENV_STAGING }}' \
-            DB_USER='${{ secrets.STAGING_DB_USER }}' \
-            DB_PASSWORD='${{ secrets.STAGING_DB_PASSWORD }}' \
-            MYSQL_ROOT_PASSWORD='${{ secrets.STAGING_DB_PASSWORD }}' \
-            MYSQL_PASSWORD='${{ secrets.STAGING_DB_PASSWORD }}' \
-            DB_NAME='${{ secrets.STAGING_DB_NAME }}' \
-            TOKEN='${{ secrets.STAGING_TOKEN }}' \
-            CLIENT_ID='${{ secrets.STAGING_CLIENT_ID }}' \
-            IMAGE_BASE_URL='${{ secrets.STAGING_IMAGE_BASE_URL }}' \
-            docker compose -p meteion-staging -f docker-compose.staging.yml down &&
-            docker compose -p meteion-staging -f docker-compose.staging.yml up -d &&
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          envs: APP_ENV,DB_USER,DB_PASSWORD,DB_NAME,TOKEN,CLIENT_ID,SUPERADMIN1,IMAGE_BASE_URL
+          script: |
+            cd ~/deployments/meteion-staging
+            docker pull thibaultyvd/meteion:staging
+            docker compose -p meteion-staging -f docker-compose.staging.yml down
+            docker compose -p meteion-staging -f docker-compose.staging.yml up -d
             docker image prune -f
-          "
+        env:
+          APP_ENV: ${{ secrets.APP_ENV_STAGING }}
+          DB_USER: ${{ secrets.STAGING_DB_USER }}
+          DB_PASSWORD: ${{ secrets.STAGING_DB_PASSWORD }}
+          DB_NAME: ${{ secrets.STAGING_DB_NAME }}
+          TOKEN: ${{ secrets.STAGING_TOKEN }}
+          CLIENT_ID: ${{ secrets.STAGING_CLIENT_ID }}
+          SUPERADMIN1: ${{ secrets.SUPERADMIN1 }}
+          IMAGE_BASE_URL: ${{ secrets.STAGING_IMAGE_BASE_URL }}
 
       - name: Run Sequelize Migrations (Staging)
-        run: |
-          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} \
-            "docker exec meteion_staging npx sequelize-cli db:migrate --env staging"
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          script: |
+            docker exec meteion_staging npx sequelize-cli db:migrate --env staging
